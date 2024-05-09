@@ -1,0 +1,71 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "masterchat": [
+        "./submodule/masterchat/src"
+      ],
+      "@shared/*": [
+        "shared/*"
+      ],
+      "@app/database": [
+        "libs/database/src"
+      ],
+      "@app/database/*": [
+        "libs/database/src/*"
+      ],
+      "@app/queue": [
+        "libs/queue/src"
+      ],
+      "@app/queue/*": [
+        "libs/queue/src/*"
+      ],
+      "@app/youtube": [
+        "libs/youtube/src"
+      ],
+      "@app/youtube/*": [
+        "libs/youtube/src/*"
+      ],
+      "@app/twitch": [
+        "libs/twitch/src"
+      ],
+      "@app/twitch/*": [
+        "libs/twitch/src/*"
+      ],
+      "@app/user": [
+        "libs/user/src"
+      ],
+      "@app/user/*": [
+        "libs/user/src/*"
+      ],
+      "@app/track": [
+        "libs/track/src"
+      ],
+      "@app/track/*": [
+        "libs/track/src/*"
+      ],
+      "@app/discord": [
+        "libs/discord/src"
+      ],
+      "@app/discord/*": [
+        "libs/discord/src/*"
+      ]
+    }
+  }
+}

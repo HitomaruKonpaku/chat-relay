@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/back-end/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/back-end/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/back-end",
+  "projects": {
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
+    "queue": {
+      "type": "library",
+      "root": "libs/queue",
+      "entryFile": "index",
+      "sourceRoot": "libs/queue/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/queue/tsconfig.lib.json"
+      }
+    },
+    "user": {
+      "type": "library",
+      "root": "libs/user",
+      "entryFile": "index",
+      "sourceRoot": "libs/user/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/user/tsconfig.lib.json"
+      }
+    },
+    "track": {
+      "type": "library",
+      "root": "libs/track",
+      "entryFile": "index",
+      "sourceRoot": "libs/track/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/track/tsconfig.lib.json"
+      }
+    },
+    "discord": {
+      "type": "library",
+      "root": "libs/discord",
+      "entryFile": "index",
+      "sourceRoot": "libs/discord/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/discord/tsconfig.lib.json"
+      }
+    },
+    "youtube": {
+      "type": "library",
+      "root": "libs/youtube",
+      "entryFile": "index",
+      "sourceRoot": "libs/youtube/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/youtube/tsconfig.lib.json"
+      }
+    },
+    "twitch": {
+      "type": "library",
+      "root": "libs/twitch",
+      "entryFile": "index",
+      "sourceRoot": "libs/twitch/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/twitch/tsconfig.lib.json"
+      }
+    },
+    "back-end": {
+      "type": "application",
+      "root": "apps/back-end",
+      "entryFile": "main",
+      "sourceRoot": "apps/back-end/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/back-end/tsconfig.app.json"
+      }
+    },
+    "bot": {
+      "type": "application",
+      "root": "apps/bot",
+      "entryFile": "main",
+      "sourceRoot": "apps/bot/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/bot/tsconfig.app.json"
+      }
+    },
+    "chat-mq": {
+      "type": "application",
+      "root": "apps/chat-mq",
+      "entryFile": "main",
+      "sourceRoot": "apps/chat-mq/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/chat-mq/tsconfig.app.json"
+      }
+    },
+    "youtube-channel-crawler": {
+      "type": "application",
+      "root": "apps/youtube-channel-crawler",
+      "entryFile": "main",
+      "sourceRoot": "apps/youtube-channel-crawler/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/youtube-channel-crawler/tsconfig.app.json"
+      }
+    }
+  }
+}
