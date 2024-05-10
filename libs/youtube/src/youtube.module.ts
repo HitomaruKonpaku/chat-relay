@@ -11,6 +11,7 @@ import { YoutubeVideoRepository } from './repository/youtube-video.repository'
 import { InnertubeService } from './service/innertube.service'
 import { YoutubeChatActionQueueService } from './service/queue/youtube-chat-action-queue.service'
 import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-membership-queue.service'
+import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './service/queue/youtube-chat-super-chat-queue.service'
 import { YoutubeVideoChatQueueService } from './service/queue/youtube-video-chat-queue.service'
 import { YoutubeChannelService } from './service/youtube-channel.service'
@@ -58,6 +59,7 @@ const queues = [
     YoutubeChatActionQueueService,
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
+    YoutubeChatPollQueueService,
 
     InnertubeService,
   ],
@@ -76,6 +78,7 @@ const queues = [
     YoutubeChatActionQueueService,
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
+    YoutubeChatPollQueueService,
 
     InnertubeService,
   ],

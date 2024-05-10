@@ -5,6 +5,7 @@ import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 import { YoutubeChatActionQueueService } from './queue/youtube-chat-action-queue.service'
 import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membership-queue.service'
+import { YoutubeChatPollQueueService } from './queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './queue/youtube-chat-super-chat-queue.service'
 
 @Injectable()
@@ -15,6 +16,7 @@ export class YoutubeChatService {
     private readonly youtubeChatQueueService: YoutubeChatActionQueueService,
     private readonly youtubeSuperChatQueueService: YoutubeChatSuperChatQueueService,
     private readonly youtubeChatMembershipQueueService: YoutubeChatMembershipQueueService,
+    private readonly youtubeChatPollQueueService: YoutubeChatPollQueueService,
   ) { }
 
   public async init(videoId: string) {
@@ -35,6 +37,9 @@ export class YoutubeChatService {
     const ignoreTypes = [
       'addPlaceholderItemAction',
       'addViewerEngagementMessageAction',
+      'showTooltipAction',
+      'showPanelAction',
+      'closePanelAction',
       'membershipGiftRedemptionAction',
     ]
     if (ignoreTypes.includes(action.type)) {
@@ -58,6 +63,14 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isMembershipGiftRedemptionAction(action)
     if (isMembership) {
       return this.youtubeChatMembershipQueueService.add(body)
+    }
+
+    const isPoll = false
+      || YoutubeChatUtil.isShowPollPanelActionAction(action)
+      || YoutubeChatUtil.isUpdatePollActionAction(action)
+      || YoutubeChatUtil.isAddPollResultActionAction(action)
+    if (isPoll) {
+      return this.youtubeChatPollQueueService.add(body)
     }
 
     return this.youtubeChatQueueService.add(body)

@@ -5,12 +5,15 @@ import {
   AddMembershipItemAction,
   AddMembershipMilestoneItemAction,
   AddMembershipTickerAction,
+  AddPollResultAction,
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
   Masterchat,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
+  ShowPollPanelAction,
   SuperChatColor,
+  UpdatePollAction,
 } from 'masterchat'
 import { YoutubeChatMetadata } from '../interface/youtube-chat-metadata.interface'
 
@@ -49,6 +52,18 @@ export class YoutubeChatUtil {
 
   public static isMembershipGiftRedemptionAction(action: Action): action is MembershipGiftRedemptionAction {
     return action.type === 'membershipGiftRedemptionAction'
+  }
+
+  public static isShowPollPanelActionAction(action: Action): action is ShowPollPanelAction {
+    return action.type === 'showPollPanelAction'
+  }
+
+  public static isUpdatePollActionAction(action: Action): action is UpdatePollAction {
+    return action.type === 'updatePollAction'
+  }
+
+  public static isAddPollResultActionAction(action: Action): action is AddPollResultAction {
+    return action.type === 'addPollResultAction'
   }
 
   public static getAuthorName(action: AddBannerAction | AddChatItemAction | AddSuperChatItemAction | AddMembershipMilestoneItemAction): string {
