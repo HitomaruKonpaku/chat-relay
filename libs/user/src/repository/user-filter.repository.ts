@@ -16,6 +16,16 @@ export class UserFilterRepository extends BaseRepository<UserFilter> {
     super(repository)
   }
 
+  public async findOne(filter?: Partial<Omit<UserFilter, 'onBeforeInsert' | 'onBeforeUpdate'>>) {
+    const res = await this.repository.findOne({
+      where: {
+        isActive: true,
+        ...filter,
+      },
+    })
+    return res
+  }
+
   public async add(data: Omit<UserFilter, keyof BaseEntity>) {
     await this.repository.upsert(
       this.repository.create({

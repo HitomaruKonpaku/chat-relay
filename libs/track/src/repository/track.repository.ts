@@ -17,15 +17,50 @@ export class TrackRepository extends BaseRepository<Track> {
     super(repository)
   }
 
-  public async findByAuthorId(sourceType: UserSourceType, authorId: string) {
+  public async findByHostId(
+    sourceType: UserSourceType,
+    sourceId: string,
+  ) {
+    const query = this.repository
+      .createQueryBuilder()
+      .andWhere('is_active = TRUE')
+      .andWhere('source_type = :sourceType', { sourceType })
+      .andWhere('source_id = :sourceId AND filter_id = :filterEmpty', { sourceId, filterEmpty: '' })
+    const res = await query.getMany()
+    return res
+  }
+
+  public async findByAuthorId(
+    sourceType: UserSourceType,
+    sourceId: string,
+    filterId: string = sourceId,
+  ) {
     const query = this.repository
       .createQueryBuilder()
       .andWhere('is_active = TRUE')
       .andWhere('source_type = :sourceType', { sourceType })
       .andWhere(new Brackets((qb) => {
         qb
-          .orWhere('source_id = :authorId', { authorId })
-          .orWhere('filter_id = :authorId', { authorId })
+          .orWhere('source_id = :sourceId', { sourceId })
+          .orWhere('filter_id = :filterId', { filterId })
+      }))
+    const res = await query.getMany()
+    return res
+  }
+
+  public async findByFilterAllow(
+    sourceType: UserSourceType,
+    hostId: string,
+    authorId: string,
+  ) {
+    const query = this.repository
+      .createQueryBuilder()
+      .andWhere('is_active = TRUE')
+      .andWhere('source_type = :sourceType', { sourceType })
+      .andWhere(new Brackets((qb) => {
+        qb
+          .orWhere('source_id = :sourceId AND filter_id = :filterEmpty', { sourceId: hostId, filterEmpty: '' })
+          .orWhere('filter_id = :filterId AND source_id = :sourceEmpty', { filterId: authorId, sourceEmpty: '' })
       }))
     const res = await query.getMany()
     return res

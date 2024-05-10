@@ -4,6 +4,7 @@ import { Action } from 'masterchat'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 import { YoutubeChatActionQueueService } from './queue/youtube-chat-action-queue.service'
+import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membership-queue.service'
 import { YoutubeChatSuperChatQueueService } from './queue/youtube-chat-super-chat-queue.service'
 
 @Injectable()
@@ -13,6 +14,7 @@ export class YoutubeChatService {
   constructor(
     private readonly youtubeChatQueueService: YoutubeChatActionQueueService,
     private readonly youtubeSuperChatQueueService: YoutubeChatSuperChatQueueService,
+    private readonly youtubeChatMembershipQueueService: YoutubeChatMembershipQueueService,
   ) { }
 
   public async init(videoId: string) {
@@ -25,21 +27,39 @@ export class YoutubeChatService {
   private addChatListeners(chat: YoutubeMasterchat) {
     chat.on('actions', async (actions) => {
       const queueActions = actions.filter((v: any) => v.id)
-      await Promise.allSettled((queueActions).map((action) => this.queueChatAction(chat, action)))
+      await Promise.allSettled((queueActions).map((action) => this.queueAction(chat, action)))
     })
   }
 
-  private async queueChatAction(chat: YoutubeMasterchat, action: Action) {
+  private queueAction(chat: YoutubeMasterchat, action: Action) {
+    const ignoreTypes = [
+      'addPlaceholderItemAction',
+      'addViewerEngagementMessageAction',
+      'membershipGiftRedemptionAction',
+    ]
+    if (ignoreTypes.includes(action.type)) {
+      return null
+    }
+
     const body = { ...YoutubeChatUtil.generateChatMetadata(chat), action }
+
     const isSuperChat = false
       || YoutubeChatUtil.isAddSuperChatItemAction(action)
       || YoutubeChatUtil.isAddSuperChatTickerAction(action)
-
     if (isSuperChat) {
-      await this.youtubeSuperChatQueueService.add(body)
-      return
+      return this.youtubeSuperChatQueueService.add(body)
     }
 
-    await this.youtubeChatQueueService.add(body)
+    const isMembership = false
+      || YoutubeChatUtil.isAddMembershipItemAction(action)
+      || YoutubeChatUtil.isAddMembershipTickerAction(action)
+      || YoutubeChatUtil.isAddMembershipMilestoneItemAction(action)
+      || YoutubeChatUtil.isMembershipGiftPurchaseAction(action)
+      || YoutubeChatUtil.isMembershipGiftRedemptionAction(action)
+    if (isMembership) {
+      return this.youtubeChatMembershipQueueService.add(body)
+    }
+
+    return this.youtubeChatQueueService.add(body)
   }
 }

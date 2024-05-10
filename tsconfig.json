@@ -36,6 +36,12 @@
       "@app/queue/*": [
         "libs/queue/src/*"
       ],
+      "@app/queue-board": [
+        "libs/queue-board/src"
+      ],
+      "@app/queue-board/*": [
+        "libs/queue-board/src/*"
+      ],
       "@app/youtube": [
         "libs/youtube/src"
       ],

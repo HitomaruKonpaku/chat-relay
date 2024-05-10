@@ -3,6 +3,7 @@ import { YoutubeVideoChatQueueService } from '@app/youtube'
 import { InnertubeService } from '@app/youtube/service/innertube.service'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { Logger } from '@shared/logger/logger'
+import { NumberUtil } from '@shared/util/number.util'
 import Bottleneck from 'bottleneck'
 
 @Injectable()
@@ -11,6 +12,9 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
 
   private readonly limiter = new Bottleneck({ maxConcurrent: 1 })
 
+  private delay = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_DELAY, 2) * 1000
+  private interval = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_INTERVAL, 60) * 1000
+
   constructor(
     private readonly userPoolRepository: UserPoolRepository,
     private readonly youtubeVideoChatQueueService: YoutubeVideoChatQueueService,
@@ -18,7 +22,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    setTimeout(() => this.onTick(), 2500)
+    setTimeout(() => this.onTick(), this.delay)
   }
 
   getHello(): string {
@@ -32,7 +36,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
       this.logger.error(`onTick: ${error.message}`)
     }
 
-    setTimeout(() => this.onTick(), 2 * 60 * 1000)
+    setTimeout(() => this.onTick(), this.interval)
   }
 
   public async getChannelIds() {
@@ -51,9 +55,19 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     try {
       const videos = await this.innertubeService.getChannelActiveStreams(id)
       this.logger.debug('getChannelStreams', { id, videoIds: videos.map((v) => v.id) })
-      await Promise.allSettled(videos.map((v) => this.youtubeVideoChatQueueService.add(v.id)))
+      await Promise.allSettled(videos.map((v) => this.queueVideo(v.id)))
     } catch (error) {
       this.logger.error(`getChannelStreams: ${error.message}`, null, { id })
     }
+  }
+
+  private async queueVideo(id: string) {
+    let job = await this.youtubeVideoChatQueueService.add(id)
+    const isFailed = await job.isFailed()
+    if (isFailed) {
+      await job.remove()
+    }
+    job = await this.youtubeVideoChatQueueService.add(id)
+    return job
   }
 }

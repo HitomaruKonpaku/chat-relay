@@ -3,6 +3,7 @@ import { Processor } from '@nestjs/bullmq'
 import { Inject, forwardRef } from '@nestjs/common'
 import { BaseProcessor } from '@shared/base/base.processor'
 import { Logger } from '@shared/logger/logger'
+import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
 import { Guild, TextChannel } from 'discord.js'
 import { DiscordService } from '../service/discord.service'
@@ -10,6 +11,7 @@ import { DiscordService } from '../service/discord.service'
 @Processor(DISCORD_MESSAGE_RELAY_QUEUE_NAME, {
   autorun: false,
   maxStalledCount: 100,
+  concurrency: NumberUtil.parse(process.env.DISCORD_MESSAGE_RELAY_QUEUE_CONCURRENCY, 1),
 })
 export class DiscordMessageRelayProcessor extends BaseProcessor {
   protected readonly logger = new Logger(DiscordMessageRelayProcessor.name)
@@ -26,11 +28,12 @@ export class DiscordMessageRelayProcessor extends BaseProcessor {
     const msg = await this.discordService.sendToChannel(data.channelId, data.content)
     const guild = msg.guild as Guild
     const channel = msg.channel as TextChannel
+    const padLenght = 20
     if (guild) {
-      this.log(job, `[GUILD] ${guild.id} >>> ${guild.name}`)
+      job.log(`[GUILD  ] ${guild.id.padEnd(padLenght, ' ')} >>> ${guild.name}`)
     }
     if (channel) {
-      this.log(job, `[CHANNEL] ${channel.id} >>> #${channel.name}`)
+      job.log(`[CHANNEL] ${channel.id.padEnd(padLenght, ' ')} >>> #${channel.name}`)
     }
     const res = {
       id: msg.id,

@@ -28,6 +28,15 @@
         "tsConfigPath": "libs/queue/tsconfig.lib.json"
       }
     },
+    "queue-board": {
+      "type": "library",
+      "root": "libs/queue-board",
+      "entryFile": "index",
+      "sourceRoot": "libs/queue-board/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/queue-board/tsconfig.lib.json"
+      }
+    },
     "user": {
       "type": "library",
       "root": "libs/user",

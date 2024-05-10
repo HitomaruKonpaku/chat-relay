@@ -1,6 +1,18 @@
-import { Action, AddBannerAction, AddChatItemAction, AddSuperChatItemAction, AddSuperChatTickerAction, MembershipGiftPurchaseAction, SuperChatColor } from 'masterchat'
+import {
+  Action,
+  AddBannerAction,
+  AddChatItemAction,
+  AddMembershipItemAction,
+  AddMembershipMilestoneItemAction,
+  AddMembershipTickerAction,
+  AddSuperChatItemAction,
+  AddSuperChatTickerAction,
+  Masterchat,
+  MembershipGiftPurchaseAction,
+  MembershipGiftRedemptionAction,
+  SuperChatColor,
+} from 'masterchat'
 import { YoutubeChatMetadata } from '../interface/youtube-chat-metadata.interface'
-import { YoutubeMasterchat } from '../youtube-master-chat'
 
 export class YoutubeChatUtil {
   public static isAddBannerAction(action: Action): action is AddBannerAction {
@@ -19,16 +31,32 @@ export class YoutubeChatUtil {
     return action.type === 'addSuperChatTickerAction'
   }
 
+  public static isAddMembershipItemAction(action: Action): action is AddMembershipItemAction {
+    return action.type === 'addMembershipItemAction'
+  }
+
+  public static isAddMembershipTickerAction(action: Action): action is AddMembershipTickerAction {
+    return action.type === 'addMembershipTickerAction'
+  }
+
+  public static isAddMembershipMilestoneItemAction(action: Action): action is AddMembershipMilestoneItemAction {
+    return action.type === 'addMembershipMilestoneItemAction'
+  }
+
   public static isMembershipGiftPurchaseAction(action: Action): action is MembershipGiftPurchaseAction {
     return action.type === 'membershipGiftPurchaseAction'
   }
 
-  public static getAuthorName(action: AddChatItemAction): string {
-    const s = action.authorName || action.authorChannelId
-    return s
+  public static isMembershipGiftRedemptionAction(action: Action): action is MembershipGiftRedemptionAction {
+    return action.type === 'membershipGiftRedemptionAction'
   }
 
-  public static generateChatMetadata(chat: YoutubeMasterchat) {
+  public static getAuthorName(action: AddBannerAction | AddChatItemAction | AddSuperChatItemAction | AddMembershipMilestoneItemAction): string {
+    const name = action.authorName || action.authorChannelId
+    return name
+  }
+
+  public static generateChatMetadata(chat: Masterchat) {
     const metadata: YoutubeChatMetadata = {
       channel: {
         id: chat.channelId,
