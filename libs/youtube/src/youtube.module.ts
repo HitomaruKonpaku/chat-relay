@@ -20,6 +20,7 @@ import { YoutubeVideoService } from './service/youtube-video.service'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
+  YOUTUBE_CHAT_POLL_QUEUE_NAME,
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
 } from './youtube.constant'
@@ -30,6 +31,7 @@ const queues = [
   { name: YOUTUBE_CHAT_ACTION_QUEUE_NAME },
   { name: YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_POLL_QUEUE_NAME },
 ]
 
 @Module({
