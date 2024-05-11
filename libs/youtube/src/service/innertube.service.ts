@@ -31,6 +31,10 @@ export class InnertubeService implements OnModuleInit {
 
   public async getChannelStreams(channelId: string) {
     const channel = await this.getChannel(channelId)
+    if (!channel.has_live_streams) {
+      return []
+    }
+
     const videos = await channel.getLiveStreams()
       .then((v) => [...v.videos] as Video[])
     const res = await Promise.all(videos.map((v) => this.saveVideo(channelId, v)))
