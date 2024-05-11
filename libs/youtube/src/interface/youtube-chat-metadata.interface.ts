@@ -9,5 +9,6 @@ export interface YoutubeChatMetadata {
     title?: string
     isLive?: boolean
     isMembersOnly?: boolean
+    metadata?: Record<string, any>
   },
 }

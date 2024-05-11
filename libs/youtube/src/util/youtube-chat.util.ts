@@ -82,6 +82,7 @@ export class YoutubeChatUtil {
         title: chat.title,
         isLive: chat.isLive,
         isMembersOnly: chat.isMembersOnly,
+        metadata: chat.videoMetadata,
       },
     }
     return metadata
