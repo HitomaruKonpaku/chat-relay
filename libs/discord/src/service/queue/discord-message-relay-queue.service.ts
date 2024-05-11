@@ -18,7 +18,7 @@ export class DiscordMessageRelayQueueService {
       {
         attempts: 3,
         removeOnComplete: {
-          age: 24 * 3600,
+          age: 8 * 3600,
         },
         ...options,
       },

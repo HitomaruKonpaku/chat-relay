@@ -17,13 +17,13 @@ export class YoutubeVideoChatQueueService {
       { videoId },
       {
         jobId,
-        attempts: 10,
+        attempts: 5,
         backoff: {
           type: 'fixed',
           delay: 2 * 60 * 1000,
         },
         removeOnComplete: {
-          age: 24 * 3600,
+          age: 8 * 3600,
         },
         ...options,
       },

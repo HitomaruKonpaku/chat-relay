@@ -14,9 +14,9 @@ export abstract class BaseYoutubeChatQueueService {
       data,
       {
         jobId,
-        attempts: 3,
+        attempts: 5,
         removeOnComplete: {
-          age: 24 * 3600,
+          age: 8 * 3600,
         },
         ...options,
       },
