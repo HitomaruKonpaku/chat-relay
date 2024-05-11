@@ -11,5 +11,6 @@ export class YoutubeChatPollQueueService extends BaseYoutubeChatQueueService {
     protected readonly queue: Queue,
   ) {
     super(queue)
+    this.removeOnComplete = false
   }
 }

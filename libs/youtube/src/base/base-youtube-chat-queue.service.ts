@@ -1,7 +1,11 @@
-import { JobsOptions, Queue } from 'bullmq'
+import { JobsOptions, KeepJobs, Queue } from 'bullmq'
 import { YoutubeChatActionJobData } from '../interface/youtube-chat-action-job-data.interface'
 
 export abstract class BaseYoutubeChatQueueService {
+  protected removeOnComplete?: boolean | number | KeepJobs = {
+    age: 8 * 3600,
+  }
+
   constructor(
     protected readonly queue: Queue,
   ) { }
@@ -15,9 +19,7 @@ export abstract class BaseYoutubeChatQueueService {
       {
         jobId,
         attempts: 5,
-        removeOnComplete: {
-          age: 8 * 3600,
-        },
+        removeOnComplete: this.removeOnComplete,
         ...options,
       },
     )
