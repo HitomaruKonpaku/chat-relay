@@ -19,6 +19,24 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
+    "database-queue": {
+      "type": "library",
+      "root": "libs/database-queue",
+      "entryFile": "index",
+      "sourceRoot": "libs/database-queue/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database-queue/tsconfig.lib.json"
+      }
+    },
+    "database-processor": {
+      "type": "library",
+      "root": "libs/database-processor",
+      "entryFile": "index",
+      "sourceRoot": "libs/database-processor/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database-processor/tsconfig.lib.json"
+      }
+    },
     "queue": {
       "type": "library",
       "root": "libs/queue",

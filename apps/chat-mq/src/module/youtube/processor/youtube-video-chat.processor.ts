@@ -1,13 +1,14 @@
 import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME, YoutubeChatService, YoutubeChatUtil } from '@app/youtube'
 import { Processor } from '@nestjs/bullmq'
 import { BaseProcessor } from '@shared/base/base.processor'
+import { QUEUE_MAX_STALLED_COUNT } from '@shared/constant/common.constant'
 import { Logger } from '@shared/logger/logger'
 import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
 import { MasterchatError } from 'masterchat'
 
 @Processor(YOUTUBE_VIDEO_CHAT_QUEUE_NAME, {
-  maxStalledCount: 100,
+  maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.YOUTUBE_VIDEO_CHAT_QUEUE_CONCURRENCY, 100),
 })
 export class YoutubeVideoChatProcessor extends BaseProcessor {

@@ -1,3 +1,4 @@
+import { DATABASE_INSERT_QUEUE_NAME } from '@app/database-queue'
 import { DISCORD_MESSAGE_RELAY_QUEUE_NAME } from '@app/discord'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
@@ -12,6 +13,7 @@ import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs'
 import { Module } from '@nestjs/common'
 
 const queues = [
+  { name: DATABASE_INSERT_QUEUE_NAME },
   { name: DISCORD_MESSAGE_RELAY_QUEUE_NAME },
   { name: YOUTUBE_VIDEO_CHAT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_ACTION_QUEUE_NAME },

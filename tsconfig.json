@@ -71,6 +71,18 @@
       ],
       "@app/discord/*": [
         "libs/discord/src/*"
+      ],
+      "@app/database-queue": [
+        "libs/database-queue/src"
+      ],
+      "@app/database-queue/*": [
+        "libs/database-queue/src/*"
+      ],
+      "@app/database-processor": [
+        "libs/database-processor/src"
+      ],
+      "@app/database-processor/*": [
+        "libs/database-processor/src/*"
       ]
     }
   }

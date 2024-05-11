@@ -2,6 +2,7 @@ import { DISCORD_MESSAGE_RELAY_QUEUE_NAME, DiscordMessageRelayJobData } from '@a
 import { Processor } from '@nestjs/bullmq'
 import { Inject, forwardRef } from '@nestjs/common'
 import { BaseProcessor } from '@shared/base/base.processor'
+import { QUEUE_MAX_STALLED_COUNT } from '@shared/constant/common.constant'
 import { Logger } from '@shared/logger/logger'
 import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
@@ -10,7 +11,7 @@ import { DiscordService } from '../service/discord.service'
 
 @Processor(DISCORD_MESSAGE_RELAY_QUEUE_NAME, {
   autorun: false,
-  maxStalledCount: 100,
+  maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.DISCORD_MESSAGE_RELAY_QUEUE_CONCURRENCY, 1),
 })
 export class DiscordMessageRelayProcessor extends BaseProcessor {

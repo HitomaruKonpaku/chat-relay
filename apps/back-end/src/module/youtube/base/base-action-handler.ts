@@ -1,7 +1,8 @@
+import { DatabaseInsertQueueService } from '@app/database-queue'
 import { DiscordMessageRelayQueueService } from '@app/discord'
 import { Track, TrackRepository } from '@app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@app/user'
-import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatActionRepository, YoutubeChatUtil, YoutubeVideoUtil } from '@app/youtube'
+import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil, YoutubeVideoUtil } from '@app/youtube'
 import { ModuleRef } from '@nestjs/core'
 import { bold, hideLinkEmbed, hyperlink, inlineCode, spoiler } from 'discord.js'
 import {
@@ -67,9 +68,8 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
   abstract getIcons(track: Track): string[]
 
   public async save() {
-    const service = this.moduleRef.get(YoutubeChatActionRepository, { strict: false })
-    const data = service.repository.create(this.getYoutubeChatAction())
-    await service.save(data)
+    const service = this.moduleRef.get(DatabaseInsertQueueService, { strict: false })
+    await service.add({ table: 'youtube_chat_action', data: this.getYoutubeChatAction() })
   }
 
   public async handle() {
