@@ -23,5 +23,6 @@ export class YoutubeChatActionProcessor extends BaseProcessor {
 
   async process(job: Job): Promise<any> {
     await this.youtubeChatHandlerService.handleAction(job.data)
+    await job.updateProgress(100)
   }
 }

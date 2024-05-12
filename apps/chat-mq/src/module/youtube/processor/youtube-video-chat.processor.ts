@@ -22,6 +22,7 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
 
   async process(job: Job): Promise<any> {
     const jobData = job.data
+    this.log(job, '[INIT]')
     const chat = await this.youtubeChatService.init(jobData.videoId)
     Object.assign(jobData, YoutubeChatUtil.generateChatMetadata(chat))
     await job.updateData(jobData)
@@ -50,7 +51,8 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
       throw endError
     }
 
-    const res = JSON.parse(JSON.stringify({ endReason }))
-    return res
+    const res = { endReason }
+    await job.updateProgress(100)
+    return JSON.parse(JSON.stringify(res))
   }
 }

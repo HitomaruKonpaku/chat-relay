@@ -41,6 +41,7 @@ export class DiscordMessageRelayProcessor extends BaseProcessor {
       channel: { id: msg.channelId, name: channel?.name },
       guild: { id: msg.guildId, name: guild?.name },
     }
+    await job.updateProgress(100)
     return JSON.parse(JSON.stringify(res))
   }
 }

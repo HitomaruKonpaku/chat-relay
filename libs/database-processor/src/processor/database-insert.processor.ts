@@ -23,6 +23,7 @@ export class DatabaseInsertProcessor extends BaseProcessor {
   async process(job: Job<DatabaseInsertData>): Promise<any> {
     const { data } = job
     const res = await this.dataSource.manager.save(data.table, data.data)
+    await job.updateProgress(100)
     return res
   }
 }
