@@ -56,11 +56,11 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     try {
       const channel = await this.innertubeService.getChannel(id)
       const videos = await this.innertubeService.getChannelActiveVideos(id, channel)
-      this.logger.debug('getChannelVideos', {
+      this.logger.debug('getChannelVideos', JSON.parse(JSON.stringify({
         id,
-        name: (channel.header as C4TabbedHeader).author.name,
+        name: (channel.header as C4TabbedHeader).author?.name,
         videoIds: videos.map((v) => v.id),
-      })
+      })))
       await Promise.allSettled(videos.map((v) => this.queueVideo(v.id)))
     } catch (error) {
       this.logger.error(`getChannelVideos: ${error.message}`, null, { id })
