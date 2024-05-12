@@ -1,4 +1,5 @@
-import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME, YoutubeChatService, YoutubeChatUtil } from '@app/youtube'
+import { DatabaseInsertQueueService } from '@app/database-queue'
+import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME, YoutubeChatMetadata, YoutubeChatService, YoutubeChatUtil, YoutubeVideo } from '@app/youtube'
 import { Processor } from '@nestjs/bullmq'
 import { BaseProcessor } from '@shared/base/base.processor'
 import { QUEUE_MAX_STALLED_COUNT } from '@shared/constant/common.constant'
@@ -15,17 +16,21 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
   protected readonly logger = new Logger(YoutubeVideoChatProcessor.name)
 
   constructor(
+    private readonly databaseInsertQueueService: DatabaseInsertQueueService,
     private readonly youtubeChatService: YoutubeChatService,
   ) {
     super()
   }
 
   async process(job: Job): Promise<any> {
-    const jobData = job.data
     this.log(job, '[INIT]')
+    const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId)
-    Object.assign(jobData, YoutubeChatUtil.generateChatMetadata(chat))
+    const metadata = YoutubeChatUtil.generateChatMetadata(chat)
+    Object.assign(jobData, metadata)
+
     await job.updateData(jobData)
+    await this.save(metadata)
 
     let endError: MasterchatError
     let endReason: string
@@ -54,5 +59,21 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     const res = { endReason }
     await job.updateProgress(100)
     return JSON.parse(JSON.stringify(res))
+  }
+
+  private async save(metadata: YoutubeChatMetadata) {
+    const data: Partial<YoutubeVideo> = {
+      id: metadata.video.id,
+      isActive: true,
+      modifiedAt: Date.now(),
+      channelId: metadata.channel.id,
+      isLiveContent: metadata.video.metadata?.publication?.isLiveBroadcast,
+      isMembersOnly: metadata.video.isMembersOnly,
+      isLive: metadata.video.isLive,
+      upcomingAt: NumberUtil.fromDate(metadata.video.metadata?.publication?.startDate),
+      title: metadata.video.title,
+      thumbnailUrl: metadata.video.metadata?.thumbnailUrl,
+    }
+    await this.databaseInsertQueueService.add({ table: 'youtube_video', data })
   }
 }

@@ -68,8 +68,9 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
   abstract getIcons(track: Track): string[]
 
   public async save() {
+    const data = this.getYoutubeChatAction()
     const service = this.moduleRef.get(DatabaseInsertQueueService, { strict: false })
-    await service.add({ table: 'youtube_chat_action', data: this.getYoutubeChatAction() })
+    await service.add({ table: 'youtube_chat_action', data })
   }
 
   public async handle() {
