@@ -5,6 +5,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common'
 import { Logger } from '@shared/logger/logger'
 import { NumberUtil } from '@shared/util/number.util'
 import Bottleneck from 'bottleneck'
+import { C4TabbedHeader } from 'youtubei.js/dist/src/parser/nodes'
 
 @Injectable()
 export class YoutubeChannelCrawlerService implements OnModuleInit {
@@ -57,7 +58,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
       const videos = await this.innertubeService.getChannelActiveVideos(id, channel)
       this.logger.debug('getChannelVideos', {
         id,
-        name: channel.title,
+        name: (channel.header as C4TabbedHeader).author.name,
         videoIds: videos.map((v) => v.id),
       })
       await Promise.allSettled(videos.map((v) => this.queueVideo(v.id)))
