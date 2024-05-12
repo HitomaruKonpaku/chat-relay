@@ -71,7 +71,7 @@ export class YoutubeChatUtil {
     return name
   }
 
-  public static generateChatMetadata(chat: Masterchat) {
+  public static generateChatMetadata(chat: Masterchat, withExtraMetadata = false) {
     const metadata: YoutubeChatMetadata = {
       channel: {
         id: chat.channelId,
@@ -82,9 +82,13 @@ export class YoutubeChatUtil {
         title: chat.title,
         isLive: chat.isLive,
         isMembersOnly: chat.isMembersOnly,
-        metadata: chat.videoMetadata,
       },
     }
+
+    if (withExtraMetadata) {
+      metadata.metadata = chat.videoMetadata
+    }
+
     return metadata
   }
 

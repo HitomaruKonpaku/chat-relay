@@ -26,7 +26,7 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     this.log(job, '[INIT]')
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId)
-    const metadata = YoutubeChatUtil.generateChatMetadata(chat)
+    const metadata = YoutubeChatUtil.generateChatMetadata(chat, true)
     Object.assign(jobData, metadata)
 
     await job.updateData(jobData)
@@ -67,12 +67,12 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
       isActive: true,
       modifiedAt: Date.now(),
       channelId: metadata.channel.id,
-      isLiveContent: metadata.video.metadata?.publication?.isLiveBroadcast,
+      isLiveContent: metadata.metadata?.publication?.isLiveBroadcast,
       isMembersOnly: metadata.video.isMembersOnly,
       isLive: metadata.video.isLive,
-      upcomingAt: NumberUtil.fromDate(metadata.video.metadata?.publication?.startDate),
+      upcomingAt: NumberUtil.fromDate(metadata.metadata?.publication?.startDate),
       title: metadata.video.title,
-      thumbnailUrl: metadata.video.metadata?.thumbnailUrl,
+      thumbnailUrl: metadata.metadata?.thumbnailUrl,
     }
     await this.databaseInsertQueueService.add({ table: 'youtube_video', data })
   }
