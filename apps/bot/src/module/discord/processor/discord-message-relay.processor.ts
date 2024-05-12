@@ -31,10 +31,10 @@ export class DiscordMessageRelayProcessor extends BaseProcessor {
     const channel = msg.channel as TextChannel
     const padLenght = 20
     if (guild) {
-      job.log(`[GUILD  ] ${guild.id.padEnd(padLenght, ' ')} >>> ${guild.name}`)
+      await job.log(`[GUILD  ] ${guild.id.padEnd(padLenght, ' ')} >>> ${guild.name}`)
     }
     if (channel) {
-      job.log(`[CHANNEL] ${channel.id.padEnd(padLenght, ' ')} >>> #${channel.name}`)
+      await job.log(`[CHANNEL] ${channel.id.padEnd(padLenght, ' ')} >>> #${channel.name}`)
     }
     const res = {
       id: msg.id,

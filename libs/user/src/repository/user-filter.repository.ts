@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { BaseEntity } from '@shared/base/base.entity'
 import { BaseRepository } from '@shared/base/base.repository'
+import { EntityFunction } from '@shared/type/entity-function.type'
 import { Repository } from 'typeorm'
 import { UserRemove } from '../interface/user-remove.interface'
 import { UserFilter } from '../model/user-filter.entity'
@@ -16,7 +17,7 @@ export class UserFilterRepository extends BaseRepository<UserFilter> {
     super(repository)
   }
 
-  public async findOne(filter?: Partial<Omit<UserFilter, 'onBeforeInsert' | 'onBeforeUpdate'>>) {
+  public async findOne(filter?: Partial<Omit<UserFilter, EntityFunction>>) {
     const res = await this.repository.findOne({
       where: {
         isActive: true,

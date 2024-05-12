@@ -1,5 +1,12 @@
 import { DatabaseInsertQueueService } from '@app/database-queue'
-import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME, YoutubeChatMetadata, YoutubeChatService, YoutubeChatUtil, YoutubeVideo } from '@app/youtube'
+import { UserPoolRepository, UserSourceType } from '@app/user'
+import {
+  YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
+  YoutubeChatMetadata,
+  YoutubeChatService,
+  YoutubeChatUtil,
+  YoutubeVideo,
+} from '@app/youtube'
 import { Processor } from '@nestjs/bullmq'
 import { BaseProcessor } from '@shared/base/base.processor'
 import { QUEUE_MAX_STALLED_COUNT } from '@shared/constant/common.constant'
@@ -18,12 +25,13 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
   constructor(
     private readonly databaseInsertQueueService: DatabaseInsertQueueService,
     private readonly youtubeChatService: YoutubeChatService,
+    private readonly userPoolRepository: UserPoolRepository,
   ) {
     super()
   }
 
   async process(job: Job): Promise<any> {
-    this.log(job, '[INIT]')
+    await this.log(job, '[INIT]')
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId)
     const metadata = YoutubeChatUtil.generateChatMetadata(chat, true)
@@ -32,28 +40,51 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     await job.updateData(jobData)
     await this.save(metadata)
 
+    const userPool = await this.userPoolRepository.findOne({
+      sourceType: UserSourceType.YOUTUBE,
+      sourceId: chat.channelId,
+      hasMembership: true,
+    })
+
     let endError: MasterchatError
     let endReason: string
 
     chat.on('error', (error: MasterchatError) => {
-      this.log(job, `[ERROR] ${error.code} - ${error.message}`)
       endError = error
+      this.log(job, `[ERROR] ${error.code} - ${error.message}`)
     })
 
     chat.on('end', (reason) => {
-      this.log(job, `[END] ${reason}`)
       endReason = reason
+      this.log(job, `[END] ${reason}`)
     })
 
     chat.on('actions', (actions) => {
       this.log(job, `[ACTIONS] ${actions.length}`)
     })
 
-    this.log(job, '[LISTEN]')
+    if (chat.isMembersOnly && userPool?.hasMembership) {
+      await this.log(job, '[CREDENTIALS]')
+      chat.applyCredentials()
+    }
+
+    await this.log(job, '[LISTEN]')
     await chat.listen()
 
+    if (endError && endError.code === 'membersOnly' && !chat.hasCredentials) {
+      if (userPool?.hasMembership) {
+        endError = null
+
+        await this.log(job, '[CREDENTIALS.ALT]')
+        chat.applyCredentials()
+
+        await this.log(job, '[LISTEN.ALT]')
+        await chat.listen()
+      }
+    }
+
     if (endError) {
-      throw endError
+      throw new MasterchatError(endError.code, `${endError.code} - ${endError.message}`)
     }
 
     const res = { endReason }

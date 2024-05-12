@@ -10,6 +10,14 @@ export class YoutubeMasterchat extends Masterchat {
     this.addListeners()
   }
 
+  public get hasCredentials() {
+    return !!this.credentials
+  }
+
+  public applyCredentials() {
+    debugger
+  }
+
   public listen(iterateOptions?: IterateChatOptions) {
     const fn = super.listen(iterateOptions)
     this.logger.warn('[LISTEN]')
