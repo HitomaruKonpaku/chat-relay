@@ -1,5 +1,4 @@
 import { DatabaseQueueModule } from '@app/database-queue'
-import { UserModule } from '@app/user'
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -49,8 +48,6 @@ const queues = [
     ),
 
     DatabaseQueueModule,
-
-    UserModule,
   ],
   providers: [
     YoutubeService,
