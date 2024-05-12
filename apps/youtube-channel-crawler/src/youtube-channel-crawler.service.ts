@@ -48,16 +48,21 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
   public async fetchChannels() {
     this.logger.debug('fetchChannels')
     const ids = await this.getChannelIds()
-    await Promise.allSettled(ids.map((id) => this.limiter.schedule(() => this.getChannelStreams(id))))
+    await Promise.allSettled(ids.map((id) => this.limiter.schedule(() => this.getChannelVideos(id))))
   }
 
-  public async getChannelStreams(id: string) {
+  public async getChannelVideos(id: string) {
     try {
-      const videos = await this.innertubeService.getChannelActiveStreams(id)
-      this.logger.debug('getChannelStreams', { id, videoIds: videos.map((v) => v.id) })
+      const channel = await this.innertubeService.getChannel(id)
+      const videos = await this.innertubeService.getChannelActiveVideos(id, channel)
+      this.logger.debug('getChannelVideos', {
+        id,
+        name: channel.title,
+        videoIds: videos.map((v) => v.id),
+      })
       await Promise.allSettled(videos.map((v) => this.queueVideo(v.id)))
     } catch (error) {
-      this.logger.error(`getChannelStreams: ${error.message}`, null, { id })
+      this.logger.error(`getChannelVideos: ${error.message}`, null, { id })
     }
   }
 

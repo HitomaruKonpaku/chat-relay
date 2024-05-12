@@ -1,3 +1,4 @@
+import { DatabaseQueueModule } from '@app/database-queue'
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -45,6 +46,8 @@ const queues = [
     BullModule.registerQueue(
       ...QueueUtil.generateRegisterQueueOptions(queues.map((v) => v.name)),
     ),
+
+    DatabaseQueueModule,
   ],
   providers: [
     YoutubeService,

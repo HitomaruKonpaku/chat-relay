@@ -1,11 +1,29 @@
+import { DatabaseInsertQueueService } from '@app/database-queue'
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { NumberUtil } from '@shared/util/number.util'
 import Bottleneck from 'bottleneck'
 import Innertube from 'youtubei.js'
-import { Video } from 'youtubei.js/dist/src/parser/nodes'
+import {
+  CompactVideo,
+  GridVideo,
+  PlaylistPanelVideo,
+  PlaylistVideo,
+  ReelItem,
+  Video,
+  WatchCardCompactVideo,
+} from 'youtubei.js/dist/src/parser/nodes'
 import { Channel } from 'youtubei.js/dist/src/parser/youtube'
 import { YoutubeChannelRepository } from '../repository/youtube-channel.repository'
 import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
+import { YoutubeChannelUtil } from '../util/youtube-channel.util'
+import { YoutubeVideoUtil } from '../util/youtube-video.util'
+
+type InnertubeVideo = CompactVideo
+  | GridVideo
+  | PlaylistPanelVideo
+  | PlaylistVideo
+  | ReelItem
+  | Video
+  | WatchCardCompactVideo
 
 @Injectable()
 export class InnertubeService implements OnModuleInit {
@@ -14,6 +32,7 @@ export class InnertubeService implements OnModuleInit {
   private client: Innertube
 
   constructor(
+    private readonly databaseInsertQueueService: DatabaseInsertQueueService,
     private readonly youtubeChannelRepository: YoutubeChannelRepository,
     private readonly youtubeVideoRepository: YoutubeVideoRepository,
   ) { }
@@ -29,22 +48,27 @@ export class InnertubeService implements OnModuleInit {
     return channel
   }
 
-  public async getChannelStreams(channelId: string) {
-    const channel = await this.getChannel(channelId)
-    if (!channel.has_live_streams) {
-      return []
-    }
-
-    const videos = await channel.getLiveStreams()
-      .then((v) => [...v.videos] as Video[])
-    const res = await Promise.all(videos.map((v) => this.saveVideo(channelId, v)))
-    return res
+  public async getChannelActiveVideos(channelId: string, channel?: Channel) {
+    // eslint-disable-next-line no-param-reassign
+    channel = channel || await this.getChannel(channelId)
+    const videos = await Promise.all(channel.videos.map((v) => this.handleVideo(v)))
+    return videos.filter((v) => v)
   }
 
-  public async getChannelActiveStreams(channelId: string) {
-    const videos = await this.getChannelStreams(channelId)
-    const res = videos.filter((v) => v.isLive || v.isUpcoming)
-    return res
+  private async handleVideo(video: InnertubeVideo) {
+    if (YoutubeVideoUtil.isVideo(video)) {
+      if (video.is_live || video.is_upcoming) {
+        return { id: video.id }
+      }
+    }
+
+    if (YoutubeVideoUtil.isGridVideo(video)) {
+      if (video.is_upcoming) {
+        return { id: video.id }
+      }
+    }
+
+    return null
   }
 
   private async saveChannel(channel: Channel) {
@@ -54,23 +78,8 @@ export class InnertubeService implements OnModuleInit {
       modifiedAt: Date.now(),
       name: metadata.title,
       description: metadata.description,
-      customUrl: metadata.vanity_channel_url?.replace('http://www.youtube.com/', ''),
-      thumbnailUrl: metadata.thumbnail[0]?.url?.replace(/=s\d+.*/, '=s0'),
-    })
-    return res
-  }
-
-  private async saveVideo(channelId: string, video: Video) {
-    const res = await this.youtubeVideoRepository.save({
-      id: video.id,
-      modifiedAt: Date.now(),
-      channelId,
-      isLive: video.is_live,
-      isUpcoming: video.is_upcoming,
-      upcomingAt: NumberUtil.fromDate(video.upcoming),
-      title: video.title.toString(),
-      description: video.description,
-      thumbnailUrl: video.best_thumbnail?.url,
+      customUrl: YoutubeChannelUtil.parseCustomUrl(metadata.vanity_channel_url),
+      thumbnailUrl: YoutubeChannelUtil.parseThumbnailUrl(metadata.thumbnail[0]?.url),
     })
     return res
   }
