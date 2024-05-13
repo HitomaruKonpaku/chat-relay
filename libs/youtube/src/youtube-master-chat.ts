@@ -1,5 +1,10 @@
 import { Logger } from '@shared/logger/logger'
-import { IterateChatOptions, Masterchat, MasterchatError } from 'masterchat'
+import {
+  Credentials,
+  IterateChatOptions,
+  Masterchat,
+  MasterchatError,
+} from 'masterchat'
 
 export class YoutubeMasterchat extends Masterchat {
   private logger: Logger
@@ -15,7 +20,21 @@ export class YoutubeMasterchat extends Masterchat {
   }
 
   public applyCredentials() {
-    debugger
+    const credentials: Credentials = {
+      APISID: process.env.YOUTUBE_APISID,
+      HSID: process.env.YOUTUBE_HSID,
+      SAPISID: process.env.YOUTUBE_SAPISID,
+      SID: process.env.YOUTUBE_SID,
+      SSID: process.env.YOUTUBE_SSID,
+
+      '__Secure-1PAPISID': process.env.YOUTUBE_SAPISID,
+      '__Secure-1PSID': process.env.YOUTUBE_1PSID,
+      '__Secure-1PSIDTS': process.env.YOUTUBE_1PSIDTS,
+      '__Secure-1PSIDCC': process.env.YOUTUBE_1PSIDCC,
+    }
+
+    this.logger.warn('[CREDENTIALS]')
+    this.setCredentials(credentials)
   }
 
   public listen(iterateOptions?: IterateChatOptions) {
