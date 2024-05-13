@@ -1,0 +1,9 @@
+*
+!apps/
+!docker/
+!libs/
+!shared/
+!submodule/
+!nest-cli.json
+!package*.json
+!tsconfig*.json
