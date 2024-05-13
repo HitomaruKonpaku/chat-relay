@@ -60,7 +60,9 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     })
 
     chat.on('actions', (actions) => {
-      this.log(job, `[ACTIONS] ${actions.length}`)
+      if (actions.length) {
+        this.log(job, `[ACTIONS] ${actions.length}`)
+      }
     })
 
     if (chat.isMembersOnly && userPool?.hasMembership) {
