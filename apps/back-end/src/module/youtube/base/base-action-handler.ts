@@ -143,8 +143,14 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       ].join('\n'),
     ))
     const name = inlineCode(YoutubeChatUtil.getAuthorName(action))
-    const content = [src, icons.join(' '), name].filter((v) => v).join(' ') + `: ${bold(inlineCode(message))}`.trim()
-    await this.queueActionRelay(track, this.data, content.trim())
+    const lines = [
+      `${[src, icons.join(' '), name].filter((v) => v).join(' ')}: ${bold(inlineCode(message))}`,
+    ]
+    if (!YoutubeChatUtil.isAddBannerAction(action) && !track.sourceId) {
+      lines.push(`↪️ ${spoiler(inlineCode(this.channel.name || this.channel.id))}`)
+    }
+    const content = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
+    await this.queueActionRelay(track, this.data, content)
   }
 
   protected async fetchUserFilter(sourceId: string): Promise<UserFilter> {

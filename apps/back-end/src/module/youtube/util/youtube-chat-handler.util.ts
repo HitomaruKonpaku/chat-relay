@@ -21,9 +21,9 @@ export class YoutubeChatHandlerUtil {
     if (track.filterId) {
       icons.push('💬')
     }
-    if (!isPinned && !track.sourceId) {
-      icons.unshift('↪️')
-    }
+    // if (!isPinned && !track.sourceId) {
+    //   icons.unshift('↪️')
+    // }
     return icons
   }
 
