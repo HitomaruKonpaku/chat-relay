@@ -59,9 +59,10 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
       const logData = {
         id,
         name: (channel.header as C4TabbedHeader).author?.name,
+        videoCount: videos.length,
         videoIds: videos.map((v) => v.id),
       }
-      this.logger.debug(`getChannelVideos >>> ${JSON.parse(JSON.stringify(logData))}`)
+      this.logger.debug(`getChannelVideos >>> ${JSON.stringify(logData)}`)
       await Promise.allSettled(videos.map((v) => this.queueVideo(v.id)))
     } catch (error) {
       this.logger.error(`getChannelVideos: ${error.message}`, null, { id })
