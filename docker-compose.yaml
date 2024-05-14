@@ -1,0 +1,71 @@
+---
+services:
+  chat-relay-redis:
+    container_name: chat-relay-redis
+    image: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    # volumes:
+    #   - ./data/chat-relay/redis:/data
+    networks:
+      - app
+
+  chat-relay-db:
+    container_name: chat-relay-db
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: admin
+    # volumes:
+    #   - ./data/chat-relay/postgres:/var/lib/postgresql/data
+    networks:
+      - app
+
+  chat-relay-bot:
+    container_name: chat-relay-bot
+    image: ghcr.io/hitomarukonpaku/chat-relay
+    command: bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - app
+
+  chat-relay-be:
+    container_name: chat-relay-be
+    image: ghcr.io/hitomarukonpaku/chat-relay
+    command: back-end
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    networks:
+      - app
+
+  chat-relay-cmq:
+    container_name: chat-relay-cmq
+    image: ghcr.io/hitomarukonpaku/chat-relay
+    command: chat-mq
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - app
+
+  chat-relay-ycc:
+    container_name: chat-relay-ycc
+    image: ghcr.io/hitomarukonpaku/chat-relay
+    command: youtube-channel-crawler
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - app
+
+networks:
+  app:
+    name: chat_relay_app
