@@ -8,6 +8,7 @@ import { Job } from 'bullmq'
 import { DataSource } from 'typeorm'
 
 @Processor(DATABASE_INSERT_QUEUE_NAME, {
+  // autorun: false,
   maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.DATABASE_INSERT_QUEUE_CONCURRENCY, 1),
 })

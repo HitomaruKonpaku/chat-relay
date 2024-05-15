@@ -1,6 +1,6 @@
 import { DatabaseInsertQueueService } from '@app/database-queue'
 import { DiscordMessageRelayQueueService } from '@app/discord'
-import { Track, TrackRepository } from '@app/track'
+import { Track, TrackService } from '@app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@app/user'
 import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@app/youtube'
 import { ModuleRef } from '@nestjs/core'
@@ -146,7 +146,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       lines.push(`↪️ ${YoutubeChatHandlerUtil.getChannelHyperlink(this.data)}`)
     }
     const content = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
-    await this.queueActionRelay(track, this.data, content)
+    await this.queueMsgRelay(track, this.data, content)
   }
 
   protected async fetchUserFilter(sourceId: string): Promise<UserFilter> {
@@ -159,7 +159,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
   }
 
   protected async fetchTracks(): Promise<Track[]> {
-    const service = this.moduleRef.get(TrackRepository, { strict: false })
+    const service = this.moduleRef.get(TrackService, { strict: false })
 
     if (this.authorId === this.hostId) {
       const tracks = await service.findByHostId(
@@ -185,7 +185,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     return tracks
   }
 
-  protected async queueActionRelay(
+  protected async queueMsgRelay(
     track: Track,
     data: YoutubeChatActionJobData<T1>,
     content: string,

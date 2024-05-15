@@ -6,6 +6,8 @@ import {
   YoutubeChatService,
   YoutubeChatUtil,
   YoutubeVideo,
+  YoutubeVideoChatEndQueueService,
+  YoutubeVideoChatJobData,
 } from '@app/youtube'
 import { Processor } from '@nestjs/bullmq'
 import { BaseProcessor } from '@shared/base/base.processor'
@@ -16,6 +18,7 @@ import { Job } from 'bullmq'
 import { MasterchatError } from 'masterchat'
 
 @Processor(YOUTUBE_VIDEO_CHAT_QUEUE_NAME, {
+  // autorun: false,
   maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.YOUTUBE_VIDEO_CHAT_QUEUE_CONCURRENCY, 100),
 })
@@ -24,13 +27,14 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
 
   constructor(
     private readonly databaseInsertQueueService: DatabaseInsertQueueService,
+    private readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
     private readonly youtubeChatService: YoutubeChatService,
     private readonly userPoolRepository: UserPoolRepository,
   ) {
     super()
   }
 
-  async process(job: Job): Promise<any> {
+  async process(job: Job<YoutubeVideoChatJobData>): Promise<any> {
     await this.log(job, '[INIT]')
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId)
@@ -88,6 +92,12 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     if (endError) {
       throw new MasterchatError(endError.code, `${endError.code} - ${endError.message}`)
     }
+
+    await this.youtubeVideoChatEndQueueService.add({
+      id: jobData.videoId,
+      endReason,
+      ...metadata,
+    })
 
     const res = { endReason }
     await job.updateProgress(100)

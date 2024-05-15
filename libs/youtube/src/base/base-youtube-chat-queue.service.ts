@@ -7,7 +7,7 @@ export abstract class BaseYoutubeChatQueueService {
   }
 
   constructor(
-    protected readonly queue: Queue,
+    protected readonly queue: Queue<YoutubeChatActionJobData>,
   ) { }
 
   public async add(data: YoutubeChatActionJobData, options?: JobsOptions) {

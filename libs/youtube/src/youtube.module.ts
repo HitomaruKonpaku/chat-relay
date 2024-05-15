@@ -14,6 +14,7 @@ import { YoutubeChatActionQueueService } from './service/queue/youtube-chat-acti
 import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './service/queue/youtube-chat-super-chat-queue.service'
+import { YoutubeVideoChatEndQueueService } from './service/queue/youtube-video-chat-end-queue.service'
 import { YoutubeVideoChatQueueService } from './service/queue/youtube-video-chat-queue.service'
 import { YoutubeChannelService } from './service/youtube-channel.service'
 import { YoutubeChatService } from './service/youtube-chat.service'
@@ -23,12 +24,14 @@ import {
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
   YOUTUBE_CHAT_POLL_QUEUE_NAME,
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
+  YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
 } from './youtube.constant'
 import { YoutubeService } from './youtube.service'
 
 const queues = [
   { name: YOUTUBE_VIDEO_CHAT_QUEUE_NAME },
+  { name: YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME },
   { name: YOUTUBE_CHAT_ACTION_QUEUE_NAME },
   { name: YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME },
@@ -61,6 +64,7 @@ const queues = [
     YoutubeChatService,
 
     YoutubeVideoChatQueueService,
+    YoutubeVideoChatEndQueueService,
     YoutubeChatActionQueueService,
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
@@ -80,6 +84,7 @@ const queues = [
     YoutubeChatService,
 
     YoutubeVideoChatQueueService,
+    YoutubeVideoChatEndQueueService,
     YoutubeChatActionQueueService,
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
