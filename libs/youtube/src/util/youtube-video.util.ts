@@ -3,14 +3,14 @@ import { YTNode } from 'youtubei.js/dist/src/parser/helpers'
 import { GridVideo, ReelItem, Video } from 'youtubei.js/dist/src/parser/nodes'
 
 export class YoutubeVideoUtil {
+  public static getUrl(id: string) {
+    const url = `https://www.youtube.com/watch?v=${id}`
+    return url
+  }
+
   public static parseId(videoIdOrUrl: string): string {
     const id = toVideoId(videoIdOrUrl)
     return id
-  }
-
-  public static getUrl(videoId: string) {
-    const url = `https://www.youtube.com/watch?v=${videoId}`
-    return url
   }
 
   public static isVideo(video: YTNode): video is Video {

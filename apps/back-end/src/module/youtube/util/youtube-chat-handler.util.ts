@@ -1,8 +1,42 @@
 import { Track } from '@app/track'
-import { YoutubeChatUtil } from '@app/youtube'
-import { AddBannerAction, AddChatItemAction, AddSuperChatItemAction } from 'masterchat'
+import {
+  YoutubeChannelUtil,
+  YoutubeChatActionJobData,
+  YoutubeChatUtil,
+  YoutubeVideoUtil,
+} from '@app/youtube'
+import { hideLinkEmbed, hyperlink, spoiler } from 'discord.js'
+import {
+  AddBannerAction,
+  AddChatItemAction,
+  AddSuperChatItemAction,
+} from 'masterchat'
 
 export class YoutubeChatHandlerUtil {
+  public static getSrcHyperlink(data: YoutubeChatActionJobData) {
+    const s = spoiler(
+      hyperlink(
+        'video',
+        hideLinkEmbed(YoutubeVideoUtil.getUrl(data.video.id)),
+        [
+          data.channel.name || data.channel.id,
+          data.video.title || data.video.id,
+        ].join('\n'),
+      ),
+    )
+    return s
+  }
+
+  public static getChannelHyperlink(data: YoutubeChatActionJobData) {
+    const s = spoiler(
+      hyperlink(
+        data.channel.name || data.channel.id,
+        hideLinkEmbed(YoutubeChannelUtil.getUrl(data.channel.id)),
+      ),
+    )
+    return s
+  }
+
   public static getChatIcons(
     action: AddBannerAction | AddChatItemAction,
     track: Track,

@@ -2,9 +2,9 @@ import { DatabaseInsertQueueService } from '@app/database-queue'
 import { DiscordMessageRelayQueueService } from '@app/discord'
 import { Track, TrackRepository } from '@app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@app/user'
-import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil, YoutubeVideoUtil } from '@app/youtube'
+import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@app/youtube'
 import { ModuleRef } from '@nestjs/core'
-import { bold, hideLinkEmbed, hyperlink, inlineCode, spoiler } from 'discord.js'
+import { bold, inlineCode } from 'discord.js'
 import {
   AddBannerAction,
   AddChatItemAction,
@@ -17,6 +17,7 @@ import {
   MembershipGiftRedemptionAction,
   stringify,
 } from 'masterchat'
+import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
 
 export type HandlerAction = AddBannerAction
   | AddChatItemAction
@@ -133,21 +134,16 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     }
 
     const icons = this.getIcons(track)
-    const url = YoutubeVideoUtil.getUrl(this.data.video.id)
-    const src = spoiler(hyperlink(
-      'src',
-      hideLinkEmbed(url),
-      [
-        this.data.channel.name || this.data.channel.id,
-        this.data.video.title || this.data.video.id,
-      ].join('\n'),
-    ))
     const name = inlineCode(YoutubeChatUtil.getAuthorName(action))
     const lines = [
-      `${[src, icons.join(' '), name].filter((v) => v).join(' ')}: ${bold(inlineCode(message))}`,
+      `${[
+        YoutubeChatHandlerUtil.getSrcHyperlink(this.data),
+        icons.join(' '),
+        name,
+      ].filter((v) => v).join(' ')}: ${bold(inlineCode(message))}`,
     ]
     if (!YoutubeChatUtil.isAddBannerAction(action) && !track.sourceId) {
-      lines.push(`↪️ ${spoiler(inlineCode(this.channel.name || this.channel.id))}`)
+      lines.push(`↪️ ${YoutubeChatHandlerUtil.getChannelHyperlink(this.data)}`)
     }
     const content = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
     await this.queueActionRelay(track, this.data, content)

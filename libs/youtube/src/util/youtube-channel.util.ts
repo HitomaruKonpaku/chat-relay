@@ -1,4 +1,9 @@
 export class YoutubeChannelUtil {
+  public static getUrl(id: string) {
+    const url = `https://www.youtube.com/channel/${id}`
+    return url
+  }
+
   public static parseCustomUrl(url: string) {
     const res = url
       ?.replace('http://www.youtube.com/', '')

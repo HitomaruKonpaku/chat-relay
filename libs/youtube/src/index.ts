@@ -27,5 +27,6 @@ export * from './service/queue/youtube-chat-poll-queue.service'
 export * from './service/queue/youtube-chat-super-chat-queue.service'
 export * from './service/queue/youtube-video-chat-queue.service'
 
+export * from './util/youtube-channel.util'
 export * from './util/youtube-chat.util'
 export * from './util/youtube-video.util'
