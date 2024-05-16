@@ -21,12 +21,16 @@ RUN npm install
 COPY . .
 
 #
-FROM builder AS back-end
-RUN nest build back-end
+FROM builder AS dashboard
+RUN nest build dashboard
 
 #
 FROM builder AS bot
 RUN nest build bot
+
+#
+FROM builder AS back-end
+RUN nest build back-end
 
 #
 FROM builder AS chat-mq
@@ -43,8 +47,9 @@ COPY docker/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
 COPY --from=dependencies            /app/node_modules ./node_modules
-COPY --from=back-end                /app/dist ./dist
+COPY --from=dashboard               /app/dist ./dist
 COPY --from=bot                     /app/dist ./dist
+COPY --from=back-end                /app/dist ./dist
 COPY --from=chat-mq                 /app/dist ./dist
 COPY --from=youtube-channel-crawler /app/dist ./dist
 
