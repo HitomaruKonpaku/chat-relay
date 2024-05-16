@@ -30,17 +30,19 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
   }
 
   async process(job: Job<YoutubeVideoChatEndJobData>): Promise<any> {
-    await this.handle(job)
+    const res = await this.handle(job)
     await job.updateProgress(100)
+    return res.map((v) => v.id)
   }
 
   protected async handle(job: Job<YoutubeVideoChatEndJobData>) {
     const tracks = await this.fetchTracks(job.data.channel.id)
     if (!tracks.length) {
-      return
+      return []
     }
 
     await Promise.allSettled(tracks.map((track) => this.handleTrack(track, job.data)))
+    return tracks
   }
 
   protected async handleTrack(track: Track, data: YoutubeVideoChatEndJobData) {

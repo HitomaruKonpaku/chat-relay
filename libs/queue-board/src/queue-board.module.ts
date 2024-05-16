@@ -32,14 +32,14 @@ const queues = [
 
 @Module({
   imports: [
+    BullModule.registerQueue(
+      ...QueueUtil.generateRegisterQueueOptions(queues.map((v) => v.name)),
+    ),
+
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter,
     }),
-
-    BullModule.registerQueue(
-      ...QueueUtil.generateRegisterQueueOptions(queues.map((v) => v.name)),
-    ),
 
     BullBoardModule.forFeature(
       ...queues.map((v) => {
