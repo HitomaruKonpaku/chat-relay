@@ -11,8 +11,5 @@ export class YoutubeChatActionQueueService extends BaseYoutubeChatQueueService {
     protected readonly queue: Queue,
   ) {
     super(queue)
-    this.removeOnComplete = {
-      age: 12 * 3600,
-    }
   }
 }

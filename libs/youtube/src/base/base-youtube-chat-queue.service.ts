@@ -3,7 +3,7 @@ import { YoutubeChatActionJobData } from '../interface/youtube-chat-action-job-d
 
 export abstract class BaseYoutubeChatQueueService {
   protected removeOnComplete?: boolean | number | KeepJobs = {
-    age: 8 * 3600,
+    age: 12 * 3600,
   }
 
   constructor(
