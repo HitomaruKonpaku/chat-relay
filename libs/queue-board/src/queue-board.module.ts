@@ -11,7 +11,9 @@ import {
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { ExpressAdapter } from '@bull-board/express'
 import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
+import { QueueUtil } from '@shared/util/queue.util'
 
 const queues = [
   { name: DATABASE_INSERT_QUEUE_NAME },
@@ -30,6 +32,10 @@ const queues = [
       route: '/queues',
       adapter: ExpressAdapter,
     }),
+
+    BullModule.registerQueue(
+      ...QueueUtil.generateRegisterQueueOptions(queues.map((v) => v.name)),
+    ),
 
     BullBoardModule.forFeature(
       ...queues.map((v) => {
