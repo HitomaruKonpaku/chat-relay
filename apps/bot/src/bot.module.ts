@@ -8,8 +8,8 @@ import { DiscordModule as InternalDiscordModule } from './module/discord/discord
 
 @Module({
   imports: [
-    DatabaseModule,
     QueueModule,
+    DatabaseModule,
     DiscordModule,
 
     InternalDiscordModule,

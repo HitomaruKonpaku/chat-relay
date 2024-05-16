@@ -8,8 +8,8 @@ import { YoutubeChannelCrawlerService } from './youtube-channel-crawler.service'
 
 @Module({
   imports: [
-    DatabaseModule,
     QueueModule,
+    DatabaseModule,
     UserModule,
     YoutubeModule,
   ],

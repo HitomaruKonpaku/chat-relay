@@ -3,7 +3,6 @@ import { DatabaseProcessorModule } from '@app/database-processor'
 import { DatabaseQueueModule } from '@app/database-queue'
 import { DiscordModule } from '@app/discord'
 import { QueueModule } from '@app/queue'
-import { QueueBoardModule } from '@app/queue-board'
 import { TrackModule } from '@app/track'
 import { TwitchModule } from '@app/twitch'
 import { UserModule } from '@app/user'
@@ -15,12 +14,11 @@ import { YoutubeModule as InternalYoutubeModule } from './module/youtube/youtube
 
 @Module({
   imports: [
+    QueueModule,
+
     DatabaseModule,
     DatabaseQueueModule,
     DatabaseProcessorModule,
-
-    QueueModule,
-    QueueBoardModule,
 
     UserModule,
     TrackModule,
