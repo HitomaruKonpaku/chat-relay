@@ -22,6 +22,9 @@
       "masterchat": [
         "./submodule/masterchat/src"
       ],
+      "@constant/*": [
+        "constant/*"
+      ],
       "@shared/*": [
         "shared/*"
       ],

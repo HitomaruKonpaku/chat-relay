@@ -1,4 +1,12 @@
 import { DatabaseQueueModule } from '@app/database-queue'
+import {
+  YOUTUBE_CHAT_ACTION_QUEUE_NAME,
+  YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
+  YOUTUBE_CHAT_POLL_QUEUE_NAME,
+  YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
+  YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
+  YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
+} from '@constant/youtube.constant'
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -19,14 +27,6 @@ import { YoutubeVideoChatQueueService } from './service/queue/youtube-video-chat
 import { YoutubeChannelService } from './service/youtube-channel.service'
 import { YoutubeChatService } from './service/youtube-chat.service'
 import { YoutubeVideoService } from './service/youtube-video.service'
-import {
-  YOUTUBE_CHAT_ACTION_QUEUE_NAME,
-  YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
-  YOUTUBE_CHAT_POLL_QUEUE_NAME,
-  YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
-  YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
-  YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
-} from './youtube.constant'
 import { YoutubeService } from './youtube.service'
 
 const queues = [

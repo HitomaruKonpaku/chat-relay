@@ -1,4 +1,3 @@
-export * from './user.constant'
 export * from './user.module'
 export * from './user.service'
 

@@ -1,3 +1,4 @@
+import { USER_UNIQUE_FIELDS } from '@constant/user.constant'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { BaseEntity } from '@shared/base/base.entity'
@@ -6,7 +7,6 @@ import { EntityFunction } from '@shared/type/entity-function.type'
 import { Repository } from 'typeorm'
 import { UserRemove } from '../interface/user-remove.interface'
 import { UserFilter } from '../model/user-filter.entity'
-import { USER_UNIQUE_FIELDS } from '../user.constant'
 
 @Injectable()
 export class UserFilterRepository extends BaseRepository<UserFilter> {

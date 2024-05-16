@@ -2,13 +2,13 @@ import { DiscordMessageRelayQueueService } from '@app/discord'
 import { Track, TrackService } from '@app/track'
 import { UserSourceType } from '@app/user'
 import {
-  YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
   YoutubeVideoChatEndJobData,
   YoutubeVideoUtil,
 } from '@app/youtube'
+import { QUEUE_MAX_STALLED_COUNT } from '@constant/common.constant'
+import { YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME } from '@constant/youtube.constant'
 import { Processor } from '@nestjs/bullmq'
 import { BaseProcessor } from '@shared/base/base.processor'
-import { QUEUE_MAX_STALLED_COUNT } from '@shared/constant/common.constant'
 import { Logger } from '@shared/logger/logger'
 import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'

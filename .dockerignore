@@ -1,5 +1,6 @@
 *
 !apps/
+!constant/
 !docker/
 !libs/
 !shared/
