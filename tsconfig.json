@@ -25,12 +25,6 @@
       "@shared/*": [
         "shared/*"
       ],
-      "@app/database": [
-        "libs/database/src"
-      ],
-      "@app/database/*": [
-        "libs/database/src/*"
-      ],
       "@app/queue": [
         "libs/queue/src"
       ],
@@ -42,6 +36,24 @@
       ],
       "@app/queue-board/*": [
         "libs/queue-board/src/*"
+      ],
+      "@app/database": [
+        "libs/database/src"
+      ],
+      "@app/database/*": [
+        "libs/database/src/*"
+      ],
+      "@app/database-queue": [
+        "libs/database-queue/src"
+      ],
+      "@app/database-queue/*": [
+        "libs/database-queue/src/*"
+      ],
+      "@app/database-processor": [
+        "libs/database-processor/src"
+      ],
+      "@app/database-processor/*": [
+        "libs/database-processor/src/*"
       ],
       "@app/youtube": [
         "libs/youtube/src"
@@ -72,18 +84,6 @@
       ],
       "@app/discord/*": [
         "libs/discord/src/*"
-      ],
-      "@app/database-queue": [
-        "libs/database-queue/src"
-      ],
-      "@app/database-queue/*": [
-        "libs/database-queue/src/*"
-      ],
-      "@app/database-processor": [
-        "libs/database-processor/src"
-      ],
-      "@app/database-processor/*": [
-        "libs/database-processor/src/*"
       ]
     }
   }

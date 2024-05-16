@@ -10,6 +10,51 @@
   "monorepo": true,
   "root": "apps/back-end",
   "projects": {
+    "dashboard": {
+      "type": "application",
+      "root": "apps/dashboard",
+      "entryFile": "main",
+      "sourceRoot": "apps/dashboard/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/dashboard/tsconfig.app.json"
+      }
+    },
+    "bot": {
+      "type": "application",
+      "root": "apps/bot",
+      "entryFile": "main",
+      "sourceRoot": "apps/bot/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/bot/tsconfig.app.json"
+      }
+    },
+    "back-end": {
+      "type": "application",
+      "root": "apps/back-end",
+      "entryFile": "main",
+      "sourceRoot": "apps/back-end/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/back-end/tsconfig.app.json"
+      }
+    },
+    "chat-mq": {
+      "type": "application",
+      "root": "apps/chat-mq",
+      "entryFile": "main",
+      "sourceRoot": "apps/chat-mq/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/chat-mq/tsconfig.app.json"
+      }
+    },
+    "youtube-channel-crawler": {
+      "type": "application",
+      "root": "apps/youtube-channel-crawler",
+      "entryFile": "main",
+      "sourceRoot": "apps/youtube-channel-crawler/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/youtube-channel-crawler/tsconfig.app.json"
+      }
+    },
     "database": {
       "type": "library",
       "root": "libs/database",
@@ -98,42 +143,6 @@
       "sourceRoot": "libs/twitch/src",
       "compilerOptions": {
         "tsConfigPath": "libs/twitch/tsconfig.lib.json"
-      }
-    },
-    "back-end": {
-      "type": "application",
-      "root": "apps/back-end",
-      "entryFile": "main",
-      "sourceRoot": "apps/back-end/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/back-end/tsconfig.app.json"
-      }
-    },
-    "bot": {
-      "type": "application",
-      "root": "apps/bot",
-      "entryFile": "main",
-      "sourceRoot": "apps/bot/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/bot/tsconfig.app.json"
-      }
-    },
-    "chat-mq": {
-      "type": "application",
-      "root": "apps/chat-mq",
-      "entryFile": "main",
-      "sourceRoot": "apps/chat-mq/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/chat-mq/tsconfig.app.json"
-      }
-    },
-    "youtube-channel-crawler": {
-      "type": "application",
-      "root": "apps/youtube-channel-crawler",
-      "entryFile": "main",
-      "sourceRoot": "apps/youtube-channel-crawler/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/youtube-channel-crawler/tsconfig.app.json"
       }
     }
   }
