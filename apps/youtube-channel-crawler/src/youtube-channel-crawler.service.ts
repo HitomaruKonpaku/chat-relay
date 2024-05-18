@@ -40,16 +40,23 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     setTimeout(() => this.onTick(), this.interval)
   }
 
-  public async getChannelIds() {
-    const records = await this.userPoolRepository.find({ sourceType: UserSourceType.YOUTUBE })
-    const ids = records.map((v) => v.sourceId)
-    return ids
+  public async getChannels() {
+    const records = await this.userPoolRepository.find({
+      sourceType: UserSourceType.YOUTUBE,
+    })
+    return records
   }
 
   public async fetchChannels() {
     this.logger.debug('fetchChannels')
-    const ids = await this.getChannelIds()
-    await Promise.allSettled(ids.map((id) => this.limiter.schedule(() => this.getChannelVideos(id))))
+    const channels = await this.getChannels()
+    await Promise.allSettled(
+      channels.map(
+        (channel) => this.limiter.schedule(
+          () => this.getChannelVideos(channel.sourceId),
+        ),
+      ),
+    )
   }
 
   public async getChannelVideos(id: string) {
