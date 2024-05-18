@@ -76,20 +76,31 @@ export class YoutubeChatPollProcessor extends BaseProcessor {
     const { action } = data
     const lines: string[] = []
 
-    const addQuestion = (question: string, total?: string) => lines.push(
-      codeBlock(
-        'text',
-        [
-          question,
-          total ? `(total: ${total})` : null,
-        ].filter((v) => v).join('\n'),
-      ),
+    const inlineCodeBlock = (content: string) => `\`\`\`${content}\`\`\``
+
+    const link = hyperlink(
+      data.video.id,
+      hideLinkEmbed(YoutubeVideoUtil.getUrl(data.video.id)),
+      [
+        data.channel.name || data.channel.id,
+        data.video.title || data.video.id,
+      ].join('\n'),
+    )
+    lines.push(`「${link}」 POLL: ${data.action.type}`)
+
+    const addQuestion = (question: string) => lines.push(
+      codeBlock(`Question: ${question}`),
+    )
+
+    const addTotal = (total: string) => lines.push(
+      codeBlock(`Total: ${total}`),
     )
 
     const addChoice = (text: string, votePercentage?: string) => lines.push(
       [
-        codeBlock(text),
-        votePercentage ? codeBlock(votePercentage) : null,
+        '- ',
+        inlineCodeBlock(text),
+        votePercentage ? inlineCodeBlock(votePercentage) : null,
       ].filter((v) => v).join(''),
     )
 
@@ -100,26 +111,17 @@ export class YoutubeChatPollProcessor extends BaseProcessor {
       action.choices.forEach((choice) => addChoice(stringify(choice.text), choice.votePercentage?.simpleText))
     } else if (YoutubeChatUtil.isUpdatePollActionAction(action)) {
       if (action.question) {
-        addQuestion(action.question, String(action.voteCount))
+        addQuestion(action.question)
       }
+      addTotal(String(action.voteCount))
       action.choices.forEach((choice) => addChoice(stringify(choice.text), choice.votePercentage?.simpleText))
     } else if (YoutubeChatUtil.isAddPollResultActionAction(action)) {
       if (action.question) {
-        addQuestion(stringify(action.question), action.total)
+        addQuestion(stringify(action.question))
       }
+      addTotal(action.total)
       action.choices.forEach((choice) => addChoice(stringify(choice.text), choice.votePercentage))
     }
-
-    const link = hyperlink(
-      data.video.id,
-      hideLinkEmbed(YoutubeVideoUtil.getUrl(data.video.id)),
-      [
-        data.channel.name || data.channel.id,
-        data.video.title || data.video.id,
-      ].join('\n'),
-    )
-
-    lines.unshift(`「${link}」 POLL: ${data.action.type}`)
 
     const content = lines.join('\n')
     await this.queueMsgRelay(track, data, content)
