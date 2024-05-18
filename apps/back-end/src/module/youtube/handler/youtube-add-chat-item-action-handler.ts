@@ -25,4 +25,8 @@ export class YoutubeAddChatItemActionHandler extends BaseActionHandler<AddChatIt
   getIcons(track: Track): string[] {
     return YoutubeChatHandlerUtil.getChatIcons(this.getProcessAction(), track)
   }
+
+  public async save(): Promise<void> {
+    // ignore
+  }
 }
