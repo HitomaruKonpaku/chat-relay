@@ -40,9 +40,15 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
   }
 
   public async getChannels() {
-    const records = await this.userPoolRepository.find({
-      sourceType: UserSourceType.YOUTUBE,
-    })
+    const records = await this.userPoolRepository.find(
+      {
+        sourceType: UserSourceType.YOUTUBE,
+      },
+      {
+        hasMembership: 'DESC',
+        createdAt: 'ASC',
+      },
+    )
     return records
   }
 

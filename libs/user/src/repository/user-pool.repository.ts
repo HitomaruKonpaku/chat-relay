@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { BaseEntity } from '@shared/base/base.entity'
 import { BaseRepository } from '@shared/base/base.repository'
 import { EntityFunction } from '@shared/type/entity-function.type'
-import { Repository } from 'typeorm'
+import { FindOptionsOrder, Repository } from 'typeorm'
 import { UserRemove } from '../interface/user-remove.interface'
 import { UserPool } from '../model/user-pool.entity'
 
@@ -17,12 +17,16 @@ export class UserPoolRepository extends BaseRepository<UserPool> {
     super(repository)
   }
 
-  public async find(filter?: Partial<Omit<UserPool, EntityFunction>>) {
+  public async find(
+    filter?: Partial<Omit<UserPool, EntityFunction>>,
+    order?: FindOptionsOrder<UserPool>,
+  ) {
     const res = await this.repository.find({
       where: {
         isActive: true,
         ...filter,
       },
+      order,
     })
     return res
   }
