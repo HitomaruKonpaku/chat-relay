@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import Bottleneck from 'bottleneck'
-import Innertube from 'youtubei.js'
+import { Innertube, Log } from 'youtubei.js'
 import {
   CompactVideo,
   GridVideo,
@@ -33,7 +33,9 @@ export class InnertubeService {
 
   constructor(
     private readonly youtubeChannelRepository: YoutubeChannelRepository,
-  ) { }
+  ) {
+    Log.setLevel(Log.Level.NONE)
+  }
 
   public async getChannel(channelId: string, hasMembership = false) {
     let channel: Channel
