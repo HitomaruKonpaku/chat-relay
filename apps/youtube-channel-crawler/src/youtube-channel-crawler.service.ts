@@ -1,11 +1,10 @@
 import { UserPoolRepository, UserSourceType } from '@app/user'
-import { YoutubeVideoChatQueueService } from '@app/youtube'
+import { InnertubeUtil, YoutubeVideoChatQueueService } from '@app/youtube'
 import { InnertubeService } from '@app/youtube/service/innertube.service'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { Logger } from '@shared/logger/logger'
 import { NumberUtil } from '@shared/util/number.util'
 import Bottleneck from 'bottleneck'
-import { C4TabbedHeader } from 'youtubei.js/dist/src/parser/nodes'
 
 @Injectable()
 export class YoutubeChannelCrawlerService implements OnModuleInit {
@@ -53,19 +52,20 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     await Promise.allSettled(
       channels.map(
         (channel) => this.limiter.schedule(
-          () => this.getChannelVideos(channel.sourceId),
+          () => this.getChannelVideos(channel.sourceId, channel.hasMembership),
         ),
       ),
     )
   }
 
-  public async getChannelVideos(id: string) {
+  public async getChannelVideos(id: string, hasMembership = false) {
     try {
-      const channel = await this.innertubeService.getChannel(id)
+      const channel = await this.innertubeService.getChannel(id, hasMembership)
       const videos = await this.innertubeService.getChannelActiveVideos(id, channel)
       const logData = {
         id,
-        name: (channel.header as C4TabbedHeader).author?.name,
+        hasMembership,
+        name: InnertubeUtil.getTitle(channel),
         videoCount: videos.length,
         videoIds: videos.map((v) => v.id),
       }

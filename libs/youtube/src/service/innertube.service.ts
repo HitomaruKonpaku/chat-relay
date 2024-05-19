@@ -1,5 +1,4 @@
-import { DatabaseInsertQueueService } from '@app/database-queue'
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import Bottleneck from 'bottleneck'
 import Innertube from 'youtubei.js'
 import {
@@ -13,9 +12,9 @@ import {
 } from 'youtubei.js/dist/src/parser/nodes'
 import { Channel } from 'youtubei.js/dist/src/parser/youtube'
 import { YoutubeChannelRepository } from '../repository/youtube-channel.repository'
-import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
 import { YoutubeChannelUtil } from '../util/youtube-channel.util'
 import { YoutubeVideoUtil } from '../util/youtube-video.util'
+import { YoutubeUtil } from '../util/youtube.util'
 
 type InnertubeVideo = CompactVideo
   | GridVideo
@@ -26,44 +25,45 @@ type InnertubeVideo = CompactVideo
   | WatchCardCompactVideo
 
 @Injectable()
-export class InnertubeService implements OnModuleInit {
+export class InnertubeService {
   private readonly clientLimiter = new Bottleneck({ maxConcurrent: 1 })
 
   private client: Innertube
+  private authClient: Innertube
 
   constructor(
-    private readonly databaseInsertQueueService: DatabaseInsertQueueService,
     private readonly youtubeChannelRepository: YoutubeChannelRepository,
-    private readonly youtubeVideoRepository: YoutubeVideoRepository,
   ) { }
 
-  async onModuleInit() {
-    await this.initClient()
-  }
-
-  public async getChannel(channelId: string) {
-    await this.initClient()
-    const channel = await this.client.getChannel(channelId)
+  public async getChannel(channelId: string, hasMembership = false) {
+    let channel: Channel
+    if (hasMembership) {
+      await this.initAuthClient()
+      channel = await this.authClient.getChannel(channelId)
+    } else {
+      await this.initClient()
+      channel = await this.client.getChannel(channelId)
+    }
     await this.saveChannel(channel)
     return channel
   }
 
-  public async getChannelActiveVideos(channelId: string, channel?: Channel) {
+  public async getChannelActiveVideos(channelId: string, channel?: Channel, hasMembership = false) {
     // eslint-disable-next-line no-param-reassign
-    channel = channel || await this.getChannel(channelId)
+    channel = channel || await this.getChannel(channelId, hasMembership)
     const videos = await Promise.all(channel.videos.map((v) => this.handleVideo(v)))
     return videos.filter((v) => v)
   }
 
   private async handleVideo(video: InnertubeVideo) {
     if (YoutubeVideoUtil.isVideo(video)) {
-      if (video.is_live || video.is_upcoming) {
+      if (video.is_upcoming || video.is_live) {
         return { id: video.id }
       }
     }
 
     if (YoutubeVideoUtil.isGridVideo(video)) {
-      if (video.is_upcoming) {
+      if (video.is_upcoming || video.duration?.text === 'LIVE') {
         return { id: video.id }
       }
     }
@@ -86,7 +86,19 @@ export class InnertubeService implements OnModuleInit {
 
   private async initClient() {
     await this.clientLimiter.schedule(async () => {
-      this.client = this.client || await Innertube.create({})
+      if (!this.client) {
+        this.client = await Innertube.create()
+      }
+    })
+  }
+
+  private async initAuthClient() {
+    await this.clientLimiter.schedule(async () => {
+      if (!this.authClient) {
+        const credentials = YoutubeUtil.getCredentials()
+        const cookie = YoutubeUtil.genCookieString(credentials)
+        this.authClient = await Innertube.create({ cookie })
+      }
     })
   }
 }

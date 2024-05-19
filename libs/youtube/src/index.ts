@@ -32,3 +32,6 @@ export * from './service/queue/youtube-video-chat-queue.service'
 export * from './util/youtube-channel.util'
 export * from './util/youtube-chat.util'
 export * from './util/youtube-video.util'
+export * from './util/youtube.util'
+
+export * from './util/innertube.util'
