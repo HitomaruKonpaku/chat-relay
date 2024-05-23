@@ -42,9 +42,9 @@ const queues = [
       boardOptions: {
         uiConfig: {
           dateFormats: {
-            short: 'hh:mm:ss',
-            common: 'MM-dd hh:mm:ss',
-            full: 'yyyy-MM-dd hh:mm:ss',
+            short: 'HH:mm:ss',
+            common: 'MM-dd HH:mm:ss',
+            full: 'yyyy-MM-dd HH:mm:ss',
           },
         },
       },
