@@ -39,6 +39,15 @@ const queues = [
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter,
+      boardOptions: {
+        uiConfig: {
+          dateFormats: {
+            short: 'hh:mm:ss',
+            common: 'MM-dd hh:mm:ss',
+            full: 'yyyy-MM-dd hh:mm:ss',
+          },
+        },
+      },
     }),
 
     BullBoardModule.forFeature(
