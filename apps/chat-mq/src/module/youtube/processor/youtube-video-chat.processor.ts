@@ -84,6 +84,9 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
         await this.log(job, '[CREDENTIALS.ALT]')
         chat.applyCredentials()
 
+        await chat.populateMetadata()
+        chat.isMembersOnly = true
+
         await this.log(job, '[LISTEN.ALT]')
         await chat.listen()
       }
