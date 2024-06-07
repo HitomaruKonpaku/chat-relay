@@ -1,7 +1,7 @@
 *
+!docker/
 !apps/
 !constant/
-!docker/
 !libs/
 !shared/
 !submodule/
