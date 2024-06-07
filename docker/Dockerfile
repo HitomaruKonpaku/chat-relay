@@ -10,7 +10,7 @@ COPY package*.json ./
 # DEPENDENCIES
 FROM base AS dependencies
 
-RUN npm install --only=prod
+RUN npm install --omit=dev
 
 # BUILDER
 FROM base AS builder
@@ -55,4 +55,4 @@ COPY --from=youtube-channel-crawler /app/dist ./dist
 
 EXPOSE 8080
 
-ENTRYPOINT /sbin/tini -- /bin/sh /docker-entrypoint.sh $0
+ENTRYPOINT [ "/sbin/tini", "--", "/bin/sh", "/docker-entrypoint.sh" ]
