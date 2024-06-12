@@ -4,7 +4,6 @@ import { Track, TrackService } from '@app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@app/user'
 import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@app/youtube'
 import { ModuleRef } from '@nestjs/core'
-import { NumberUtil } from '@shared/util/number.util'
 import { bold, inlineCode } from 'discord.js'
 import {
   AddBannerAction,
@@ -105,12 +104,12 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     if (!this.data.video.isLive && !track.allowReplay) {
       return
     }
-    if (this.data.video.isLive && action.timestamp) {
-      const maxAge = NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE, 2 * 60) * 1000
-      if (action.timestamp.getTime() + maxAge < Date.now()) {
-        return
-      }
-    }
+    // if (this.data.video.isLive && action.timestamp) {
+    //   const maxAge = NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE, 2 * 60) * 1000
+    //   if (action.timestamp.getTime() + maxAge < Date.now()) {
+    //     return
+    //   }
+    // }
     if (this.data.video.isMembersOnly && !track.allowMemberChat) {
       return
     }
