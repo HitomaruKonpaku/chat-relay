@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Logger } from '@shared/logger/logger'
 import Bottleneck from 'bottleneck'
 import { Innertube, Log } from 'youtubei.js'
 import {
@@ -12,6 +13,7 @@ import {
 } from 'youtubei.js/dist/src/parser/nodes'
 import { Channel } from 'youtubei.js/dist/src/parser/youtube'
 import { YoutubeChannelRepository } from '../repository/youtube-channel.repository'
+import { InnertubeUtil } from '../util/innertube.util'
 import { YoutubeChannelUtil } from '../util/youtube-channel.util'
 import { YoutubeVideoUtil } from '../util/youtube-video.util'
 import { YoutubeUtil } from '../util/youtube.util'
@@ -26,6 +28,8 @@ type InnertubeVideo = CompactVideo
 
 @Injectable()
 export class InnertubeService {
+  private readonly logger = new Logger(InnertubeService.name)
+
   private readonly clientLimiter = new Bottleneck({ maxConcurrent: 1 })
 
   private client: Innertube
@@ -50,27 +54,52 @@ export class InnertubeService {
     return channel
   }
 
-  public async getChannelActiveVideos(channelId: string, channel?: Channel, hasMembership = false) {
+  public async getChannelActiveVideoIds(channelId: string, channel?: Channel, hasMembership = false): Promise<string[]> {
     // eslint-disable-next-line no-param-reassign
     channel = channel || await this.getChannel(channelId, hasMembership)
-    const videos = await Promise.all(channel.videos.map((v) => this.handleVideo(v)))
-    return videos.filter((v) => v)
+
+    const ids: string[] = []
+    ids.push(...this.getActiveVideoIds(channel))
+
+    if (channel.has_live_streams) {
+      try {
+        const res = await channel.getLiveStreams()
+        ids.push(...this.getActiveVideoIds(res))
+      } catch (error) {
+        this.logger.warn(`getChannelActiveVideoIds#live: ${error.message}`, {
+          channelId,
+          hasMembership,
+          name: InnertubeUtil.getTitle(channel),
+        })
+      }
+    }
+
+    const res = [...new Set(ids)]
+    return res
   }
 
-  private async handleVideo(video: InnertubeVideo) {
+  private getActiveVideoIds(channel: Channel): string[] {
+    const videos = channel?.videos || []
+    const ids = videos
+      .filter((v) => this.filterVideo(v))
+      .map((v) => v.id)
+    return ids
+  }
+
+  private filterVideo(video: InnertubeVideo): boolean {
     if (YoutubeVideoUtil.isVideo(video)) {
       if (video.is_upcoming || video.is_live) {
-        return { id: video.id }
+        return true
       }
     }
 
     if (YoutubeVideoUtil.isGridVideo(video)) {
       if (video.is_upcoming || video.duration?.text === 'LIVE') {
-        return { id: video.id }
+        return true
       }
     }
 
-    return null
+    return false
   }
 
   private async saveChannel(channel: Channel) {
