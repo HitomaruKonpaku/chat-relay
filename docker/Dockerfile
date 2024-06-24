@@ -10,13 +10,13 @@ COPY package*.json ./
 # DEPENDENCIES
 FROM base AS dependencies
 
-RUN npm install --omit=dev
+RUN npm install --no-progress --omit=dev
 
 # BUILDER
 FROM base AS builder
 
-RUN npm install -g @nestjs/cli
-RUN npm install
+RUN npm install --no-progress -g @nestjs/cli
+RUN npm install --no-progress
 
 COPY . .
 
