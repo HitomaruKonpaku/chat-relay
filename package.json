@@ -39,7 +39,7 @@
     "sha1": "^1.1.1",
     "tmi.js": "^1.8.5",
     "typeorm": "^0.3.20",
-    "youtubei.js": "^10.2.0"
+    "youtubei.js": "^10.3.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
