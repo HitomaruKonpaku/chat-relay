@@ -53,7 +53,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
   }
 
   public async fetchChannels() {
-    this.logger.debug('fetchChannels')
+    this.logger.log('fetchChannels -->')
     const channels = await this.getChannels()
     await Promise.allSettled(
       channels.map(
@@ -62,6 +62,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
         ),
       ),
     )
+    this.logger.log(`fetchChannels <-- ${JSON.stringify({ count: channels.length })}`)
   }
 
   public async getChannelVideos(id: string, hasMembership = false) {
@@ -75,7 +76,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
         videoCount: videoIds.length,
         videoIds,
       }
-      this.logger.debug(`getChannelVideos >>> ${JSON.stringify(logData)}`)
+      this.logger.debug(`getChannelVideos --> ${JSON.stringify(logData)}`)
       await Promise.allSettled(videoIds.map((v) => this.queueVideo(v)))
     } catch (error) {
       this.logger.error(`getChannelVideos: ${error.message}`, null, { id })

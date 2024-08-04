@@ -23,7 +23,7 @@ export class YoutubeMasterchat extends Masterchat {
 
   public listen(iterateOptions?: IterateChatOptions) {
     const fn = super.listen(iterateOptions)
-    this.logger.warn('[LISTEN]')
+    this.logger.log('[LISTEN]')
     return fn
   }
 
