@@ -24,4 +24,8 @@ export class YoutubeAddSuperChatItemActionHandler extends BaseActionHandler<AddS
   getIcons(): string[] {
     return YoutubeChatHandlerUtil.getSuperChatIcons(this.getProcessAction())
   }
+
+  protected hasMessage(): boolean {
+    return true
+  }
 }
