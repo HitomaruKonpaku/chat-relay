@@ -126,7 +126,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       }
     }
 
-    const message = stringify(action.message)
+    const message = stringify(action.message) || ''
 
     if (this.userFilter?.type === UserFilterType.ALLOW) {
       // ignore
@@ -142,16 +142,22 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
 
     const icons = this.getIcons(track)
     const name = inlineCode(YoutubeChatUtil.getAuthorName(action))
+    const displayMessage = message
+      ? ` ${bold(inlineCode(message))}`
+      : ''
+
     const lines = [
       `${[
         YoutubeChatHandlerUtil.getSrcHyperlink(this.data),
         icons.join(' '),
         name,
-      ].filter((v) => v).join(' ')}: ${bold(inlineCode(message))}`,
+      ].filter((v) => v).join(' ')}:${displayMessage}`,
     ]
+
     if (!YoutubeChatUtil.isAddBannerAction(action) && !track.sourceId) {
       lines.push(`↪️ ${YoutubeChatHandlerUtil.getChannelHyperlink(this.data)}`)
     }
+
     const content = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
     await this.queueMsgRelay(track, this.data, content)
   }
