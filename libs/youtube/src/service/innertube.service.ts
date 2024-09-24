@@ -8,6 +8,7 @@ import {
   PlaylistPanelVideo,
   PlaylistVideo,
   ReelItem,
+  ShortsLockupView,
   Video,
   WatchCardCompactVideo,
 } from 'youtubei.js/dist/src/parser/nodes'
@@ -23,6 +24,7 @@ type InnertubeVideo = CompactVideo
   | PlaylistPanelVideo
   | PlaylistVideo
   | ReelItem
+  | ShortsLockupView
   | Video
   | WatchCardCompactVideo
 
