@@ -7,9 +7,7 @@ import {
   Guild,
   MessageCreateOptions,
   MessagePayload,
-  StageChannel,
   TextChannel,
-  VoiceChannel,
 } from 'discord.js'
 import { DiscordMessageRelayProcessor } from '../processor/discord-message-relay.processor'
 import { DiscordClient } from './discord-client.service'
@@ -91,8 +89,7 @@ export class DiscordService {
       // Get channel
       const channel = await this.getChannel<Channel>(channelId)
       const canSend = channel
-        && channel.isTextBased()
-        && !(channel instanceof VoiceChannel || channel instanceof StageChannel)
+        && channel.isSendable()
       if (!canSend) {
         return null
       }
