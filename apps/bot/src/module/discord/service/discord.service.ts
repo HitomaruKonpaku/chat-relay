@@ -41,10 +41,10 @@ export class DiscordService {
   public async getGuild(id: string) {
     try {
       const guild = await this.client.guilds.fetch(id)
-      this.logger.debug('getGuild', { id, name: guild.name })
+      this.logger.debug(`getGuild | ${JSON.stringify({ id, name: guild.name })}`)
       return guild
     } catch (error) {
-      this.logger.error(`getGuild: ${error.message}`, { id })
+      this.logger.error(`getGuild: ${error.message} | ${JSON.stringify({ id })}`)
       return null
     }
   }
@@ -61,14 +61,14 @@ export class DiscordService {
       }
 
       if (channel.type === ChannelType.GuildText) {
-        this.logger.debug('getChannel: GuildText', { id, name: channel.name, ...meta })
+        this.logger.debug(`getChannel: GuildText | ${JSON.stringify({ id, name: channel.name, ...meta })}`)
       } else {
-        this.logger.debug('getChannel: Channel', meta)
+        this.logger.debug(`getChannel: Channel | ${JSON.stringify(meta)}`)
       }
 
       return channel
     } catch (error) {
-      this.logger.error(`getChannel: ${error.message}`, { id })
+      this.logger.error(`getChannel: ${error.message} | ${JSON.stringify({ id })}`)
 
       if (error.status === 404 && error.code === 10003) {
         // await this.trackService.deactivateByChannelId(id)
@@ -130,7 +130,7 @@ export class DiscordService {
       // Return message
       return message
     } catch (error) {
-      this.logger.error(`sendToChannel: ${error.message}`, { channelId })
+      this.logger.error(`sendToChannel: ${error.message} | ${JSON.stringify({ channelId })}`)
       if (config?.throwError) {
         throw error
       }
