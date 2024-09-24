@@ -120,7 +120,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       const maxAge = (NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE) || 3600) * 1000
       this.logger.warn(`ACTION_TIMESTAMP | ${JSON.stringify({ age, maxAge, valid: age > maxAge, action })}`)
       if (age > maxAge) {
-        // return
+        return
       }
     }
 
