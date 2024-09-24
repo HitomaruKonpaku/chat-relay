@@ -29,7 +29,9 @@ export abstract class BaseProcessor extends WorkerHost {
 
   @OnWorkerEvent('drained')
   onDrained() {
-    this.logger.debug('[DRAINED]')
+    if (this.debug) {
+      this.logger.debug('[DRAINED]')
+    }
   }
 
   @OnWorkerEvent('failed')
