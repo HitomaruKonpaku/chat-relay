@@ -107,7 +107,8 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     }
     if (this.data.video.isLive && action.timestamp) {
       const age = Date.now() - action.timestamp.getTime()
-      const maxAge = NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE, 3600) * 1000
+      const maxAge = (NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE) || 3600) * 1000
+      console.log('--------->', age, maxAge)
       if (age > maxAge) {
         return
       }
