@@ -93,7 +93,13 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       return
     }
 
-    await Promise.allSettled(tracks.map((track) => this.handleTrack(track)))
+    await Promise.all(tracks.map(async (track) => {
+      try {
+        await this.handleTrack(track)
+      } catch (error) {
+        this.logger.error(`handleTrack: ${error.message} | ${JSON.stringify({ action: this.action, track })}`)
+      }
+    }))
   }
 
   protected hasMessage(): boolean {
@@ -108,17 +114,20 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     if (!this.data.video.isLive && !track.allowReplay) {
       return
     }
+
     if (this.data.video.isLive && action.timestamp) {
-      const age = Date.now() - action.timestamp.getTime()
+      const age = Date.now() - NumberUtil.fromDate(action.timestamp)
       const maxAge = (NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE) || 3600) * 1000
       this.logger.warn(`ACTION_TIMESTAMP | ${JSON.stringify({ age, maxAge, valid: age > maxAge, action })}`)
       if (age > maxAge) {
         // return
       }
     }
+
     if (this.data.video.isMembersOnly && !track.allowMemberChat) {
       return
     }
+
     if (!this.data.video.isMembersOnly && !track.allowPublicChat) {
       return
     }
