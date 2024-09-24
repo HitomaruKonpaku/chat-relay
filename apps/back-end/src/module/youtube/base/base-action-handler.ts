@@ -18,6 +18,7 @@ import {
   MembershipGiftRedemptionAction,
   stringify,
 } from 'masterchat'
+import { Logger } from '../../../../../../shared/logger/logger'
 import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
 
 export type HandlerAction = AddBannerAction
@@ -36,6 +37,8 @@ export type ProcessAction = AddBannerAction
   | AddMembershipMilestoneItemAction
 
 export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends ProcessAction> {
+  private readonly logger = new Logger('BaseActionHandler')
+
   private userFilter?: UserFilter
 
   constructor(
@@ -108,7 +111,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     if (this.data.video.isLive && action.timestamp) {
       const age = Date.now() - action.timestamp.getTime()
       const maxAge = (NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE) || 3600) * 1000
-      console.log('--------->', age, maxAge)
+      this.logger.warn({ age, maxAge, action })
       if (age > maxAge) {
         return
       }
