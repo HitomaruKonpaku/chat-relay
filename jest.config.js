@@ -12,11 +12,12 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths),
     '^masterchat$': '<rootDir>/submodule/masterchat/src',
   },
-  modulePathIgnorePatterns: [
-    '<rootDir>/submodule',
-  ],
   modulePaths: ['<rootDir>'],
   testRegex: '.*\\.spec\\.ts$',
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/submodule/',
+  ],
   transform: { '^.+\\.(t|j)s$': 'ts-jest' },
   coverageDirectory: '../coverage',
   collectCoverageFrom: ['**/*.(t|j)s'],
