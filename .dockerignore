@@ -5,6 +5,8 @@
 !libs/
 !shared/
 !submodule/
+!test/
+!jest.config.js
 !nest-cli.json
 !package*.json
 !tsconfig*.json

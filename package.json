@@ -12,7 +12,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/back-end/main",
     "lint": "eslint \"{src,apps,libs,test,constant}/**/*.ts\" --fix",
-    "test": "jest ./test"
+    "test": "jest"
   },
   "dependencies": {
     "@bull-board/api": "^5.23.0",
