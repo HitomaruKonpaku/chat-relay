@@ -14,13 +14,13 @@ export abstract class BaseEntity {
   updatedAt?: number
 
   @BeforeInsert()
-  onBeforeInsert() {
+  onBeforeInsert?() {
     this.createdAt = Date.now()
     this.updatedAt = this.updatedAt || this.createdAt
   }
 
   @BeforeUpdate()
-  onBeforeUpdate() {
+  onBeforeUpdate?() {
     this.updatedAt = Date.now()
   }
 }

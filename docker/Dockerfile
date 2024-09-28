@@ -20,6 +20,8 @@ RUN npm install --no-progress
 
 COPY . .
 
+RUN npm test
+
 #
 FROM builder AS dashboard
 RUN nest build dashboard

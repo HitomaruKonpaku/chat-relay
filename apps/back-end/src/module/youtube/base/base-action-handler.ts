@@ -4,7 +4,7 @@ import { Track, TrackService } from '@app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@app/user'
 import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@app/youtube'
 import { ModuleRef } from '@nestjs/core'
-import { NumberUtil } from '@shared/util/number.util'
+import { Logger } from '@shared/logger/logger'
 import { bold, inlineCode } from 'discord.js'
 import {
   AddBannerAction,
@@ -18,7 +18,6 @@ import {
   MembershipGiftRedemptionAction,
   stringify,
 } from 'masterchat'
-import { Logger } from '../../../../../../shared/logger/logger'
 import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
 
 export type HandlerAction = AddBannerAction
@@ -110,47 +109,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
 
   protected async handleTrack(track: Track) {
     const action = this.getProcessAction()
-
-    if (!this.data.video.isLive && !track.allowReplay) {
-      return
-    }
-
-    if (this.data.video.isLive && action.timestamp) {
-      const age = Date.now() - NumberUtil.fromDate(action.timestamp)
-      const maxAge = (NumberUtil.parse(process.env.YOUTUBE_ACTION_MAX_AGE) || 3600) * 1000
-      if (age > maxAge) {
-        return
-      }
-    }
-
-    if (this.data.video.isMembersOnly && !track.allowMemberChat) {
-      return
-    }
-
-    if (!this.data.video.isMembersOnly && !track.allowPublicChat) {
-      return
-    }
-
-    if (this.authorId === this.hostId) {
-      if (this.authorId === track.filterId) {
-        return
-      }
-      if (this.authorId === track.sourceId && track.filterId) {
-        return
-      }
-    }
-
-    const message = stringify(action.message) || ''
-
-    if (this.userFilter?.type === UserFilterType.ALLOW) {
-      // ignore
-    } else if (this.authorId === track.filterId) {
-      if (track.filterKeywords?.length) {
-        if (!track.filterKeywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
-          return
-        }
-      }
-    } else if (this.hostId !== track.sourceId) {
+    if (!YoutubeChatHandlerUtil.canRelay(this.data, action, track, this.userFilter)) {
       return
     }
 
@@ -161,6 +120,8 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       icons.join(' '),
       name,
     ].filter((v) => v).join(' ')
+
+    const message = stringify(action.message) || ''
     const displayMessage = message
       ? `${bold(inlineCode(message))}`
       : ''
