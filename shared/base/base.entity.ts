@@ -15,7 +15,7 @@ export abstract class BaseEntity {
 
   @BeforeInsert()
   onBeforeInsert?() {
-    this.createdAt = Date.now()
+    this.createdAt = this.createdAt || Date.now()
     this.updatedAt = this.updatedAt || this.createdAt
   }
 

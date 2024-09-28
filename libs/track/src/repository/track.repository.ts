@@ -66,12 +66,12 @@ export class TrackRepository extends BaseRepository<Track> {
     return res
   }
 
-  public async add(data: Omit<Track, keyof BaseEntity>) {
+  public async add(data: Omit<Track, keyof BaseEntity> & Partial<BaseEntity>) {
     await this.repository.upsert(
       this.repository.create({
-        ...data,
         isActive: true,
         updatedAt: Date.now(),
+        ...data,
       }),
       TRACK_UNIQUE_FIELDS,
     )
