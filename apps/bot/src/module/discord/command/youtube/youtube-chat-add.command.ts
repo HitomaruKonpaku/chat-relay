@@ -2,9 +2,9 @@ import {
   YoutubeChannelUtil,
   YoutubeVideoChatQueueService,
   YoutubeVideoUtil,
-} from '@app/youtube'
+} from '@/app/youtube'
+import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
-import { Logger } from '@shared/logger/logger'
 import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,

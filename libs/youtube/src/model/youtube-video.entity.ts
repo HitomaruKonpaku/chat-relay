@@ -1,4 +1,4 @@
-import { BaseExternalEntity } from '@shared/base/base-external.entity'
+import { BaseExternalEntity } from '@/shared/base/base-external.entity'
 import { Column, Entity, Index } from 'typeorm'
 import { YoutubeChannel } from './youtube-channel.entity'
 

@@ -1,4 +1,4 @@
-import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@constant/youtube.constant'
+import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@/constant/youtube.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'

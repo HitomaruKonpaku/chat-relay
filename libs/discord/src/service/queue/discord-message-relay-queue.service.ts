@@ -1,4 +1,4 @@
-import { DISCORD_MESSAGE_RELAY_QUEUE_NAME } from '@constant/discord.constant'
+import { DISCORD_MESSAGE_RELAY_QUEUE_NAME } from '@/constant/discord.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'

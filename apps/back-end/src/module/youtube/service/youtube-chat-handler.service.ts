@@ -1,4 +1,4 @@
-import { YoutubeChatActionJobData, YoutubeChatUtil } from '@app/youtube'
+import { YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
 import { Injectable } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { BaseActionHandler } from '../base/base-action-handler'

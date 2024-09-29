@@ -1,6 +1,6 @@
+import { BaseRepository } from '@/shared/base/base.repository'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { BaseRepository } from '@shared/base/base.repository'
 import { Repository } from 'typeorm'
 import { YoutubeChatAction } from '../model/youtube-chat-action.entity'
 

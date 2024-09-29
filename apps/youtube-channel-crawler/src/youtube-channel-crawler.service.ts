@@ -1,9 +1,9 @@
-import { UserPoolRepository, UserSourceType } from '@app/user'
-import { InnertubeUtil, YoutubeVideoChatQueueService } from '@app/youtube'
-import { InnertubeService } from '@app/youtube/service/innertube.service'
+import { UserPoolRepository, UserSourceType } from '@/app/user'
+import { InnertubeUtil, YoutubeVideoChatQueueService } from '@/app/youtube'
+import { InnertubeService } from '@/app/youtube/service/innertube.service'
+import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { Logger } from '@shared/logger/logger'
-import { NumberUtil } from '@shared/util/number.util'
 import Bottleneck from 'bottleneck'
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { Logger } from '@shared/logger/logger'
+import { Logger } from '@/shared/logger/logger'
 import { REST, Routes } from 'discord.js'
 import { DISCORD_GLOBAL_COMMANDS } from './module/discord/constant/discord-command.constant'
 

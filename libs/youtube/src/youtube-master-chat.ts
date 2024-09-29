@@ -1,4 +1,4 @@
-import { Logger } from '@shared/logger/logger'
+import { Logger } from '@/shared/logger/logger'
 import { IterateChatOptions, Masterchat, MasterchatError } from 'masterchat'
 import { YoutubeUtil } from './util/youtube.util'
 

@@ -1,17 +1,17 @@
-import { DiscordMessageRelayQueueService } from '@app/discord'
-import { Track, TrackService } from '@app/track'
-import { UserSourceType } from '@app/user'
+import { DiscordMessageRelayQueueService } from '@/app/discord'
+import { Track, TrackService } from '@/app/track'
+import { UserSourceType } from '@/app/user'
 import {
   YoutubeChatActionJobData,
   YoutubeChatUtil,
   YoutubeVideoUtil,
-} from '@app/youtube'
-import { QUEUE_MAX_STALLED_COUNT } from '@constant/common.constant'
-import { YOUTUBE_CHAT_POLL_QUEUE_NAME } from '@constant/youtube.constant'
+} from '@/app/youtube'
+import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
+import { YOUTUBE_CHAT_POLL_QUEUE_NAME } from '@/constant/youtube.constant'
+import { BaseProcessor } from '@/shared/base/base.processor'
+import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
-import { BaseProcessor } from '@shared/base/base.processor'
-import { Logger } from '@shared/logger/logger'
-import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
 import { codeBlock, hideLinkEmbed, hyperlink } from 'discord.js'
 import {
@@ -25,8 +25,8 @@ type ProcessAction = ShowPollPanelAction | UpdatePollAction | AddPollResultActio
 
 @Processor(YOUTUBE_CHAT_POLL_QUEUE_NAME, {
   // autorun: false,
-  maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.YOUTUBE_CHAT_POLL_QUEUE_CONCURRENCY, 1),
+  maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
 export class YoutubeChatPollProcessor extends BaseProcessor {
   protected readonly logger = new Logger(YoutubeChatPollProcessor.name)

@@ -1,5 +1,5 @@
-import { YoutubeChatAction } from '@app/youtube'
-import { NumberUtil } from '@shared/util/number.util'
+import { YoutubeChatAction } from '@/app/youtube'
+import { NumberUtil } from '@/shared/util/number.util'
 import { AddMembershipMilestoneItemAction, stringify } from 'masterchat'
 import { BaseActionHandler } from '../base/base-action-handler'
 

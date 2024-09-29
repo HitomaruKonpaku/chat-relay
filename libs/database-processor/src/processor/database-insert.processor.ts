@@ -1,17 +1,17 @@
-import { DatabaseInsertData } from '@app/database-queue'
-import { QUEUE_MAX_STALLED_COUNT } from '@constant/common.constant'
-import { DATABASE_INSERT_QUEUE_NAME } from '@constant/database.constant'
+import { DatabaseInsertData } from '@/app/database-queue'
+import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
+import { DATABASE_INSERT_QUEUE_NAME } from '@/constant/database.constant'
+import { BaseProcessor } from '@/shared/base/base.processor'
+import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
-import { BaseProcessor } from '@shared/base/base.processor'
-import { Logger } from '@shared/logger/logger'
-import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
 import { DataSource } from 'typeorm'
 
 @Processor(DATABASE_INSERT_QUEUE_NAME, {
   // autorun: false,
-  maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.DATABASE_INSERT_QUEUE_CONCURRENCY, 1),
+  maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
 export class DatabaseInsertProcessor extends BaseProcessor {
   protected readonly logger = new Logger(DatabaseInsertProcessor.name)

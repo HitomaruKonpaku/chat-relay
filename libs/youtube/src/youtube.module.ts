@@ -1,4 +1,4 @@
-import { DatabaseQueueModule } from '@app/database-queue'
+import { DatabaseQueueModule } from '@/app/database-queue'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
@@ -6,11 +6,11 @@ import {
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
-} from '@constant/youtube.constant'
+} from '@/constant/youtube.constant'
+import { QueueUtil } from '@/shared/util/queue.util'
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { QueueUtil } from '@shared/util/queue.util'
 import { YoutubeChannel } from './model/youtube-channel.entity'
 import { YoutubeChatAction } from './model/youtube-chat-action.entity'
 import { YoutubeVideo } from './model/youtube-video.entity'

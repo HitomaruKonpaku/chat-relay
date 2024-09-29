@@ -22,70 +22,70 @@
       "masterchat": [
         "./submodule/masterchat/src"
       ],
-      "@constant/*": [
+      "@/constant/*": [
         "constant/*"
       ],
-      "@shared/*": [
+      "@/shared/*": [
         "shared/*"
       ],
-      "@app/queue": [
+      "@/app/queue": [
         "libs/queue/src"
       ],
-      "@app/queue/*": [
+      "@/app/queue/*": [
         "libs/queue/src/*"
       ],
-      "@app/queue-board": [
+      "@/app/queue-board": [
         "libs/queue-board/src"
       ],
-      "@app/queue-board/*": [
+      "@/app/queue-board/*": [
         "libs/queue-board/src/*"
       ],
-      "@app/database": [
+      "@/app/database": [
         "libs/database/src"
       ],
-      "@app/database/*": [
+      "@/app/database/*": [
         "libs/database/src/*"
       ],
-      "@app/database-queue": [
+      "@/app/database-queue": [
         "libs/database-queue/src"
       ],
-      "@app/database-queue/*": [
+      "@/app/database-queue/*": [
         "libs/database-queue/src/*"
       ],
-      "@app/database-processor": [
+      "@/app/database-processor": [
         "libs/database-processor/src"
       ],
-      "@app/database-processor/*": [
+      "@/app/database-processor/*": [
         "libs/database-processor/src/*"
       ],
-      "@app/youtube": [
+      "@/app/youtube": [
         "libs/youtube/src"
       ],
-      "@app/youtube/*": [
+      "@/app/youtube/*": [
         "libs/youtube/src/*"
       ],
-      "@app/twitch": [
+      "@/app/twitch": [
         "libs/twitch/src"
       ],
-      "@app/twitch/*": [
+      "@/app/twitch/*": [
         "libs/twitch/src/*"
       ],
-      "@app/user": [
+      "@/app/user": [
         "libs/user/src"
       ],
-      "@app/user/*": [
+      "@/app/user/*": [
         "libs/user/src/*"
       ],
-      "@app/track": [
+      "@/app/track": [
         "libs/track/src"
       ],
-      "@app/track/*": [
+      "@/app/track/*": [
         "libs/track/src/*"
       ],
-      "@app/discord": [
+      "@/app/discord": [
         "libs/discord/src"
       ],
-      "@app/discord/*": [
+      "@/app/discord/*": [
         "libs/discord/src/*"
       ]
     }

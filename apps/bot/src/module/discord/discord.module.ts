@@ -1,4 +1,4 @@
-import { YoutubeModule } from '@app/youtube'
+import { YoutubeModule } from '@/app/youtube'
 import { Module } from '@nestjs/common'
 import { DISCORD_ALL_COMMANDS } from './constant/discord-command.constant'
 import { DiscordMessageRelayProcessor } from './processor/discord-message-relay.processor'

@@ -1,5 +1,5 @@
-import { DatabaseModule } from '@app/database'
-import { DatabaseQueueModule } from '@app/database-queue'
+import { DatabaseModule } from '@/app/database'
+import { DatabaseQueueModule } from '@/app/database-queue'
 import { Module } from '@nestjs/common'
 import { DatabaseInsertProcessor } from './processor/database-insert.processor'
 

@@ -1,5 +1,5 @@
+import { BaseService } from '@/shared/base/base.service'
 import { Injectable } from '@nestjs/common'
-import { BaseService } from '@shared/base/base.service'
 import { YoutubeVideo } from '../model/youtube-video.entity'
 import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
 

@@ -1,7 +1,7 @@
-import { DATABASE_INSERT_QUEUE_NAME } from '@constant/database.constant'
+import { DATABASE_INSERT_QUEUE_NAME } from '@/constant/database.constant'
+import { QueueUtil } from '@/shared/util/queue.util'
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
-import { QueueUtil } from '@shared/util/queue.util'
 import { DatabaseInsertQueueService } from './service/database-insert-queue.service'
 
 const queues = [

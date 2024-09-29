@@ -1,5 +1,5 @@
-import { Track } from '@app/track'
-import { UserFilter, UserFilterType } from '@app/user'
+import { Track } from '@/app/track'
+import { UserFilter, UserFilterType } from '@/app/user'
 
 export class TrackHandlerUtil {
   public static canRelay(

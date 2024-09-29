@@ -1,6 +1,6 @@
+import { BaseEntity } from '@/shared/base/base.entity'
+import { BaseService } from '@/shared/base/base.service'
 import { Injectable } from '@nestjs/common'
-import { BaseEntity } from '@shared/base/base.entity'
-import { BaseService } from '@shared/base/base.service'
 import { UserRemove } from '../interface/user-remove.interface'
 import { UserPool } from '../model/user-pool.entity'
 import { UserPoolRepository } from '../repository/user-pool.repository'

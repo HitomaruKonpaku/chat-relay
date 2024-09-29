@@ -1,5 +1,5 @@
+import { Logger } from '@/shared/logger/logger'
 import { Inject, Injectable, forwardRef } from '@nestjs/common'
-import { Logger } from '@shared/logger/logger'
 import {
   Channel,
   ChannelType,

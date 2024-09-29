@@ -1,5 +1,5 @@
-import { Main } from '@shared/base/base.main'
-import { BooleanUtil } from '@shared/util/boolean.util'
+import { Main } from '@/shared/base/base.main'
+import { BooleanUtil } from '@/shared/util/boolean.util'
 import { BotCommandDeployer } from './bot-command-deployer'
 import { BotModule } from './bot.module'
 

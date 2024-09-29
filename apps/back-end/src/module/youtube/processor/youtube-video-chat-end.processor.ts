@@ -1,23 +1,23 @@
-import { DiscordMessageRelayQueueService } from '@app/discord'
-import { Track, TrackService } from '@app/track'
-import { UserSourceType } from '@app/user'
+import { DiscordMessageRelayQueueService } from '@/app/discord'
+import { Track, TrackService } from '@/app/track'
+import { UserSourceType } from '@/app/user'
 import {
   YoutubeVideoChatEndJobData,
   YoutubeVideoUtil,
-} from '@app/youtube'
-import { QUEUE_MAX_STALLED_COUNT } from '@constant/common.constant'
-import { YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME } from '@constant/youtube.constant'
+} from '@/app/youtube'
+import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
+import { YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME } from '@/constant/youtube.constant'
+import { BaseProcessor } from '@/shared/base/base.processor'
+import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
-import { BaseProcessor } from '@shared/base/base.processor'
-import { Logger } from '@shared/logger/logger'
-import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
 import { hideLinkEmbed, hyperlink } from 'discord.js'
 
 @Processor(YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME, {
   // autorun: false,
-  maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.YOUTUBE_VIDEO_CHAT_END_QUEUE_CONCURRENCY, 1),
+  maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
 export class YoutubeVideoChatEndProcessor extends BaseProcessor {
   protected readonly logger = new Logger(YoutubeVideoChatEndProcessor.name)

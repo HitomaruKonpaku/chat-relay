@@ -1,5 +1,5 @@
-import { Track } from '@app/track'
-import { UserFilterType } from '@app/user'
+import { Track } from '@/app/track'
+import { UserFilterType } from '@/app/user'
 import { TrackHandlerUtil } from '../../apps/back-end/src/util/track-handler.util'
 
 describe('TrackHandlerUtil', () => {

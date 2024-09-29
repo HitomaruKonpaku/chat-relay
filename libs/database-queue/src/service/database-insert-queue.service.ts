@@ -1,4 +1,4 @@
-import { DATABASE_INSERT_QUEUE_NAME } from '@constant/database.constant'
+import { DATABASE_INSERT_QUEUE_NAME } from '@/constant/database.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'

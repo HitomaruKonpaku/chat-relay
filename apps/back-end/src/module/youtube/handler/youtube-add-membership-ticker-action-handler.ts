@@ -1,4 +1,4 @@
-import { YoutubeChatAction } from '@app/youtube'
+import { YoutubeChatAction } from '@/app/youtube'
 import { AddMembershipTickerAction } from 'masterchat'
 import { BaseActionHandler } from '../base/base-action-handler'
 

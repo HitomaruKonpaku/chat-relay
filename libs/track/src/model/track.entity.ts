@@ -1,5 +1,5 @@
-import { UserSourceType } from '@app/user'
-import { BaseEntity } from '@shared/base/base.entity'
+import { UserSourceType } from '@/app/user'
+import { BaseEntity } from '@/shared/base/base.entity'
 import { Column, Entity, Unique } from 'typeorm'
 import { TRACK_UNIQUE_FIELDS } from '../track.constant'
 

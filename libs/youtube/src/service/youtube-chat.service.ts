@@ -1,5 +1,5 @@
+import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
-import { Logger } from '@shared/logger/logger'
 import { Action } from 'masterchat'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'

@@ -1,12 +1,9 @@
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
-import { ExpressAdapter } from '@bull-board/express'
-import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs'
 import {
   DATABASE_INSERT_QUEUE_NAME,
-} from '@constant/database.constant'
+} from '@/constant/database.constant'
 import {
   DISCORD_MESSAGE_RELAY_QUEUE_NAME,
-} from '@constant/discord.constant'
+} from '@/constant/discord.constant'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
@@ -14,10 +11,13 @@ import {
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
-} from '@constant/youtube.constant'
+} from '@/constant/youtube.constant'
+import { QueueUtil } from '@/shared/util/queue.util'
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
+import { ExpressAdapter } from '@bull-board/express'
+import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs'
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
-import { QueueUtil } from '@shared/util/queue.util'
 
 const queues = [
   { name: DATABASE_INSERT_QUEUE_NAME },

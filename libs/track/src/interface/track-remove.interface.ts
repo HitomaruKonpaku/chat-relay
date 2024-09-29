@@ -1,4 +1,4 @@
-import { UserSourceType } from '@app/user'
+import { UserSourceType } from '@/app/user'
 
 export interface TrackRemove {
   discordChannelId: string,

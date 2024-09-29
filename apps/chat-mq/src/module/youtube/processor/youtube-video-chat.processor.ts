@@ -1,5 +1,5 @@
-import { DatabaseInsertQueueService } from '@app/database-queue'
-import { UserPoolRepository, UserSourceType } from '@app/user'
+import { DatabaseInsertQueueService } from '@/app/database-queue'
+import { UserPoolRepository, UserSourceType } from '@/app/user'
 import {
   YoutubeChatMetadata,
   YoutubeChatService,
@@ -7,20 +7,20 @@ import {
   YoutubeVideo,
   YoutubeVideoChatEndQueueService,
   YoutubeVideoChatJobData,
-} from '@app/youtube'
-import { QUEUE_MAX_STALLED_COUNT } from '@constant/common.constant'
-import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@constant/youtube.constant'
+} from '@/app/youtube'
+import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
+import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@/constant/youtube.constant'
+import { BaseProcessor } from '@/shared/base/base.processor'
+import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
-import { BaseProcessor } from '@shared/base/base.processor'
-import { Logger } from '@shared/logger/logger'
-import { NumberUtil } from '@shared/util/number.util'
 import { Job } from 'bullmq'
 import { MasterchatError } from 'masterchat'
 
 @Processor(YOUTUBE_VIDEO_CHAT_QUEUE_NAME, {
   // autorun: false,
-  maxStalledCount: QUEUE_MAX_STALLED_COUNT,
   concurrency: NumberUtil.parse(process.env.YOUTUBE_VIDEO_CHAT_QUEUE_CONCURRENCY, 100),
+  maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
 export class YoutubeVideoChatProcessor extends BaseProcessor {
   protected readonly logger = new Logger(YoutubeVideoChatProcessor.name)

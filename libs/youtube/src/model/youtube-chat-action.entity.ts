@@ -1,4 +1,4 @@
-import { BaseExternalEntity } from '@shared/base/base-external.entity'
+import { BaseExternalEntity } from '@/shared/base/base-external.entity'
 import { Membership, SuperChatColor } from 'masterchat'
 import { Column, Entity, Index } from 'typeorm'
 import { YoutubeVideo } from './youtube-video.entity'

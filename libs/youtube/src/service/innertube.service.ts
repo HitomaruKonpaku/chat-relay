@@ -1,5 +1,5 @@
+import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
-import { Logger } from '@shared/logger/logger'
 import Bottleneck from 'bottleneck'
 import { Innertube, Log } from 'youtubei.js'
 import {

@@ -1,6 +1,6 @@
+import { Logger } from '@/shared/logger/logger'
 import { Inject, Injectable } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
-import { Logger } from '@shared/logger/logger'
 import { ChatInputCommandInteraction, Client, Collection, Interaction } from 'discord.js'
 import { DISCORD_APP_COMMANDS } from '../constant/discord-command.constant'
 import { DISCORD_CLIENT_OPTIONS } from '../constant/discord.constant'

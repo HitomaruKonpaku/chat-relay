@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Logger } from '@shared/logger/logger'
+import { Logger } from '@/shared/logger/logger'
 import { bold, ChatInputCommandInteraction, codeBlock, inlineCode } from 'discord.js'
 
 export abstract class BaseCommand {

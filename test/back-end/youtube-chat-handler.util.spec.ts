@@ -1,5 +1,5 @@
-import { Track } from '@app/track'
-import { YoutubeChatMetadata } from '@app/youtube'
+import { Track } from '@/app/track'
+import { YoutubeChatMetadata } from '@/app/youtube'
 import { ProcessAction } from '../../apps/back-end/src/module/youtube/base/base-action-handler'
 import { YoutubeChatHandlerUtil } from '../../apps/back-end/src/module/youtube/util/youtube-chat-handler.util'
 

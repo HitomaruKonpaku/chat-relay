@@ -1,5 +1,5 @@
-import { DiscordModule } from '@app/discord'
-import { TrackModule } from '@app/track'
+import { DiscordModule } from '@/app/discord'
+import { TrackModule } from '@/app/track'
 import { Module } from '@nestjs/common'
 import { YoutubeChatActionProcessor } from './processor/youtube-chat-action.processor'
 import { YoutubeChatMembershipProcessor } from './processor/youtube-chat-membership.processor'

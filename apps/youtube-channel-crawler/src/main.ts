@@ -1,4 +1,4 @@
-import { Main } from '@shared/base/base.main'
+import { Main } from '@/shared/base/base.main'
 import { YoutubeChannelCrawlerModule } from './youtube-channel-crawler.module'
 
 new Main(

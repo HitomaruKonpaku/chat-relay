@@ -1,6 +1,6 @@
-import { Track } from '@app/track'
-import { UserFilter, UserPool } from '@app/user'
-import { YoutubeChannel, YoutubeChatAction, YoutubeVideo } from '@app/youtube'
+import { Track } from '@/app/track'
+import { UserFilter, UserPool } from '@/app/user'
+import { YoutubeChannel, YoutubeChatAction, YoutubeVideo } from '@/app/youtube'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 

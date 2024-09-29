@@ -1,13 +1,13 @@
-import { Track } from '@app/track'
-import { UserFilter } from '@app/user'
+import { Track } from '@/app/track'
+import { UserFilter } from '@/app/user'
 import {
   YoutubeChannelUtil,
   YoutubeChatActionJobData,
   YoutubeChatMetadata,
   YoutubeChatUtil,
   YoutubeVideoUtil,
-} from '@app/youtube'
-import { NumberUtil } from '@shared/util/number.util'
+} from '@/app/youtube'
+import { NumberUtil } from '@/shared/util/number.util'
 import { hideLinkEmbed, hyperlink, spoiler } from 'discord.js'
 import {
   AddBannerAction,

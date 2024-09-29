@@ -1,10 +1,10 @@
-import { DatabaseInsertQueueService } from '@app/database-queue'
-import { DiscordMessageRelayQueueService } from '@app/discord'
-import { Track, TrackService } from '@app/track'
-import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@app/user'
-import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@app/youtube'
+import { DatabaseInsertQueueService } from '@/app/database-queue'
+import { DiscordMessageRelayQueueService } from '@/app/discord'
+import { Track, TrackService } from '@/app/track'
+import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@/app/user'
+import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
+import { Logger } from '@/shared/logger/logger'
 import { ModuleRef } from '@nestjs/core'
-import { Logger } from '@shared/logger/logger'
 import { bold, inlineCode } from 'discord.js'
 import {
   AddBannerAction,
