@@ -11,7 +11,7 @@ import { Guild, TextChannel } from 'discord.js'
 import { DiscordService } from '../service/discord.service'
 
 @Processor(DISCORD_MESSAGE_RELAY_QUEUE_NAME, {
-  // autorun: false,
+  autorun: false,
   concurrency: NumberUtil.parse(process.env.DISCORD_MESSAGE_RELAY_QUEUE_CONCURRENCY, 1),
   maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
