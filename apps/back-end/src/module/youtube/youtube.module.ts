@@ -2,6 +2,7 @@ import { DiscordModule } from '@/app/discord'
 import { TrackModule } from '@/app/track'
 import { Module } from '@nestjs/common'
 import { YoutubeChatActionProcessor } from './processor/youtube-chat-action.processor'
+import { YoutubeChatBannerProcessor } from './processor/youtube-chat-banner.processor'
 import { YoutubeChatMembershipProcessor } from './processor/youtube-chat-membership.processor'
 import { YoutubeChatPollProcessor } from './processor/youtube-chat-poll.processor'
 import { YoutubeChatSuperChatProcessor } from './processor/youtube-chat-super-chat.processor'
@@ -21,6 +22,7 @@ import { YoutubeChatHandlerService } from './service/youtube-chat-handler.servic
     YoutubeChatSuperChatProcessor,
     YoutubeChatMembershipProcessor,
     YoutubeChatPollProcessor,
+    YoutubeChatBannerProcessor,
   ],
   exports: [
   ],

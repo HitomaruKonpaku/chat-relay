@@ -1,6 +1,7 @@
 import { DatabaseQueueModule } from '@/app/database-queue'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
+  YOUTUBE_CHAT_BANNER_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
   YOUTUBE_CHAT_POLL_QUEUE_NAME,
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
@@ -19,6 +20,7 @@ import { YoutubeChatActionRepository } from './repository/youtube-chat-action.re
 import { YoutubeVideoRepository } from './repository/youtube-video.repository'
 import { InnertubeService } from './service/innertube.service'
 import { YoutubeChatActionQueueService } from './service/queue/youtube-chat-action-queue.service'
+import { YoutubeChatBannerQueueService } from './service/queue/youtube-chat-banner-queue.service'
 import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './service/queue/youtube-chat-super-chat-queue.service'
@@ -36,6 +38,7 @@ const queues = [
   { name: YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME },
   { name: YOUTUBE_CHAT_POLL_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_BANNER_QUEUE_NAME },
 ]
 
 @Module({
@@ -69,6 +72,7 @@ const queues = [
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
     YoutubeChatPollQueueService,
+    YoutubeChatBannerQueueService,
 
     InnertubeService,
   ],
@@ -89,6 +93,7 @@ const queues = [
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
     YoutubeChatPollQueueService,
+    YoutubeChatBannerQueueService,
 
     InnertubeService,
   ],

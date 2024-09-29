@@ -4,6 +4,7 @@ import { Action } from 'masterchat'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 import { YoutubeChatActionQueueService } from './queue/youtube-chat-action-queue.service'
+import { YoutubeChatBannerQueueService } from './queue/youtube-chat-banner-queue.service'
 import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './queue/youtube-chat-super-chat-queue.service'
@@ -17,6 +18,7 @@ export class YoutubeChatService {
     private readonly youtubeSuperChatQueueService: YoutubeChatSuperChatQueueService,
     private readonly youtubeChatMembershipQueueService: YoutubeChatMembershipQueueService,
     private readonly youtubeChatPollQueueService: YoutubeChatPollQueueService,
+    private readonly youtubeChatBannerQueueService: YoutubeChatBannerQueueService,
   ) { }
 
   public async init(videoId: string) {
@@ -71,6 +73,12 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isAddPollResultActionAction(action)
     if (isPoll) {
       return this.youtubeChatPollQueueService.add(body)
+    }
+
+    const isBanner = false
+      || YoutubeChatUtil.isAddBannerAction(action)
+    if (isBanner) {
+      return this.youtubeChatBannerQueueService.add(body)
     }
 
     return this.youtubeChatQueueService.add(body)
