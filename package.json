@@ -15,9 +15,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@bull-board/api": "^5.23.0",
-    "@bull-board/express": "^5.23.0",
-    "@bull-board/nestjs": "^5.23.0",
+    "@bull-board/api": "^6.3.2",
+    "@bull-board/express": "^6.3.2",
+    "@bull-board/nestjs": "^6.3.2",
     "@discordjs/rest": "^2.3.0",
     "@nestjs/bullmq": "^10.1.1",
     "@nestjs/common": "^10.3.9",
