@@ -1,5 +1,5 @@
 # BASE
-FROM node:18-alpine AS base
+FROM node:lts-alpine AS base
 
 RUN apk add --no-cache tini
 
@@ -10,13 +10,13 @@ COPY package*.json ./
 # DEPENDENCIES
 FROM base AS dependencies
 
-RUN npm install --no-progress --omit=dev
+RUN npm ci --omit=dev
 
 # BUILDER
 FROM base AS builder
 
 RUN npm install --no-progress -g @nestjs/cli
-RUN npm install --no-progress
+RUN npm ci
 
 COPY . .
 
@@ -45,6 +45,8 @@ RUN nest build youtube-channel-crawler
 # RELEASE
 FROM base AS release
 
+RUN apk add --no-cache bash
+
 COPY docker/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
@@ -56,5 +58,7 @@ COPY --from=chat-mq                 /app/dist ./dist
 COPY --from=youtube-channel-crawler /app/dist ./dist
 
 EXPOSE 8080
+
+ENV NODE_ENV=production
 
 ENTRYPOINT [ "/sbin/tini", "--", "/bin/sh", "/docker-entrypoint.sh" ]
