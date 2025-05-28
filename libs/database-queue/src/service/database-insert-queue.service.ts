@@ -2,6 +2,7 @@ import { DATABASE_INSERT_QUEUE_NAME } from '@/constant/database.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'
+import ms from 'ms'
 import { DatabaseInsertData } from '../interface/database-insert-data.interface'
 
 @Injectable()
@@ -18,7 +19,10 @@ export class DatabaseInsertQueueService {
       {
         attempts: 5,
         removeOnComplete: {
-          age: 5 * 60,
+          age: ms('10m') * 1e-3,
+        },
+        removeOnFail: {
+          age: ms('30d') * 1e-3,
         },
         ...options,
       },

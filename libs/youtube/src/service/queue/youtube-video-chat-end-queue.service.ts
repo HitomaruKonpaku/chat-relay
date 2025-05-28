@@ -2,6 +2,7 @@ import { YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME } from '@/constant/youtube.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'
+import ms from 'ms'
 import { YoutubeVideoChatEndJobData } from '../../interface/youtube-video-chat-end-job-data.interface'
 
 @Injectable()
@@ -20,7 +21,10 @@ export class YoutubeVideoChatEndQueueService {
         jobId,
         attempts: 5,
         removeOnComplete: {
-          age: 24 * 3600,
+          age: ms('24h') * 1e-3,
+        },
+        removeOnFail: {
+          age: ms('30d') * 1e-3,
         },
         ...options,
       },

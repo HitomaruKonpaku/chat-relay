@@ -2,6 +2,7 @@ import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@/constant/youtube.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'
+import ms from 'ms'
 import { YoutubeVideoChatJobData } from '../../interface/youtube-video-chat-job-data.interface'
 
 @Injectable()
@@ -21,10 +22,13 @@ export class YoutubeVideoChatQueueService {
         attempts: 5,
         backoff: {
           type: 'fixed',
-          delay: 2 * 60 * 1000,
+          delay: ms('2m'),
         },
         removeOnComplete: {
-          age: 8 * 3600,
+          age: ms('8h') * 1e-3,
+        },
+        removeOnFail: {
+          age: ms('30d') * 1e-3,
         },
         ...options,
       },
