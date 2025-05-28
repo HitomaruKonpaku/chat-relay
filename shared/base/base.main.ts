@@ -23,6 +23,8 @@ export class Main {
       logger: new Logger(null),
     })
 
+    app.enableShutdownHooks()
+
     const port = process.env.PORT || 8080
 
     await this.handlers?.onBeforeListen?.()
