@@ -24,6 +24,10 @@ export class DatabaseInsertProcessor extends BaseProcessor {
 
   async process(job: Job<DatabaseInsertData>): Promise<any> {
     const { data } = job
+    if (data.data.message && typeof data.data.message === 'string') {
+      // eslint-disable-next-line no-control-regex
+      data.data.message = String(data.data.message).replace(/\x00/g, ' ')
+    }
     const res = await this.dataSource.manager.save(data.table, data.data)
     await job.updateProgress(100)
     return res
