@@ -1,5 +1,7 @@
 import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable } from '@nestjs/common'
+import Bottleneck from 'bottleneck'
 import { Action } from 'masterchat'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
@@ -13,6 +15,10 @@ import { YoutubeChatSuperChatQueueService } from './queue/youtube-chat-super-cha
 export class YoutubeChatService {
   private readonly logger = new Logger(YoutubeChatService.name)
 
+  private readonly httpLimiter = new Bottleneck({
+    maxConcurrent: NumberUtil.parse(process.env.YOUTUBE_CHAT_HTTP_LIMITER_MAX_CONCURRENT, 20),
+  })
+
   constructor(
     private readonly youtubeChatQueueService: YoutubeChatActionQueueService,
     private readonly youtubeSuperChatQueueService: YoutubeChatSuperChatQueueService,
@@ -22,7 +28,7 @@ export class YoutubeChatService {
   ) { }
 
   public async init(videoId: string) {
-    const chat = new YoutubeMasterchat(videoId)
+    const chat = new YoutubeMasterchat(videoId, this.httpLimiter)
     await chat.populateMetadata()
     this.addChatListeners(chat)
     return chat

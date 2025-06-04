@@ -1,13 +1,20 @@
 import { Logger } from '@/shared/logger/logger'
+import { AxiosRequestConfig } from 'axios'
+import Bottleneck from 'bottleneck'
 import { IterateChatOptions, Masterchat, MasterchatError } from 'masterchat'
 import { YoutubeUtil } from './util/youtube.util'
 
 export class YoutubeMasterchat extends Masterchat {
-  private logger: Logger
+  private readonly logger: Logger
+  private readonly httpLimiter: Bottleneck
 
-  constructor(videoId: string) {
+  constructor(
+    videoId: string,
+    httpLimiter: Bottleneck,
+  ) {
     super(videoId, '')
     this.logger = new Logger(`YoutubeMasterchat] [${videoId}`)
+    this.httpLimiter = httpLimiter
     this.addListeners()
   }
 
@@ -46,4 +53,16 @@ export class YoutubeMasterchat extends Masterchat {
     //   this.logger.debug(`[MSG] ${name}: ${message}`)
     // })
   }
+
+  // #region override
+
+  protected post<T>(input: string, body: any, config?: AxiosRequestConfig): Promise<T> {
+    return this.httpLimiter.schedule(() => super.post<T>(input, body, config))
+  }
+
+  protected get<T>(input: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.httpLimiter.schedule(() => super.get<T>(input, config))
+  }
+
+  // #endregion
 }
