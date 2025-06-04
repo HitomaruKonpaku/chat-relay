@@ -49,8 +49,9 @@ export class YoutubeAddChatItemActionHandler extends BaseActionHandler<AddChatIt
 
     const okKey = 'be:track:youtube:author.ok'
     const okValue = await cache.get<boolean>(okKey) || false
+    const genIdKey = (id: string) => ['be:track:youtube:author', id].join(':')
     if (okValue) {
-      const idKey = ['be:track:youtube:author', this.authorId].join(':')
+      const idKey = genIdKey(this.authorId)
       const found = await cache.get<boolean>(idKey) || false
       return found
     }
@@ -79,10 +80,8 @@ FROM author
 
     const repo = this.moduleRef.get(YoutubeChatActionRepository, { strict: false })
     const records: { id: string }[] = await repo.repository.query(query)
-    await Promise.all(records.map((v) => cache.set(
-      ['be:track:youtube:author', v.id].join(':'),
-      true,
-    )))
+    await Promise.all(records.map((v) => cache.set(genIdKey(v.id), true)))
+    await cache.set(okKey, true)
 
     const found = records.some((v) => v.id === this.authorId)
     return found
