@@ -1,19 +1,26 @@
 import { Track } from '@/app/track'
 import { UserFilter, UserPool } from '@/app/user'
 import { YoutubeChannel, YoutubeChatAction, YoutubeVideo } from '@/app/youtube'
+import configuration from '@/config/configuration'
 import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+
     TypeOrmModule.forRootAsync({
-      useFactory: () => ({
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        port: Number(process.env.DB_PORT) || 5432,
-        username: process.env.DB_USERNAME || 'postgres',
-        password: process.env.DB_PASSWORD || 'admin',
-        database: process.env.DB_DATABASE || 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_DATABASE'),
         synchronize: true,
         entities: [
           UserPool,
@@ -26,6 +33,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
           YoutubeChatAction,
         ],
       }),
+      inject: [ConfigService],
     }),
   ],
 })

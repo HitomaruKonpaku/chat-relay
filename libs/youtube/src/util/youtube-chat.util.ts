@@ -8,6 +8,7 @@ import {
   AddPollResultAction,
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
+  AddSuperStickerItemAction,
   Masterchat,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
@@ -32,6 +33,10 @@ export class YoutubeChatUtil {
 
   public static isAddSuperChatTickerAction(action: Action): action is AddSuperChatTickerAction {
     return action.type === 'addSuperChatTickerAction'
+  }
+
+  public static isAddSuperStickerItemAction(action: Action): action is AddSuperStickerItemAction {
+    return action.type === 'addSuperStickerItemAction'
   }
 
   public static isAddMembershipItemAction(action: Action): action is AddMembershipItemAction {

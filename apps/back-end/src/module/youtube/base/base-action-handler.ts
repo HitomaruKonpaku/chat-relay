@@ -14,6 +14,7 @@ import {
   AddMembershipTickerAction,
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
+  AddSuperStickerItemAction,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
   stringify,
@@ -24,6 +25,7 @@ export type HandlerAction = AddBannerAction
   | AddChatItemAction
   | AddSuperChatItemAction
   | AddSuperChatTickerAction
+  | AddSuperStickerItemAction
   | AddMembershipItemAction
   | AddMembershipTickerAction
   | AddMembershipMilestoneItemAction
@@ -36,13 +38,13 @@ export type ProcessAction = AddBannerAction
   | AddMembershipMilestoneItemAction
 
 export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends ProcessAction> {
-  private readonly logger = new Logger('BaseActionHandler')
+  protected readonly logger = new Logger(BaseActionHandler.name)
 
   private userFilter?: UserFilter
 
   constructor(
     protected readonly data: YoutubeChatActionJobData<T1>,
-    private readonly moduleRef: ModuleRef,
+    protected readonly moduleRef: ModuleRef,
   ) { }
 
   protected get channel() {
