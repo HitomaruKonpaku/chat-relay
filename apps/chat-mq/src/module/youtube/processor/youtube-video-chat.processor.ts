@@ -112,14 +112,13 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     const data: Partial<YoutubeVideo> = {
       id: metadata.video.id,
       isActive: true,
+      createdAt: NumberUtil.fromDate(metadata.metadata?.datePublished),
       modifiedAt: Date.now(),
       channelId: metadata.channel.id,
-      isLiveContent: metadata.metadata?.publication?.isLiveBroadcast,
       isMembersOnly: metadata.video.isMembersOnly,
-      isLive: metadata.video.isLive,
-      upcomingAt: NumberUtil.fromDate(metadata.metadata?.publication?.startDate),
       title: metadata.video.title,
-      thumbnailUrl: metadata.metadata?.thumbnailUrl,
+      actualStart: NumberUtil.fromDate(metadata.metadata?.publication?.startDate),
+      actualEnd: NumberUtil.fromDate(metadata.metadata?.publication?.endDate),
     }
     await this.databaseInsertQueueService.add({ table: 'youtube_video', data })
   }
