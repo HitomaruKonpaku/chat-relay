@@ -3,6 +3,7 @@ import { Track, TrackService } from '@/app/track'
 import { UserSourceType } from '@/app/user'
 import {
   YoutubeVideoChatEndJobData,
+  YoutubeVideoService,
   YoutubeVideoUtil,
 } from '@/app/youtube'
 import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
@@ -25,6 +26,7 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
 
   constructor(
     private readonly trackService: TrackService,
+    private readonly youtubeVideoService: YoutubeVideoService,
     private readonly discordMessageRelayQueueService: DiscordMessageRelayQueueService,
   ) {
     super()
@@ -37,6 +39,9 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
   }
 
   protected async handle(job: Job<YoutubeVideoChatEndJobData>) {
+    await this.youtubeVideoService.updateMetadataMasterchat(job.data.video.id)
+    await this.youtubeVideoService.updateMetadataInnertube(job.data.video.id)
+
     const tracks = await this.fetchTracks(job.data.channel.id)
     if (!tracks.length) {
       return []
