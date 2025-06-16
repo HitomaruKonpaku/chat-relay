@@ -3,7 +3,6 @@ import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
 import { DISCORD_MESSAGE_RELAY_QUEUE_NAME } from '@/constant/discord.constant'
 import { BaseProcessor } from '@/shared/base/base.processor'
 import { Logger } from '@/shared/logger/logger'
-import { BooleanUtil } from '@/shared/util/boolean.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
 import { Inject, forwardRef } from '@nestjs/common'
@@ -12,7 +11,7 @@ import { Guild, TextChannel } from 'discord.js'
 import { DiscordService } from '../service/discord.service'
 
 @Processor(DISCORD_MESSAGE_RELAY_QUEUE_NAME, {
-  autorun: BooleanUtil.fromString(process.env.PROCESSOR_AUTORUN),
+  autorun: false,
   concurrency: NumberUtil.parse(process.env.DISCORD_MESSAGE_RELAY_QUEUE_CONCURRENCY, 1),
   maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
