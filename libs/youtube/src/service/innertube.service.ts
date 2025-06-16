@@ -80,6 +80,12 @@ export class InnertubeService {
     return res
   }
 
+  public async getVideo(videoId: string) {
+    await this.initClient()
+    const res = await this.client.getBasicInfo(videoId)
+    return res
+  }
+
   private getActiveVideoIds(channel: Channel): string[] {
     const videos = channel?.videos || []
     const ids = videos
