@@ -17,7 +17,10 @@ export abstract class BaseYoutubeChatQueueService {
 
   public async add(data: YoutubeChatActionJobData, options?: JobsOptions) {
     const actionId = (data.action as any).id as string
-    const jobId = [data.video.id, actionId].join('.')
+    const jobId = [
+      // data.video.id,
+      actionId,
+    ].join('.')
     const job = await this.queue.add(
       jobId,
       data,
