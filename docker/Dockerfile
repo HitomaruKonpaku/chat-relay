@@ -51,11 +51,11 @@ COPY docker/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
 COPY --from=dependencies            /app/node_modules ./node_modules
-COPY --from=dashboard               /app/dist ./dist
-COPY --from=bot                     /app/dist ./dist
-COPY --from=back-end                /app/dist ./dist
-COPY --from=chat-mq                 /app/dist ./dist
-COPY --from=youtube-channel-crawler /app/dist ./dist
+COPY --from=dashboard               /app/dist         ./dist
+COPY --from=bot                     /app/dist         ./dist
+COPY --from=back-end                /app/dist         ./dist
+COPY --from=chat-mq                 /app/dist         ./dist
+COPY --from=youtube-channel-crawler /app/dist         ./dist
 
 EXPOSE 8080
 
