@@ -1,5 +1,6 @@
 import { DiscordModule } from '@/app/discord'
 import { TrackModule } from '@/app/track'
+import { YoutubeModule as XYoutubeModule } from '@/app/youtube'
 import { Module } from '@nestjs/common'
 import { YoutubeChatActionProcessor } from './processor/youtube-chat-action.processor'
 import { YoutubeChatBannerProcessor } from './processor/youtube-chat-banner.processor'
@@ -13,6 +14,7 @@ import { YoutubeChatHandlerService } from './service/youtube-chat-handler.servic
   imports: [
     TrackModule,
     DiscordModule,
+    XYoutubeModule,
   ],
   providers: [
     YoutubeChatHandlerService,
