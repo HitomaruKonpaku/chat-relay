@@ -10,6 +10,7 @@ import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
 import { YOUTUBE_CHAT_POLL_QUEUE_NAME } from '@/constant/youtube.constant'
 import { BaseProcessor } from '@/shared/base/base.processor'
 import { Logger } from '@/shared/logger/logger'
+import { BooleanUtil } from '@/shared/util/boolean.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
 import { Job } from 'bullmq'
@@ -24,7 +25,7 @@ import {
 type ProcessAction = ShowPollPanelAction | UpdatePollAction | AddPollResultAction
 
 @Processor(YOUTUBE_CHAT_POLL_QUEUE_NAME, {
-  // autorun: false,
+  autorun: BooleanUtil.fromString(process.env.PROCESSOR_AUTORUN),
   concurrency: NumberUtil.parse(process.env.YOUTUBE_CHAT_POLL_QUEUE_CONCURRENCY, 1),
   maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
