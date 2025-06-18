@@ -1,4 +1,5 @@
 import { toVideoId } from 'masterchat'
+import { MediaInfo } from 'youtubei.js/dist/src/core/mixins'
 import { YTNode } from 'youtubei.js/dist/src/parser/helpers'
 import { GridVideo, ReelItem, Video } from 'youtubei.js/dist/src/parser/nodes'
 
@@ -23,5 +24,15 @@ export class YoutubeVideoUtil {
 
   public static isReelItem(video: YTNode): video is ReelItem {
     return video.type === 'ReelItem'
+  }
+
+  public static parsePrivacyStatus(info: MediaInfo) {
+    if (info.basic_info.is_private) {
+      return 'private'
+    }
+    if (info.basic_info.is_unlisted) {
+      return 'unlisted'
+    }
+    return 'public'
   }
 }

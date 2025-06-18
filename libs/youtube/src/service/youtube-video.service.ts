@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common'
 import { Masterchat } from 'masterchat'
 import { YoutubeVideo } from '../model/youtube-video.entity'
 import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
+import { YoutubeVideoUtil } from '../util/youtube-video.util'
 import { InnertubeService } from './innertube.service'
 
 @Injectable()
@@ -18,17 +19,16 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
     super(repository)
   }
 
-  public async modified(id: string) {
+  public async modify(id: string, data: Partial<YoutubeVideo> = {}) {
     await this.repository.repository.update({ id }, {
+      ...data,
+      id,
       modifiedAt: Date.now(),
     })
   }
 
   public async deactive(id: string) {
-    await this.repository.repository.update({ id }, {
-      isActive: false,
-      modifiedAt: Date.now(),
-    })
+    await this.modify(id, { isActive: false })
   }
 
   public async updateMetadataMasterchat(id: string) {
@@ -42,7 +42,7 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
         actualStart: NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate),
         actualEnd: NumberUtil.fromDate(mc.videoMetadata?.publication?.endDate),
       }
-      await this.repository.repository.update({ id }, data)
+      await this.modify(id, data)
       this.logger.log(`updateMetadataMasterchat | ${JSON.stringify({ id })}`)
     } catch (error) {
       this.logger.error(`updateMetadataMasterchat: ${error.message} | ${JSON.stringify({ id })}`)
@@ -51,8 +51,12 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
 
   public async updateMetadataInnertube(id: string) {
     try {
-      const { basic_info: info } = await this.innertubeService.getVideo(id)
-      if (!info.id) {
+      const info = await this.innertubeService.getVideo(id)
+      if (!info.basic_info.id) {
+        if (info.playability_status.status === 'LOGIN_REQUIRED') {
+          await this.modify(id, { isActive: true, privacyStatus: 'private' })
+          return
+        }
         await this.deactive(id)
         return
       }
@@ -60,20 +64,19 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
       const data: Partial<YoutubeVideo> = {
         isActive: true,
         modifiedAt: Date.now(),
-        isLiveContent: info.is_live_content,
+        privacyStatus: YoutubeVideoUtil.parsePrivacyStatus(info),
+        isLiveContent: info.basic_info.is_live_content,
+        title: info.basic_info.title,
       }
-      await this.repository.repository.update({ id }, data)
+      await this.modify(id, data)
       this.logger.log(`updateMetadataInnertube | ${JSON.stringify({ id })}`)
     } catch (error) {
       this.logger.error(`updateMetadataInnertube: ${error.message} | ${JSON.stringify({ id })}`)
-      const reasons = [
-        'Video unavailable',
-        'This video has been removed for violating YouTube\'s Terms of Service',
-        'This video has been removed for violating YouTube\'s policy on nudity or sexual content',
-      ]
-      if (reasons.some((v) => v === error.info.reason)) {
-        await this.deactive(id)
+      if (error.info?.reason) {
+        await this.modify(id, { isActive: false, errorReason: error.info.reason })
+        return
       }
+      this.logger.warn(`updateMetadataInnertube#unhandled: ${error.message} | ${JSON.stringify({ id, error: JSON.stringify(error) })}`)
     }
   }
 }

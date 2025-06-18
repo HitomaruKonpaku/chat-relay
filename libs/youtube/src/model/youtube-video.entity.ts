@@ -8,6 +8,9 @@ export class YoutubeVideo extends BaseExternalEntity {
   @Column({ name: 'channel_id', type: 'text' })
   channelId: string
 
+  @Column({ name: 'privacy_status', type: 'text', nullable: true })
+  privacyStatus?: 'public' | 'unlisted' | 'private'
+
   @Column({ name: 'is_members_only', type: 'boolean', nullable: true })
   isMembersOnly?: boolean
 
@@ -28,6 +31,9 @@ export class YoutubeVideo extends BaseExternalEntity {
 
   @Column({ name: 'actual_end', type: 'numeric', nullable: true })
   actualEnd?: number
+
+  @Column({ name: 'error_reason', type: 'text', nullable: true })
+  errorReason?: string
 
   channel?: YoutubeChannel[]
 }
