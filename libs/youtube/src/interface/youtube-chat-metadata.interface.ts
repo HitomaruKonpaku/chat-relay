@@ -8,6 +8,7 @@ export interface YoutubeChatMetadata {
     id: string
     title?: string
     isLive?: boolean
+    isUpcoming?: boolean
     isMembersOnly?: boolean
   },
 

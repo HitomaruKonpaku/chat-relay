@@ -120,6 +120,9 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
       actualStart: NumberUtil.fromDate(metadata.metadata?.publication?.startDate),
       actualEnd: NumberUtil.fromDate(metadata.metadata?.publication?.endDate),
     }
+    if (metadata.video.isUpcoming) {
+      data.scheduledStart = NumberUtil.fromDate(metadata.metadata?.publication?.startDate)
+    }
     await this.databaseInsertQueueService.add({ table: 'youtube_video', data })
   }
 }

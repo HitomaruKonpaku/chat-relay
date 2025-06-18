@@ -3,6 +3,7 @@ import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable } from '@nestjs/common'
 import { Masterchat } from 'masterchat'
+import { PlayerErrorMessage } from 'youtubei.js/dist/src/parser/nodes'
 import { YoutubeVideo } from '../model/youtube-video.entity'
 import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
 import { YoutubeVideoUtil } from '../util/youtube-video.util'
@@ -42,10 +43,12 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
         actualStart: NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate),
         actualEnd: NumberUtil.fromDate(mc.videoMetadata?.publication?.endDate),
       }
+      if (mc.isUpcoming) {
+        data.scheduledStart = NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate)
+      }
       await this.modify(id, data)
-      this.logger.log(`updateMetadataMasterchat | ${JSON.stringify({ id })}`)
     } catch (error) {
-      this.logger.error(`updateMetadataMasterchat: ${error.message} | ${JSON.stringify({ id })}`)
+      this.logger.error(`updateMetadataMasterchat: ${error.message} | ${JSON.stringify({ id, error: JSON.stringify(error) })}`)
     }
   }
 
@@ -54,8 +57,14 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
       const info = await this.innertubeService.getVideo(id)
       if (!info.basic_info.id) {
         if (info.playability_status.status === 'LOGIN_REQUIRED') {
-          await this.modify(id, { isActive: true, privacyStatus: 'private' })
-          return
+          const { type } = info.playability_status.error_screen
+          if (type === 'PlayerErrorMessage') {
+            const node = info.playability_status.error_screen as PlayerErrorMessage
+            if (node.reason.text === 'Private video') {
+              await this.modify(id, { isActive: true, privacyStatus: 'private' })
+              return
+            }
+          }
         }
         await this.deactive(id)
         return
@@ -67,9 +76,13 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
         privacyStatus: YoutubeVideoUtil.parsePrivacyStatus(info),
         isLiveContent: info.basic_info.is_live_content,
         title: info.basic_info.title,
+        actualStart: NumberUtil.fromDate(info.basic_info.start_timestamp),
+        actualEnd: NumberUtil.fromDate(info.basic_info.end_timestamp),
+      }
+      if (info.basic_info.is_upcoming) {
+        data.scheduledStart = NumberUtil.fromDate(info.basic_info.start_timestamp)
       }
       await this.modify(id, data)
-      this.logger.log(`updateMetadataInnertube | ${JSON.stringify({ id })}`)
     } catch (error) {
       this.logger.error(`updateMetadataInnertube: ${error.message} | ${JSON.stringify({ id })}`)
       if (error.info?.reason) {

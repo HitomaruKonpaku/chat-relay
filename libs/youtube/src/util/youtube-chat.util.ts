@@ -86,6 +86,7 @@ export class YoutubeChatUtil {
         id: chat.videoId,
         title: chat.title,
         isLive: chat.isLive,
+        isUpcoming: chat.isUpcoming,
         isMembersOnly: chat.isMembersOnly,
       },
     }
