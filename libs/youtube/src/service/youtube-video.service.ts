@@ -3,7 +3,7 @@ import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable } from '@nestjs/common'
 import { Masterchat } from 'masterchat'
-import { PlayerErrorMessage } from 'youtubei.js/dist/src/parser/nodes'
+import { PlayerErrorMessage, PlayerLegacyDesktopYpcOffer } from 'youtubei.js/dist/src/parser/nodes'
 import { YoutubeVideo } from '../model/youtube-video.entity'
 import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
 import { YoutubeVideoUtil } from '../util/youtube-video.util'
@@ -64,6 +64,9 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
               await this.modify(id, { isActive: true, privacyStatus: 'private' })
               return
             }
+            if (node.reason.text === 'Sign in to confirm you’re not a bot') {
+              return
+            }
           }
         }
         await this.deactive(id)
@@ -81,6 +84,15 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
       }
       if (info.basic_info.is_upcoming) {
         data.scheduledStart = NumberUtil.fromDate(info.basic_info.start_timestamp)
+      }
+      if (info.playability_status.status === 'UNPLAYABLE') {
+        const { type } = info.playability_status.error_screen
+        if (type === 'PlayerLegacyDesktopYpcOffer') {
+          const node = info.playability_status.error_screen as PlayerLegacyDesktopYpcOffer
+          if (node.offer_id === 'sponsors_only_video') {
+            data.isMembersOnly = true
+          }
+        }
       }
       await this.modify(id, data)
     } catch (error) {
