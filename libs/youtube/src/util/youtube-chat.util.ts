@@ -9,7 +9,6 @@ import {
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
   AddSuperStickerItemAction,
-  Masterchat,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
   ShowPollPanelAction,
@@ -17,6 +16,7 @@ import {
   UpdatePollAction,
 } from 'masterchat'
 import { YoutubeChatMetadata } from '../interface/youtube-chat-metadata.interface'
+import { YoutubeMasterchat } from '../youtube-master-chat'
 
 export class YoutubeChatUtil {
   public static isAddBannerAction(action: Action): action is AddBannerAction {
@@ -76,7 +76,7 @@ export class YoutubeChatUtil {
     return name
   }
 
-  public static generateChatMetadata(chat: Masterchat, withExtraMetadata = false) {
+  public static generateChatMetadata(chat: YoutubeMasterchat, withExtraMetadata = false) {
     const metadata: YoutubeChatMetadata = {
       channel: {
         id: chat.channelId,
@@ -89,6 +89,7 @@ export class YoutubeChatUtil {
         isUpcoming: chat.isUpcoming,
         isMembersOnly: chat.isMembersOnly,
       },
+      config: chat.config,
     }
 
     if (withExtraMetadata) {

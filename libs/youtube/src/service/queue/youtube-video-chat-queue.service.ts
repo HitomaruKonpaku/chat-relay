@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { JobsOptions, Queue } from 'bullmq'
 import ms from 'ms'
+import { YoutubeChatJobConfig } from '../../interface/youtube-chat-job-config.interface'
 import { YoutubeVideoChatJobData } from '../../interface/youtube-video-chat-job-data.interface'
 
 @Injectable()
@@ -12,11 +13,11 @@ export class YoutubeVideoChatQueueService {
     private readonly queue: Queue<YoutubeVideoChatJobData>,
   ) { }
 
-  public async add(videoId: string, options?: JobsOptions) {
+  public async add(videoId: string, options?: JobsOptions, config?: YoutubeChatJobConfig) {
     const jobId = videoId
     const job = await this.queue.add(
       jobId,
-      { videoId },
+      { videoId, config },
       {
         jobId,
         attempts: 5,

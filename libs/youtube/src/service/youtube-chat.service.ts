@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
 import { Action } from 'masterchat'
+import { YoutubeChatJobConfig } from '../interface/youtube-chat-job-config.interface'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 import { YoutubeChatActionQueueService } from './queue/youtube-chat-action-queue.service'
@@ -28,8 +29,8 @@ export class YoutubeChatService {
     private readonly youtubeChatBannerQueueService: YoutubeChatBannerQueueService,
   ) { }
 
-  public async init(videoId: string) {
-    const chat = new YoutubeMasterchat(videoId, this.httpLimiter)
+  public async init(videoId: string, config?: YoutubeChatJobConfig) {
+    const chat = new YoutubeMasterchat(videoId, config, this.httpLimiter)
     await chat.populateMetadata()
     this.addChatListeners(chat)
     return chat
@@ -55,7 +56,10 @@ export class YoutubeChatService {
       return null
     }
 
-    const body = { ...YoutubeChatUtil.generateChatMetadata(chat), action }
+    const body = {
+      ...YoutubeChatUtil.generateChatMetadata(chat),
+      action,
+    }
 
     const isSuperChat = false
       || YoutubeChatUtil.isAddSuperChatItemAction(action)

@@ -15,7 +15,12 @@ export class YoutubeChatHandlerService {
       throw new Error(`unhandleAction: ${data.action.type}`)
     }
 
-    await handler.save()
-    await handler.handle()
+    if (!data.config?.skipSave) {
+      await handler.save()
+    }
+
+    if (!data.config?.skipHandle) {
+      await handler.handle()
+    }
   }
 }

@@ -38,7 +38,7 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
   async process(job: Job<YoutubeVideoChatJobData>): Promise<any> {
     await this.log(job, '[INIT]')
     const jobData = job.data
-    const chat = await this.youtubeChatService.init(jobData.videoId)
+    const chat = await this.youtubeChatService.init(jobData.videoId, jobData.config)
     const metadata = YoutubeChatUtil.generateChatMetadata(chat, true)
     Object.assign(jobData, metadata)
 

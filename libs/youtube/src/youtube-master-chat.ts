@@ -2,19 +2,21 @@ import { Logger } from '@/shared/logger/logger'
 import { AxiosRequestConfig } from 'axios'
 import Bottleneck from 'bottleneck'
 import { IterateChatOptions, Masterchat, MasterchatError } from 'masterchat'
+import { YoutubeChatJobConfig } from './interface/youtube-chat-job-config.interface'
 import { YoutubeUtil } from './util/youtube.util'
 
 export class YoutubeMasterchat extends Masterchat {
   private readonly logger: Logger
-  private readonly httpLimiter: Bottleneck
 
   constructor(
     videoId: string,
-    httpLimiter: Bottleneck,
+    public readonly config?: YoutubeChatJobConfig,
+    protected readonly httpLimiter?: Bottleneck,
   ) {
     super(videoId, '')
     this.logger = new Logger(`YoutubeMasterchat] [${videoId}`)
-    this.httpLimiter = httpLimiter
+    this.config = config || {}
+    this.httpLimiter = httpLimiter || new Bottleneck({})
     this.addListeners()
   }
 

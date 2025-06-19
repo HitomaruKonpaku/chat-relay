@@ -8,6 +8,7 @@ export class YoutubeVideoUtil {
     const url = `https://www.youtube.com/watch?v=${id}`
     return url
   }
+
   public static getShortUrl(id: string) {
     const url = `https://www.youtube.com/shorts/${id}`
     return url
