@@ -2,6 +2,7 @@ import { BaseService } from '@/shared/base/base.service'
 import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable } from '@nestjs/common'
+import axios from 'axios'
 import { Masterchat } from 'masterchat'
 import { PlayerErrorMessage, PlayerLegacyDesktopYpcOffer } from 'youtubei.js/dist/src/parser/nodes'
 import { YoutubeVideo } from '../model/youtube-video.entity'
@@ -43,9 +44,11 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
         actualStart: NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate),
         actualEnd: NumberUtil.fromDate(mc.videoMetadata?.publication?.endDate),
       }
+
       if (mc.isUpcoming) {
         data.scheduledStart = NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate)
       }
+
       await this.modify(id, data)
     } catch (error) {
       this.logger.error(`updateMetadataMasterchat: ${error.message} | ${JSON.stringify({ id, error: JSON.stringify(error) })}`)
@@ -82,9 +85,11 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
         actualStart: NumberUtil.fromDate(info.basic_info.start_timestamp),
         actualEnd: NumberUtil.fromDate(info.basic_info.end_timestamp),
       }
+
       if (info.basic_info.is_upcoming) {
         data.scheduledStart = NumberUtil.fromDate(info.basic_info.start_timestamp)
       }
+
       if (info.playability_status.status === 'UNPLAYABLE') {
         const { type } = info.playability_status.error_screen
         if (type === 'PlayerLegacyDesktopYpcOffer') {
@@ -94,6 +99,17 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
           }
         }
       }
+
+      if (info.playability_status.status === 'OK') {
+        if (!info.basic_info.is_live_content) {
+          try {
+            data.isShortContent = await this.isShort(id)
+          } catch (error) {
+            this.logger.warn(`isShort: ${error.message} | ${JSON.stringify({ id })}`)
+          }
+        }
+      }
+
       await this.modify(id, data)
     } catch (error) {
       this.logger.error(`updateMetadataInnertube: ${error.message} | ${JSON.stringify({ id })}`)
@@ -103,5 +119,22 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
       }
       this.logger.warn(`updateMetadataInnertube#unhandled: ${error.message} | ${JSON.stringify({ id, error: JSON.stringify(error) })}`)
     }
+  }
+
+  public async isShort(id: string) {
+    const { status } = await axios.get(YoutubeVideoUtil.getShortUrl(id), {
+      maxRedirects: 0,
+      validateStatus: () => true,
+    })
+
+    if (status === 200) {
+      return true
+    }
+
+    if (status === 303) {
+      return false
+    }
+
+    return undefined
   }
 }
