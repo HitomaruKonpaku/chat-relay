@@ -5,10 +5,12 @@ import { YoutubeChatActionJobData } from '../interface/youtube-chat-action-job-d
 export abstract class BaseYoutubeChatQueueService {
   protected removeOnComplete?: boolean | number | KeepJobs = {
     age: ms('4h') * 1e-3,
+    count: 1000000,
   }
 
   protected removeOnFail?: boolean | number | KeepJobs = {
     age: ms('30d') * 1e-3,
+    count: 1000000,
   }
 
   constructor(
