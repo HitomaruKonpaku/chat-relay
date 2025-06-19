@@ -65,7 +65,7 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isAddSuperChatItemAction(action)
       || YoutubeChatUtil.isAddSuperChatTickerAction(action)
     if (isSuperChat) {
-      return this.youtubeSuperChatQueueService.add(body)
+      return this.youtubeSuperChatQueueService.add(body, chat.config?.jobsOptions)
     }
 
     const isMembership = false
@@ -75,7 +75,7 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isMembershipGiftPurchaseAction(action)
       || YoutubeChatUtil.isMembershipGiftRedemptionAction(action)
     if (isMembership) {
-      return this.youtubeChatMembershipQueueService.add(body)
+      return this.youtubeChatMembershipQueueService.add(body, chat.config?.jobsOptions)
     }
 
     const isPoll = false
@@ -83,15 +83,15 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isUpdatePollActionAction(action)
       || YoutubeChatUtil.isAddPollResultActionAction(action)
     if (isPoll) {
-      return this.youtubeChatPollQueueService.add(body)
+      return this.youtubeChatPollQueueService.add(body, chat.config?.jobsOptions)
     }
 
     const isBanner = false
       || YoutubeChatUtil.isAddBannerAction(action)
     if (isBanner) {
-      return this.youtubeChatBannerQueueService.add(body)
+      return this.youtubeChatBannerQueueService.add(body, chat.config?.jobsOptions)
     }
 
-    return this.youtubeChatQueueService.add(body)
+    return this.youtubeChatQueueService.add(body, chat.config?.jobsOptions)
   }
 }
