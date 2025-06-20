@@ -1,3 +1,4 @@
+import { MasterchatEntity } from '@/app/masterchat'
 import { Track } from '@/app/track'
 import { UserFilter, UserPool } from '@/app/user'
 import { YoutubeChannel, YoutubeChatAction, YoutubeVideo } from '@/app/youtube'
@@ -31,6 +32,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
           YoutubeChannel,
           YoutubeVideo,
           YoutubeChatAction,
+
+          MasterchatEntity,
         ],
       }),
       inject: [ConfigService],

@@ -90,6 +90,12 @@
       ],
       "@/app/discord/*": [
         "libs/discord/src/*"
+      ],
+      "@/app/masterchat": [
+        "libs/masterchat/src"
+      ],
+      "@/app/masterchat/*": [
+        "libs/masterchat/src/*"
       ]
     }
   }

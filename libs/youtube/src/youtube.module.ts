@@ -1,4 +1,5 @@
 import { DatabaseQueueModule } from '@/app/database-queue'
+import { MasterchatModule } from '@/app/masterchat'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
   YOUTUBE_CHAT_BANNER_QUEUE_NAME,
@@ -54,6 +55,8 @@ const queues = [
     ),
 
     DatabaseQueueModule,
+
+    MasterchatModule,
   ],
   providers: [
     YoutubeService,

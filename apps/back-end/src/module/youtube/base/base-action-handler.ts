@@ -15,6 +15,7 @@ import {
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
   AddSuperStickerItemAction,
+  Membership,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
   stringify,
@@ -75,6 +76,11 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
 
   public async save() {
     const data = this.getYoutubeChatAction()
+
+    const membership: Membership = (this.action as any)?.membership as Membership
+    data.membershipStatus = membership?.status
+    data.membershipSince = membership?.since
+
     const service = this.moduleRef.get(DatabaseInsertQueueService, { strict: false })
     await service.add({ table: 'youtube_chat_action', data }, this.data.config?.jobsOptions)
   }

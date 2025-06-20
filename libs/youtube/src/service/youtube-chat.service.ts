@@ -1,8 +1,9 @@
+import { MasterchatService } from '@/app/masterchat'
 import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
-import { Action } from 'masterchat'
+import { Action, MasterchatError } from 'masterchat'
 import { YoutubeChatJobConfig } from '../interface/youtube-chat-job-config.interface'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
@@ -27,6 +28,7 @@ export class YoutubeChatService {
     private readonly youtubeChatMembershipQueueService: YoutubeChatMembershipQueueService,
     private readonly youtubeChatPollQueueService: YoutubeChatPollQueueService,
     private readonly youtubeChatBannerQueueService: YoutubeChatBannerQueueService,
+    private readonly masterchatService: MasterchatService,
   ) { }
 
   public async init(videoId: string, config?: YoutubeChatJobConfig) {
@@ -41,16 +43,33 @@ export class YoutubeChatService {
       const queueActions = actions.filter((v: any) => v.id)
       await Promise.allSettled((queueActions).map((action) => this.queueAction(chat, action)))
     })
+
+    chat.on('error', async (error: MasterchatError) => {
+      await this.masterchatService.updateById({
+        id: chat.videoId,
+        errorAt: Date.now(),
+        errorCode: error.code,
+        errorMessage: error.message,
+      })
+    })
+
+    chat.on('end', async (reason) => {
+      await this.masterchatService.updateById({
+        id: chat.videoId,
+        endedAt: Date.now(),
+        endReason: reason,
+      })
+    })
   }
 
   private queueAction(chat: YoutubeMasterchat, action: Action) {
     const ignoreTypes = [
       'addPlaceholderItemAction',
-      'addViewerEngagementMessageAction',
+      // 'addViewerEngagementMessageAction',
       'showTooltipAction',
       'showPanelAction',
       'closePanelAction',
-      'membershipGiftRedemptionAction',
+      // 'membershipGiftRedemptionAction',
     ]
     if (ignoreTypes.includes(action.type)) {
       return null
