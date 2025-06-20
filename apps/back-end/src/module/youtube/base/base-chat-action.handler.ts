@@ -1,8 +1,9 @@
 import { DiscordMessageRelayQueueService } from '@/app/discord'
 import { Track, TrackService } from '@/app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@/app/user'
-import { ChatHandlerAction, ChatProcessAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
+import { ChatHandlerAction, ChatProcessAction, YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
 import { Logger } from '@/shared/logger/logger'
+import { NumberUtil } from '@/shared/util/number.util'
 import { bold, inlineCode } from 'discord.js'
 import { stringify } from 'masterchat'
 import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
@@ -18,6 +19,28 @@ export abstract class BaseChatActionHandler<THAction extends ChatHandlerAction, 
   }
 
   public abstract getProcessAction(): TPAction
+
+  /**
+   * Transform `action` to `YoutubeChatAction`
+   */
+  public getYoutubeChatAction(): YoutubeChatAction {
+    const action = this.getProcessAction()
+    if (!action.id) {
+      throw new Error('ID_NOT_FOUND')
+    }
+
+    const yca: YoutubeChatAction = {
+      ...action,
+      id: action.id,
+      createdAt: NumberUtil.fromDate(action.timestamp),
+      modifiedAt: Date.now(),
+      type: action.type,
+      videoId: this.video.id,
+      message: this.getYoutubeChatActionMessage(),
+    }
+
+    return yca
+  }
 
   public getYoutubeChatActionMessage(): string {
     const action = this.getProcessAction()
