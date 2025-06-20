@@ -6,6 +6,7 @@ import configuration from '@/config/configuration'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { BooleanUtil } from '../../../shared/util/boolean.util'
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        synchronize: true,
+        synchronize: BooleanUtil.fromString(configService.get('DB_SYNCHRONIZE')),
+        logging: false,
         entities: [
           UserPool,
           UserFilter,
