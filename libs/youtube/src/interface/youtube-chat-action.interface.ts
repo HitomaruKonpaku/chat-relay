@@ -1,6 +1,8 @@
 import {
+  Action,
   AddBannerAction,
   AddChatItemAction,
+  AddChatSummaryBannerAction,
   AddMembershipItemAction,
   AddMembershipMilestoneItemAction,
   AddMembershipTickerAction,
@@ -14,19 +16,28 @@ import {
 
 export type YTMessage = { message?: YTRun[] | null }
 
-export type HandlerAction = AddBannerAction
-  | AddChatItemAction
-  | AddSuperChatItemAction
-  | AddSuperChatTickerAction
+export type BaseAction = Action & {
+  id: string
+  timestamp?: Date
+}
+
+export type NotificationAction =
+  | AddChatSummaryBannerAction
   | AddSuperStickerItemAction
   | AddMembershipItemAction
-  | AddMembershipTickerAction
-  | AddMembershipMilestoneItemAction
   | MembershipGiftPurchaseAction
   | MembershipGiftRedemptionAction
 
-export type ProcessAction = AddBannerAction
+export type ChatHandlerAction =
+  | AddBannerAction
+  | AddChatItemAction
+  | AddSuperChatItemAction
+  | AddSuperChatTickerAction
+  | AddMembershipTickerAction
+  | AddMembershipMilestoneItemAction
+
+export type ChatProcessAction =
+  | AddBannerAction
   | AddChatItemAction
   | AddSuperChatItemAction
   | AddMembershipMilestoneItemAction
-  | (MembershipGiftRedemptionAction & YTMessage)

@@ -19,6 +19,7 @@ import {
   UnknownAction,
   UpdatePollAction,
 } from 'masterchat'
+import { YTMessage } from '../interface/youtube-chat-action.interface'
 import { YoutubeChatMetadata } from '../interface/youtube-chat-metadata.interface'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 
@@ -87,8 +88,8 @@ export class YoutubeChatUtil {
     return action.type === 'addPollResultAction'
   }
 
-  public static getMessage(action: Action) {
-    const msg = stringify((action as any).message) || ''
+  public static getMessage(action: Action & YTMessage) {
+    const msg = stringify(action.message) || ''
     return msg
   }
 

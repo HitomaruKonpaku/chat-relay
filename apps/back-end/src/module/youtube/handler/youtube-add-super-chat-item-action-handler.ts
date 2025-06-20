@@ -1,28 +1,14 @@
-import { YoutubeChatAction } from '@/app/youtube'
-import { NumberUtil } from '@/shared/util/number.util'
-import { AddSuperChatItemAction, stringify } from 'masterchat'
-import { BaseActionHandler } from '../base/base-action-handler'
-import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
+import { AddSuperChatItemAction } from 'masterchat'
+import { BaseChatActionHandler } from '../base/base-chat-action.handler'
+import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
 
-export class YoutubeAddSuperChatItemActionHandler extends BaseActionHandler<AddSuperChatItemAction, AddSuperChatItemAction> {
-  getYoutubeChatAction(): YoutubeChatAction {
-    return {
-      ...this.action,
-      id: this.action.id,
-      createdAt: NumberUtil.fromDate(this.action.timestamp),
-      modifiedAt: Date.now(),
-      type: this.action.type,
-      videoId: this.video.id,
-      message: stringify(this.action.message),
-    }
-  }
-
-  getProcessAction(): AddSuperChatItemAction {
+export class YoutubeAddSuperChatItemActionHandler extends BaseChatActionHandler<AddSuperChatItemAction, AddSuperChatItemAction> {
+  public getProcessAction(): AddSuperChatItemAction {
     return this.action
   }
 
-  getIcons(): string[] {
-    return YoutubeChatHandlerUtil.getSuperChatIcons(this.getProcessAction())
+  public getTrackMessageIcons(): string[] {
+    return YoutubeChatRelayUtil.getSuperChatIcons(this.getProcessAction())
   }
 
   protected canHandle(): boolean {

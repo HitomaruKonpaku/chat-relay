@@ -14,8 +14,8 @@ export class YoutubeChatAction extends BaseExternalEntity {
   type: string
 
   @Index()
-  @Column({ name: 'author_channel_id', type: 'text' })
-  authorChannelId: string
+  @Column({ name: 'author_channel_id', type: 'text', nullable: true })
+  authorChannelId?: string
 
   @Column({ name: 'author_name', type: 'text', nullable: true })
   authorName?: string

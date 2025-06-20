@@ -1,26 +1,12 @@
-import { Track } from '@/app/track'
-import { UserFilter } from '@/app/user'
 import {
-  ProcessAction,
-  YoutubeChannelUtil,
   YoutubeChatActionJobData,
-  YoutubeChatMetadata,
   YoutubeChatUtil,
-  YoutubeVideoUtil,
 } from '@/app/youtube'
-import { NumberUtil } from '@/shared/util/number.util'
 import { ModuleRef } from '@nestjs/core'
-import { hideLinkEmbed, hyperlink, spoiler } from 'discord.js'
-import {
-  AddBannerAction,
-  AddChatItemAction,
-  AddSuperChatItemAction,
-} from 'masterchat'
-import ms, { StringValue } from 'ms'
-import { TrackHandlerUtil } from '../../../util/track-handler.util'
-import { BaseActionHandler } from '../base/base-action-handler'
+import { BaseActionHandler } from '../base/base-action.handler'
 import { YoutubeAddBannerActionHandler } from '../handler/youtube-add-banner-action-handler'
 import { YoutubeAddChatItemActionHandler } from '../handler/youtube-add-chat-item-action-handler'
+import { YoutubeAddChatSummaryBannerActionHandler } from '../handler/youtube-add-chat-summary-banner-action-handler'
 import { YoutubeAddMembershipItemActionHandler } from '../handler/youtube-add-membership-item-action-handler'
 import { YoutubeAddMembershipMilestoneItemActionHandler } from '../handler/youtube-add-membership-milestone-item-action-handler'
 import { YoutubeAddMembershipTickerActionHandler } from '../handler/youtube-add-membership-ticker-action-handler'
@@ -31,12 +17,15 @@ import { YoutubeMembershipGiftPurchaseActionHandler } from '../handler/youtube-m
 import { YoutubeMembershipGiftRedemptionActionHandler } from '../handler/youtube-membership-gift-redemption-action-handler'
 
 export class YoutubeChatHandlerUtil {
-  public static initActionHandler(
+  public static init(
     data: YoutubeChatActionJobData<any>,
     moduleRef: ModuleRef,
-  ): BaseActionHandler<any, any> {
+  ): BaseActionHandler<any> {
     if (YoutubeChatUtil.isAddBannerAction(data.action)) {
       return new YoutubeAddBannerActionHandler(data, moduleRef)
+    }
+    if (YoutubeChatUtil.isAddChatSummaryBannerAction(data.action)) {
+      return new YoutubeAddChatSummaryBannerActionHandler(data, moduleRef)
     }
     if (YoutubeChatUtil.isAddChatItemAction(data.action)) {
       return new YoutubeAddChatItemActionHandler(data, moduleRef)
@@ -66,97 +55,5 @@ export class YoutubeChatHandlerUtil {
       return new YoutubeMembershipGiftRedemptionActionHandler(data, moduleRef)
     }
     return null
-  }
-
-  public static canRelay(
-    data: YoutubeChatMetadata,
-    action: ProcessAction,
-    track: Track,
-    userFilter?: Pick<UserFilter, 'type'>,
-  ): boolean {
-    if (!data.video.isLive && !track.allowReplay) {
-      return false
-    }
-
-    if (data.video.isLive && action.timestamp) {
-      const age = Date.now() - NumberUtil.fromDate(action.timestamp)
-      const maxAge = ms(String(process.env.YOUTUBE_CHAT_ACTION_MAX_AGE || '1h') as StringValue)
-      if (age > maxAge) {
-        return false
-      }
-    }
-
-    if (data.video.isMembersOnly && !track.allowMemberChat) {
-      return false
-    }
-
-    if (!data.video.isMembersOnly && !track.allowPublicChat) {
-      return false
-    }
-
-    const message = YoutubeChatUtil.getMessage(action)
-    if (!TrackHandlerUtil.canRelay(track, action.authorChannelId, data.channel.id, message, userFilter)) {
-      return false
-    }
-
-    return true
-  }
-
-  public static getSrcHyperlink(data: YoutubeChatActionJobData) {
-    const s = spoiler(
-      hyperlink(
-        'video',
-        hideLinkEmbed(YoutubeVideoUtil.getUrl(data.video.id)),
-        [
-          data.channel.name || data.channel.id,
-          data.video.title || data.video.id,
-        ].join('\n'),
-      ),
-    )
-    return s
-  }
-
-  public static getChannelHyperlink(data: YoutubeChatActionJobData) {
-    const s = spoiler(
-      hyperlink(
-        data.channel.name || data.channel.id,
-        hideLinkEmbed(YoutubeChannelUtil.getUrl(data.channel.id)),
-      ),
-    )
-    return s
-  }
-
-  public static getChatIcons(
-    action: AddBannerAction | AddChatItemAction,
-    track: Track,
-  ): string[] {
-    const icons = []
-    const isPinned = YoutubeChatUtil.isAddBannerAction(action)
-    if (isPinned) {
-      icons.push('📌')
-    }
-    if (action.isOwner) {
-      icons.push('▶️')
-    }
-    if (action.isModerator) {
-      icons.push('🔧')
-    }
-    if (track.filterId) {
-      icons.push('💬')
-    }
-    // if (!isPinned && !track.sourceId) {
-    //   icons.unshift('↪️')
-    // }
-    return icons
-  }
-
-  public static getSuperChatIcons(
-    action: AddSuperChatItemAction,
-  ): string[] {
-    const icons = [
-      '💴',
-      YoutubeChatUtil.toColorEmoji(action.color),
-    ]
-    return icons
   }
 }

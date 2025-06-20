@@ -1,59 +1,33 @@
-import { DatabaseInsertQueueService } from '@/app/database-queue'
 import { DiscordMessageRelayQueueService } from '@/app/discord'
 import { Track, TrackService } from '@/app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@/app/user'
-import { HandlerAction, ProcessAction, YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
+import { ChatHandlerAction, ChatProcessAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
 import { Logger } from '@/shared/logger/logger'
-import { ModuleRef } from '@nestjs/core'
 import { bold, inlineCode } from 'discord.js'
-import { Membership } from 'masterchat'
-import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
+import { stringify } from 'masterchat'
+import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
+import { BaseActionHandler } from './base-action.handler'
 
-export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends ProcessAction> {
-  protected readonly logger = new Logger(BaseActionHandler.name)
+export abstract class BaseChatActionHandler<THAction extends ChatHandlerAction, TPAction extends ChatProcessAction> extends BaseActionHandler<THAction> {
+  protected readonly logger = new Logger(BaseChatActionHandler.name)
 
   private userFilter?: UserFilter
-
-  constructor(
-    protected readonly data: YoutubeChatActionJobData<T1>,
-    protected readonly moduleRef: ModuleRef,
-  ) { }
-
-  protected get channel() {
-    return this.data.channel
-  }
-
-  protected get video() {
-    return this.data.video
-  }
-
-  protected get action() {
-    return this.data.action
-  }
-
-  protected get hostId() {
-    return this.channel.id
-  }
 
   protected get authorId() {
     return this.action.authorChannelId
   }
 
-  abstract getYoutubeChatAction(): YoutubeChatAction
+  public abstract getProcessAction(): TPAction
 
-  abstract getProcessAction(): T2
+  public getYoutubeChatActionMessage(): string {
+    const action = this.getProcessAction()
+    const msg = stringify(action.message)
+    return msg
+  }
 
-  abstract getIcons(track: Track): string[]
-
-  public async save() {
-    const data = this.getYoutubeChatAction()
-
-    const membership: Membership = (this.action as any)?.membership as Membership
-    data.membershipStatus = membership?.status
-    data.membershipSince = membership?.since
-
-    const service = this.moduleRef.get(DatabaseInsertQueueService, { strict: false })
-    await service.add({ table: 'youtube_chat_action', data }, this.data.config?.jobsOptions)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public getTrackMessageIcons(track: Track): string[] {
+    return []
   }
 
   public async handle() {
@@ -81,21 +55,20 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
   }
 
   protected canHandle(): boolean {
-    // eslint-disable-next-line dot-notation
-    const hasMessage = !!this.action['message']
+    const hasMessage = !!(this.action as any).message
     return hasMessage
   }
 
   protected async handleTrack(track: Track) {
     const action = this.getProcessAction()
-    if (!YoutubeChatHandlerUtil.canRelay(this.data, action, track, this.userFilter)) {
+    if (!YoutubeChatRelayUtil.canRelay(this.data, action, track, this.userFilter)) {
       return
     }
 
-    const icons = this.getIcons(track)
+    const icons = this.getTrackMessageIcons(track)
     const name = inlineCode(YoutubeChatUtil.getAuthorName(action))
     const displayHeader = [
-      YoutubeChatHandlerUtil.getSrcHyperlink(this.data),
+      YoutubeChatRelayUtil.getSrcHyperlink(this.data),
       icons.join(' '),
       name,
     ].filter((v) => v).join(' ')
@@ -115,15 +88,17 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     ]
 
     if (!YoutubeChatUtil.isAddBannerAction(action) && !track.sourceId) {
-      lines.push(`↪️ ${YoutubeChatHandlerUtil.getChannelHyperlink(this.data)}`)
+      lines.push(`↪️ ${YoutubeChatRelayUtil.getChannelHyperlink(this.data)}`)
     }
 
     const content = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
     await this.queueMsgRelay(track, this.data, content)
   }
 
+  // #region UserFilter & Track
+
   protected async fetchUserFilter(sourceId: string): Promise<UserFilter> {
-    const service = this.moduleRef.get(UserFilterRepository, { strict: false })
+    const service = this.getInstance(UserFilterRepository)
     const res = await service.findOne({
       sourceType: UserSourceType.YOUTUBE,
       sourceId,
@@ -132,7 +107,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
   }
 
   protected async fetchTracks(): Promise<Track[]> {
-    const service = this.moduleRef.get(TrackService, { strict: false })
+    const service = this.getInstance(TrackService)
 
     if (this.authorId === this.hostId) {
       const tracks = await service.findByHostId(
@@ -158,12 +133,16 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     return tracks
   }
 
+  // #endregion
+
+  // #region Queue
+
   protected async queueMsgRelay(
     track: Track,
-    data: YoutubeChatActionJobData<T1>,
+    data: YoutubeChatActionJobData<THAction>,
     content: string,
   ) {
-    const service = this.moduleRef.get(DiscordMessageRelayQueueService, { strict: false })
+    const service = this.getInstance(DiscordMessageRelayQueueService)
     await service.add(
       {
         channelId: track.discordChannelId,
@@ -173,11 +152,13 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
           channel: data.channel,
           video: data.video,
           action: {
-            type: data.action.type,
             id: data.action.id,
+            type: data.action.type,
           },
         },
       },
     )
   }
+
+  // #endregion
 }

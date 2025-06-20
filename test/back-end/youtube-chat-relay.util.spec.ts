@@ -1,8 +1,8 @@
 import { Track } from '@/app/track'
-import { ProcessAction, YoutubeChatMetadata } from '@/app/youtube'
-import { YoutubeChatHandlerUtil } from '../../apps/back-end/src/module/youtube/util/youtube-chat-handler.util'
+import { ChatProcessAction, YoutubeChatMetadata } from '@/app/youtube'
+import { YoutubeChatRelayUtil } from '../../apps/back-end/src/module/youtube/util/youtube-chat-relay.util'
 
-describe('YoutubeChatHandlerUtil', () => {
+describe('YoutubeChatRelayUtil', () => {
   const data: YoutubeChatMetadata = {
     channel: {
       id: 'UC7fk0CB07ly8oSl0aqKkqFg',
@@ -14,12 +14,12 @@ describe('YoutubeChatHandlerUtil', () => {
     },
   } as YoutubeChatMetadata
 
-  const action: ProcessAction = {
+  const action: ChatProcessAction = {
     type: 'addChatItemAction',
     authorChannelId: 'UC7fk0CB07ly8oSl0aqKkqFg',
     timestamp: new Date().toISOString() as any as Date,
     message: [{ text: 'test' }],
-  } as ProcessAction
+  } as ChatProcessAction
 
   const track: Track = {
     sourceId: 'UC7fk0CB07ly8oSl0aqKkqFg',
@@ -29,7 +29,7 @@ describe('YoutubeChatHandlerUtil', () => {
 
   describe('canRelay', () => {
     it('ayame send message (live)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         { ...data },
         { ...action },
         { ...track },
@@ -38,7 +38,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('ayame send message (vod:allow)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         {
           ...data,
           video: { id: 'q8Kbl-HjkQ8', isLive: false },
@@ -50,7 +50,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('ayame send message (vod:block)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         {
           ...data,
           video: { id: 'q8Kbl-HjkQ8', isLive: false },
@@ -62,7 +62,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('ayame send message (membership:allow)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         {
           ...data,
           video: { id: 'q8Kbl-HjkQ8', isLive: true, isMembersOnly: true },
@@ -74,7 +74,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('ayame send message (membership:block)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         {
           ...data,
           video: { id: 'q8Kbl-HjkQ8', isLive: true, isMembersOnly: true },
@@ -86,7 +86,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('ayame send message (past) (timestamp:date)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         { ...data },
         { ...action, timestamp: new Date(0) },
         { ...track },
@@ -95,7 +95,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('ayame send message (past) (timestamp:string)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         { ...data },
         { ...action, timestamp: new Date(0).toISOString() as any as Date },
         { ...track },
@@ -104,7 +104,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('leche send message in ayame (non-TL) (no track)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         { ...data },
         { ...action, authorChannelId: 'UC-ORlsiOfeFrWJyxqnQrxhA' },
         { ...track },
@@ -113,7 +113,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('leche send message in ayame (non-TL) (with track)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         { ...data },
         { ...action, authorChannelId: 'UC-ORlsiOfeFrWJyxqnQrxhA' },
         { ...track, filterId: 'UC-ORlsiOfeFrWJyxqnQrxhA', filterKeywords: ['[en]'] },
@@ -122,7 +122,7 @@ describe('YoutubeChatHandlerUtil', () => {
     })
 
     it('leche send message in ayame (TL)', () => {
-      const result = YoutubeChatHandlerUtil.canRelay(
+      const result = YoutubeChatRelayUtil.canRelay(
         { ...data },
         { ...action, authorChannelId: 'UC-ORlsiOfeFrWJyxqnQrxhA', message: [{ text: '[en] test' }] },
         { ...track, filterId: 'UC-ORlsiOfeFrWJyxqnQrxhA', filterKeywords: ['[en]'] },

@@ -1,38 +1,26 @@
 import { Track } from '@/app/track'
-import { YoutubeChatAction, YoutubeChatActionRepository } from '@/app/youtube'
+import { YoutubeChatActionRepository } from '@/app/youtube'
 import { Logger } from '@/shared/logger/logger'
-import { NumberUtil } from '@/shared/util/number.util'
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager'
-import { AddChatItemAction, stringify } from 'masterchat'
-import { BaseActionHandler } from '../base/base-action-handler'
-import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
+import { AddChatItemAction } from 'masterchat'
+import { BaseChatActionHandler } from '../base/base-chat-action.handler'
+import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
 
-export class YoutubeAddChatItemActionHandler extends BaseActionHandler<AddChatItemAction, AddChatItemAction> {
+export class YoutubeAddChatItemActionHandler extends BaseChatActionHandler<AddChatItemAction, AddChatItemAction> {
   protected readonly logger = new Logger(YoutubeAddChatItemActionHandler.name)
 
-  getYoutubeChatAction(): YoutubeChatAction {
-    return {
-      ...this.action,
-      id: this.action.id,
-      createdAt: NumberUtil.fromDate(this.action.timestamp),
-      modifiedAt: Date.now(),
-      type: this.action.type,
-      videoId: this.video.id,
-      message: stringify(this.action.message),
-    }
-  }
-
-  getProcessAction(): AddChatItemAction {
+  public getProcessAction(): AddChatItemAction {
     return this.action
   }
 
-  getIcons(track: Track): string[] {
-    return YoutubeChatHandlerUtil.getChatIcons(this.getProcessAction(), track)
+  public getTrackMessageIcons(track: Track): string[] {
+    return YoutubeChatRelayUtil.getChatIcons(this.getProcessAction(), track)
   }
 
-  public async save(): Promise<void> {
+  public async save() {
     try {
-      const canSave = this.action.isOwner
+      const canSave = false
+        || this.action.isOwner
         || this.action.isModerator
         || this.action.isVerified
         || await this.hasTrackAuthor()
@@ -40,12 +28,12 @@ export class YoutubeAddChatItemActionHandler extends BaseActionHandler<AddChatIt
         await super.save()
       }
     } catch (error) {
-      this.logger.warn(`hasTrackAuthor: ${error.message} | ${JSON.stringify({ authorId: this.authorId, action: this.action })}`)
+      this.logger.warn(`save: ${error.message} | ${JSON.stringify({ authorId: this.authorId, action: this.action })}`)
     }
   }
 
   private async hasTrackAuthor(): Promise<boolean> {
-    const cache: Cache = this.moduleRef.get(CACHE_MANAGER, { strict: false })
+    const cache: Cache = this.getInstance(CACHE_MANAGER)
     if (!cache) {
       return false
     }
@@ -81,7 +69,7 @@ SELECT *
 FROM author
       `
 
-    const repo = this.moduleRef.get(YoutubeChatActionRepository, { strict: false })
+    const repo = this.getInstance(YoutubeChatActionRepository)
     const records: { id: string }[] = await repo.repository.query(query)
     await Promise.all(records.map((v) => cache.set(genIdKey(v.id), true)))
     await cache.set(okKey, true)
