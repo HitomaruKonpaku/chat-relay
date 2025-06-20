@@ -2,6 +2,7 @@ import {
   Action,
   AddBannerAction,
   AddChatItemAction,
+  AddChatSummaryBannerAction,
   AddMembershipItemAction,
   AddMembershipMilestoneItemAction,
   AddMembershipTickerAction,
@@ -12,6 +13,7 @@ import {
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
   ShowPollPanelAction,
+  stringify,
   SuperChatColor,
   UpdatePollAction,
 } from 'masterchat'
@@ -21,6 +23,10 @@ import { YoutubeMasterchat } from '../youtube-master-chat'
 export class YoutubeChatUtil {
   public static isAddBannerAction(action: Action): action is AddBannerAction {
     return action.type === 'addBannerAction'
+  }
+
+  public static isAddChatSummaryBannerAction(action: Action): action is AddChatSummaryBannerAction {
+    return action.type === 'addChatSummaryBannerAction'
   }
 
   public static isAddChatItemAction(action: Action): action is AddChatItemAction {
@@ -71,7 +77,12 @@ export class YoutubeChatUtil {
     return action.type === 'addPollResultAction'
   }
 
-  public static getAuthorName(action: AddBannerAction | AddChatItemAction | AddSuperChatItemAction | AddMembershipMilestoneItemAction): string {
+  public static getMessage(action: Action) {
+    const msg = stringify((action as any).message) || ''
+    return msg
+  }
+
+  public static getAuthorName(action: AddBannerAction | AddChatItemAction | AddSuperChatItemAction | AddMembershipMilestoneItemAction | MembershipGiftRedemptionAction): string {
     const name = action.authorName || action.authorChannelId
     return name
   }

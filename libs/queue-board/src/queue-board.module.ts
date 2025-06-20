@@ -7,9 +7,11 @@ import {
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
   YOUTUBE_CHAT_BANNER_QUEUE_NAME,
+  YOUTUBE_CHAT_ERROR_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
   YOUTUBE_CHAT_POLL_QUEUE_NAME,
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
+  YOUTUBE_CHAT_UNKNOWN_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
 } from '@/constant/youtube.constant'
@@ -25,6 +27,8 @@ const queues = [
   { name: DISCORD_MESSAGE_RELAY_QUEUE_NAME },
   { name: YOUTUBE_VIDEO_CHAT_QUEUE_NAME },
   { name: YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_ERROR_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_UNKNOWN_QUEUE_NAME },
   { name: YOUTUBE_CHAT_ACTION_QUEUE_NAME },
   { name: YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME },
@@ -45,7 +49,7 @@ const queues = [
         uiConfig: {
           dateFormats: {
             short: 'HH:mm:ss',
-            common: 'MM-dd HH:mm:ss',
+            common: 'yyyy-MM-dd HH:mm:ss',
             full: 'yyyy-MM-dd HH:mm:ss',
           },
         },

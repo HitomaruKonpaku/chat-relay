@@ -3,9 +3,11 @@ import { MasterchatModule } from '@/app/masterchat'
 import {
   YOUTUBE_CHAT_ACTION_QUEUE_NAME,
   YOUTUBE_CHAT_BANNER_QUEUE_NAME,
+  YOUTUBE_CHAT_ERROR_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
   YOUTUBE_CHAT_POLL_QUEUE_NAME,
   YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME,
+  YOUTUBE_CHAT_UNKNOWN_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME,
   YOUTUBE_VIDEO_CHAT_QUEUE_NAME,
 } from '@/constant/youtube.constant'
@@ -22,9 +24,11 @@ import { YoutubeVideoRepository } from './repository/youtube-video.repository'
 import { InnertubeService } from './service/innertube.service'
 import { YoutubeChatActionQueueService } from './service/queue/youtube-chat-action-queue.service'
 import { YoutubeChatBannerQueueService } from './service/queue/youtube-chat-banner-queue.service'
+import { YoutubeChatErrorQueueService } from './service/queue/youtube-chat-error-queue.service'
 import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './service/queue/youtube-chat-super-chat-queue.service'
+import { YoutubeChatUnknownQueueService } from './service/queue/youtube-chat-unknown-queue.service'
 import { YoutubeVideoChatEndQueueService } from './service/queue/youtube-video-chat-end-queue.service'
 import { YoutubeVideoChatQueueService } from './service/queue/youtube-video-chat-queue.service'
 import { YoutubeChannelService } from './service/youtube-channel.service'
@@ -35,6 +39,8 @@ import { YoutubeService } from './youtube.service'
 const queues = [
   { name: YOUTUBE_VIDEO_CHAT_QUEUE_NAME },
   { name: YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_ERROR_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_UNKNOWN_QUEUE_NAME },
   { name: YOUTUBE_CHAT_ACTION_QUEUE_NAME },
   { name: YOUTUBE_CHAT_SUPER_CHAT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME },
@@ -71,6 +77,8 @@ const queues = [
 
     YoutubeVideoChatQueueService,
     YoutubeVideoChatEndQueueService,
+    YoutubeChatErrorQueueService,
+    YoutubeChatUnknownQueueService,
     YoutubeChatActionQueueService,
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,
@@ -92,6 +100,8 @@ const queues = [
 
     YoutubeVideoChatQueueService,
     YoutubeVideoChatEndQueueService,
+    YoutubeChatErrorQueueService,
+    YoutubeChatUnknownQueueService,
     YoutubeChatActionQueueService,
     YoutubeChatSuperChatQueueService,
     YoutubeChatMembershipQueueService,

@@ -1,10 +1,9 @@
 import { YoutubeChatAction } from '@/app/youtube'
 import { NumberUtil } from '@/shared/util/number.util'
-import { AddSuperChatItemAction, stringify } from 'masterchat'
+import { MembershipGiftRedemptionAction } from 'masterchat'
 import { BaseActionHandler } from '../base/base-action-handler'
-import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
 
-export class YoutubeAddSuperChatItemActionHandler extends BaseActionHandler<AddSuperChatItemAction, AddSuperChatItemAction> {
+export class YoutubeMembershipGiftRedemptionActionHandler extends BaseActionHandler<MembershipGiftRedemptionAction, MembershipGiftRedemptionAction> {
   getYoutubeChatAction(): YoutubeChatAction {
     return {
       ...this.action,
@@ -13,19 +12,18 @@ export class YoutubeAddSuperChatItemActionHandler extends BaseActionHandler<AddS
       modifiedAt: Date.now(),
       type: this.action.type,
       videoId: this.video.id,
-      message: stringify(this.action.message),
     }
   }
 
-  getProcessAction(): AddSuperChatItemAction {
+  getProcessAction(): MembershipGiftRedemptionAction {
     return this.action
   }
 
   getIcons(): string[] {
-    return YoutubeChatHandlerUtil.getSuperChatIcons(this.getProcessAction())
+    return []
   }
 
   protected canHandle(): boolean {
-    return true
+    return false
   }
 }

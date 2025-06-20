@@ -2,41 +2,12 @@ import { DatabaseInsertQueueService } from '@/app/database-queue'
 import { DiscordMessageRelayQueueService } from '@/app/discord'
 import { Track, TrackService } from '@/app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@/app/user'
-import { YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
+import { HandlerAction, ProcessAction, YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
 import { Logger } from '@/shared/logger/logger'
 import { ModuleRef } from '@nestjs/core'
 import { bold, inlineCode } from 'discord.js'
-import {
-  AddBannerAction,
-  AddChatItemAction,
-  AddMembershipItemAction,
-  AddMembershipMilestoneItemAction,
-  AddMembershipTickerAction,
-  AddSuperChatItemAction,
-  AddSuperChatTickerAction,
-  AddSuperStickerItemAction,
-  Membership,
-  MembershipGiftPurchaseAction,
-  MembershipGiftRedemptionAction,
-  stringify,
-} from 'masterchat'
+import { Membership } from 'masterchat'
 import { YoutubeChatHandlerUtil } from '../util/youtube-chat-handler.util'
-
-export type HandlerAction = AddBannerAction
-  | AddChatItemAction
-  | AddSuperChatItemAction
-  | AddSuperChatTickerAction
-  | AddSuperStickerItemAction
-  | AddMembershipItemAction
-  | AddMembershipTickerAction
-  | AddMembershipMilestoneItemAction
-  | MembershipGiftPurchaseAction
-  | MembershipGiftRedemptionAction
-
-export type ProcessAction = AddBannerAction
-  | AddChatItemAction
-  | AddSuperChatItemAction
-  | AddMembershipMilestoneItemAction
 
 export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends ProcessAction> {
   protected readonly logger = new Logger(BaseActionHandler.name)
@@ -86,7 +57,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
   }
 
   public async handle() {
-    if (!this.hasMessage()) {
+    if (!this.canHandle()) {
       return
     }
 
@@ -109,10 +80,10 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
     }))
   }
 
-  protected hasMessage(): boolean {
+  protected canHandle(): boolean {
     // eslint-disable-next-line dot-notation
-    const tmp = this.action['message']
-    return !!tmp
+    const hasMessage = !!this.action['message']
+    return hasMessage
   }
 
   protected async handleTrack(track: Track) {
@@ -129,7 +100,7 @@ export abstract class BaseActionHandler<T1 extends HandlerAction, T2 extends Pro
       name,
     ].filter((v) => v).join(' ')
 
-    const message = stringify(action.message) || ''
+    const message = YoutubeChatUtil.getMessage(action)
     const displayMessage = message
       ? `${bold(inlineCode(message))}`
       : ''

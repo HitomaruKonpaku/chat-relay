@@ -4,6 +4,7 @@ export * from './youtube.service'
 export * from './youtube-master-chat'
 
 export * from './interface/youtube-chat-action-job-data.interface'
+export * from './interface/youtube-chat-action.interface'
 export * from './interface/youtube-chat-metadata.interface'
 export * from './interface/youtube-video-chat-end-job-data.interface'
 export * from './interface/youtube-video-chat-job-data.interface'

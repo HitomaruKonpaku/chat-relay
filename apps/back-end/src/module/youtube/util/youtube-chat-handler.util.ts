@@ -1,6 +1,7 @@
 import { Track } from '@/app/track'
 import { UserFilter } from '@/app/user'
 import {
+  ProcessAction,
   YoutubeChannelUtil,
   YoutubeChatActionJobData,
   YoutubeChatMetadata,
@@ -14,11 +15,10 @@ import {
   AddBannerAction,
   AddChatItemAction,
   AddSuperChatItemAction,
-  stringify,
 } from 'masterchat'
 import ms, { StringValue } from 'ms'
 import { TrackHandlerUtil } from '../../../util/track-handler.util'
-import { BaseActionHandler, ProcessAction } from '../base/base-action-handler'
+import { BaseActionHandler } from '../base/base-action-handler'
 import { YoutubeAddBannerActionHandler } from '../handler/youtube-add-banner-action-handler'
 import { YoutubeAddChatItemActionHandler } from '../handler/youtube-add-chat-item-action-handler'
 import { YoutubeAddMembershipItemActionHandler } from '../handler/youtube-add-membership-item-action-handler'
@@ -28,6 +28,7 @@ import { YoutubeAddSuperChatItemActionHandler } from '../handler/youtube-add-sup
 import { YoutubeAddSuperChatTickerActionHandler } from '../handler/youtube-add-super-chat-ticker-action-handler'
 import { YoutubeAddSuperStickerItemAction } from '../handler/youtube-add-super-sticker-item-action-handler'
 import { YoutubeMembershipGiftPurchaseActionHandler } from '../handler/youtube-membership-gift-purchase-action-handler'
+import { YoutubeMembershipGiftRedemptionActionHandler } from '../handler/youtube-membership-gift-redemption-action-handler'
 
 export class YoutubeChatHandlerUtil {
   public static initActionHandler(
@@ -61,6 +62,9 @@ export class YoutubeChatHandlerUtil {
     if (YoutubeChatUtil.isMembershipGiftPurchaseAction(data.action)) {
       return new YoutubeMembershipGiftPurchaseActionHandler(data, moduleRef)
     }
+    if (YoutubeChatUtil.isMembershipGiftRedemptionAction(data.action)) {
+      return new YoutubeMembershipGiftRedemptionActionHandler(data, moduleRef)
+    }
     return null
   }
 
@@ -90,7 +94,7 @@ export class YoutubeChatHandlerUtil {
       return false
     }
 
-    const message = stringify(action.message) || ''
+    const message = YoutubeChatUtil.getMessage(action)
     if (!TrackHandlerUtil.canRelay(track, action.authorChannelId, data.channel.id, message, userFilter)) {
       return false
     }

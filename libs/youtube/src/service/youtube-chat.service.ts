@@ -67,11 +67,10 @@ export class YoutubeChatService {
   private queueAction(chat: YoutubeMasterchat, action: Action) {
     const ignoreTypes = [
       'addPlaceholderItemAction',
-      // 'addViewerEngagementMessageAction',
+      'addViewerEngagementMessageAction',
       'showTooltipAction',
       'showPanelAction',
       'closePanelAction',
-      // 'membershipGiftRedemptionAction',
     ]
     if (ignoreTypes.includes(action.type)) {
       return null
@@ -109,6 +108,7 @@ export class YoutubeChatService {
 
     const isBanner = false
       || YoutubeChatUtil.isAddBannerAction(action)
+      || YoutubeChatUtil.isAddChatSummaryBannerAction(action)
     if (isBanner) {
       return this.youtubeChatBannerQueueService.add(body, chat.config?.jobsOptions)
     }
