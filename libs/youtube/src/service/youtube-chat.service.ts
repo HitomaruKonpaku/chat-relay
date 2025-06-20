@@ -39,7 +39,6 @@ export class YoutubeChatService {
     const chat = new YoutubeMasterchat(videoId, config, this.httpLimiter)
     await chat.populateMetadata()
     this.masterchatService.updateById({ id: chat.videoId, channelId: chat.channelId })
-      .finally(() => { })
     this.addChatListeners(chat)
     return chat
   }

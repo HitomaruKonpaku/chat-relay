@@ -1,4 +1,5 @@
 import { DatabaseInsertQueueService } from '@/app/database-queue'
+import { MasterchatService } from '@/app/masterchat'
 import { UserPoolRepository, UserSourceType } from '@/app/user'
 import {
   YoutubeChatMetadata,
@@ -31,6 +32,7 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     private readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
     private readonly youtubeChatService: YoutubeChatService,
     private readonly userPoolRepository: UserPoolRepository,
+    private readonly masterchatService: MasterchatService,
   ) {
     super()
   }
@@ -39,6 +41,11 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     await this.log(job, '[INIT]')
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId, jobData.config)
+      .catch((error) => {
+        this.masterchatService.updateById({ id: jobData.videoId })
+        throw error
+      })
+
     const metadata = YoutubeChatUtil.generateChatMetadata(chat, true)
     Object.assign(jobData, metadata)
 

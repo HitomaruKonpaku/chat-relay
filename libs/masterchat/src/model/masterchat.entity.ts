@@ -4,8 +4,8 @@ import { Column, Entity, Index } from 'typeorm'
 @Entity('masterchat')
 export class MasterchatEntity extends BaseExternalEntity {
   @Index()
-  @Column({ name: 'channel_id', type: 'text' })
-  channelId: string
+  @Column({ name: 'channel_id', type: 'text', nullable: true })
+  channelId?: string
 
   @Column({ name: 'ended_at', type: 'numeric', nullable: true })
   endedAt?: number
