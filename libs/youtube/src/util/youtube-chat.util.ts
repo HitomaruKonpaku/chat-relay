@@ -10,17 +10,27 @@ import {
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
   AddSuperStickerItemAction,
+  ErrorAction,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
   ShowPollPanelAction,
   stringify,
   SuperChatColor,
+  UnknownAction,
   UpdatePollAction,
 } from 'masterchat'
 import { YoutubeChatMetadata } from '../interface/youtube-chat-metadata.interface'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 
 export class YoutubeChatUtil {
+  public static isErrorAction(action: Action): action is ErrorAction {
+    return action.type === 'error'
+  }
+
+  public static isUnknownAction(action: Action): action is UnknownAction {
+    return action.type === 'unknown'
+  }
+
   public static isAddBannerAction(action: Action): action is AddBannerAction {
     return action.type === 'addBannerAction'
   }

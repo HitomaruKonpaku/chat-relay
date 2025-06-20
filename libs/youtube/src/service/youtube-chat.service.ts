@@ -9,9 +9,11 @@ import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 import { YoutubeChatActionQueueService } from './queue/youtube-chat-action-queue.service'
 import { YoutubeChatBannerQueueService } from './queue/youtube-chat-banner-queue.service'
+import { YoutubeChatErrorQueueService } from './queue/youtube-chat-error-queue.service'
 import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './queue/youtube-chat-super-chat-queue.service'
+import { YoutubeChatUnknownQueueService } from './queue/youtube-chat-unknown-queue.service'
 
 @Injectable()
 export class YoutubeChatService {
@@ -23,6 +25,8 @@ export class YoutubeChatService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly youtubeChatErrorQueueService: YoutubeChatErrorQueueService,
+    private readonly youtubeChatUnknownQueueServicee: YoutubeChatUnknownQueueService,
     private readonly youtubeChatQueueService: YoutubeChatActionQueueService,
     private readonly youtubeSuperChatQueueService: YoutubeChatSuperChatQueueService,
     private readonly youtubeChatMembershipQueueService: YoutubeChatMembershipQueueService,
@@ -79,6 +83,14 @@ export class YoutubeChatService {
     const body = {
       ...YoutubeChatUtil.generateChatMetadata(chat),
       action,
+    }
+
+    if (YoutubeChatUtil.isErrorAction(action)) {
+      return this.youtubeChatErrorQueueService.add(body, chat.config?.jobsOptions)
+    }
+
+    if (YoutubeChatUtil.isUnknownAction(action)) {
+      return this.youtubeChatUnknownQueueServicee.add(body, chat.config?.jobsOptions)
     }
 
     const isSuperChat = false
