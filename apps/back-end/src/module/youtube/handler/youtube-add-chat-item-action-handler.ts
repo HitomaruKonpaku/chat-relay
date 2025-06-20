@@ -32,8 +32,11 @@ export class YoutubeAddChatItemActionHandler extends BaseActionHandler<AddChatIt
 
   public async save(): Promise<void> {
     try {
-      const found = await this.hasTrackAuthor()
-      if (found) {
+      const canSave = this.action.isOwner
+        || this.action.isModerator
+        || this.action.isVerified
+        || await this.hasTrackAuthor()
+      if (canSave) {
         await super.save()
       }
     } catch (error) {
