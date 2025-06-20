@@ -38,7 +38,7 @@ export class YoutubeChatService {
   public async init(videoId: string, config?: YoutubeChatJobConfig) {
     const chat = new YoutubeMasterchat(videoId, config, this.httpLimiter)
     await chat.populateMetadata()
-    this.masterchatService.updateById({ id: chat.videoId })
+    this.masterchatService.updateById({ id: chat.videoId, channelId: chat.channelId })
       .finally(() => { })
     this.addChatListeners(chat)
     return chat
@@ -53,6 +53,7 @@ export class YoutubeChatService {
     chat.on('error', async (error: MasterchatError) => {
       await this.masterchatService.updateById({
         id: chat.videoId,
+        channelId: chat.channelId,
         errorAt: Date.now(),
         errorCode: error.code,
         errorMessage: error.message,
@@ -62,6 +63,7 @@ export class YoutubeChatService {
     chat.on('end', async (reason) => {
       await this.masterchatService.updateById({
         id: chat.videoId,
+        channelId: chat.channelId,
         endedAt: Date.now(),
         endReason: reason,
       })
