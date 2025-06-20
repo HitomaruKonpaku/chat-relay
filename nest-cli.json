@@ -144,6 +144,7 @@
       "compilerOptions": {
         "tsConfigPath": "libs/twitch/tsconfig.lib.json"
       }
+    },
     "masterchat": {
       "type": "library",
       "root": "libs/masterchat",
