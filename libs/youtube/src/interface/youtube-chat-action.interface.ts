@@ -9,7 +9,10 @@ import {
   AddSuperStickerItemAction,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
+  YTRun,
 } from 'masterchat'
+
+export type YTMessage = { message?: YTRun[] | null }
 
 export type HandlerAction = AddBannerAction
   | AddChatItemAction
@@ -26,4 +29,4 @@ export type ProcessAction = AddBannerAction
   | AddChatItemAction
   | AddSuperChatItemAction
   | AddMembershipMilestoneItemAction
-  | MembershipGiftRedemptionAction
+  | (MembershipGiftRedemptionAction & YTMessage)
