@@ -1,6 +1,6 @@
 import { Track, TrackService } from '@/app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@/app/user'
-import { ChatHandlerAction, ChatProcessAction, YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
+import { ChatHandlerAction, ChatProcessAction, YoutubeChatAction, YoutubeChatUtil } from '@/app/youtube'
 import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { bold, inlineCode } from 'discord.js'
@@ -95,7 +95,7 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
     }
 
     const content = this.getContent(action, track)
-    const metadata = this.getMetadata(this.data)
+    const metadata = this.getMetadata()
 
     const service = this.getInstance(YoutubeChatHandlerService)
     await service.queueDiscordMsg({ channelId: track.discordChannelId, content, metadata })
@@ -169,19 +169,6 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
     }
 
     const res = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
-    return res
-  }
-
-  protected getMetadata(data: YoutubeChatActionJobData<T>) {
-    const res = {
-      source: UserSourceType.YOUTUBE,
-      channel: data.channel,
-      video: data.video,
-      action: {
-        id: data.action.id,
-        type: data.action.type,
-      },
-    }
     return res
   }
 }
