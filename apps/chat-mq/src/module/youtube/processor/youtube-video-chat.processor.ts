@@ -41,6 +41,14 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     await this.log(job, '[INIT]')
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId, jobData.config)
+      .then((res) => {
+        this.masterchatService.updateById({
+          id: res.videoId,
+          channelId: res.channelId,
+          startedAt: Date.now(),
+        })
+        return res
+      })
       .catch((error) => {
         this.masterchatService.updateById({ id: jobData.videoId })
         throw error

@@ -7,6 +7,9 @@ export class MasterchatEntity extends BaseExternalEntity {
   @Column({ name: 'channel_id', type: 'text', nullable: true })
   channelId?: string
 
+  @Column({ name: 'started_at', type: 'numeric', nullable: true })
+  startedAt?: number
+
   @Column({ name: 'ended_at', type: 'numeric', nullable: true })
   endedAt?: number
 
