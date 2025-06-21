@@ -5,7 +5,9 @@ import { Type } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Action, Badges, Membership } from 'masterchat'
 
-export abstract class BaseActionHandler<T extends Action> {
+type YCA = YoutubeChatAction & Partial<Badges>
+
+export abstract class BaseActionHandler<T extends Action, R extends Action = T> {
   constructor(
     protected readonly data: YoutubeChatActionJobData<T>,
     protected readonly moduleRef: ModuleRef,
@@ -31,11 +33,15 @@ export abstract class BaseActionHandler<T extends Action> {
     return this.channel.id
   }
 
+  public getMainAction(): R {
+    return this.action as any
+  }
+
   /**
    * Transform `action` to `YoutubeChatAction`
    */
   public getYoutubeChatAction(): YoutubeChatAction {
-    const action = this.action as BaseAction
+    const action = this.getMainAction() as BaseAction
     if (!action.id) {
       throw new Error('ID_NOT_FOUND')
     }
@@ -62,7 +68,6 @@ export abstract class BaseActionHandler<T extends Action> {
       return
     }
 
-    type YCA = YoutubeChatAction & Partial<Badges>
     const data: YCA = this.getYoutubeChatAction()
     const membership: Membership = data.membership
       || (this.action as any).membership

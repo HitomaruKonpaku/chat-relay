@@ -9,7 +9,7 @@ import { stringify } from 'masterchat'
 import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
 import { BaseActionHandler } from './base-action.handler'
 
-export abstract class BaseChatActionHandler<THAction extends ChatHandlerAction, TPAction extends ChatProcessAction> extends BaseActionHandler<THAction> {
+export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R extends ChatProcessAction> extends BaseActionHandler<T, R> {
   protected readonly logger = new Logger(BaseChatActionHandler.name)
 
   private userFilter?: UserFilter
@@ -18,7 +18,13 @@ export abstract class BaseChatActionHandler<THAction extends ChatHandlerAction, 
     return this.action.authorChannelId
   }
 
-  public abstract getProcessAction(): TPAction
+  public getProcessAction(): R {
+    return this.action as any
+  }
+
+  public getMainAction(): R {
+    return this.getProcessAction()
+  }
 
   /**
    * Transform `action` to `YoutubeChatAction`
@@ -162,7 +168,7 @@ export abstract class BaseChatActionHandler<THAction extends ChatHandlerAction, 
 
   protected async queueMsgRelay(
     track: Track,
-    data: YoutubeChatActionJobData<THAction>,
+    data: YoutubeChatActionJobData<T>,
     content: string,
   ) {
     const service = this.getInstance(DiscordMessageRelayQueueService)

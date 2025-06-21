@@ -9,10 +9,6 @@ import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
 export class YoutubeAddChatItemActionHandler extends BaseChatActionHandler<AddChatItemAction, AddChatItemAction> {
   protected readonly logger = new Logger(YoutubeAddChatItemActionHandler.name)
 
-  public getProcessAction(): AddChatItemAction {
-    return this.action
-  }
-
   public getTrackMessageIcons(track: Track): string[] {
     return YoutubeChatRelayUtil.getChatIcons(this.getProcessAction(), track)
   }
