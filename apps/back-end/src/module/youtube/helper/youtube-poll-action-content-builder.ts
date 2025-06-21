@@ -1,5 +1,5 @@
 import { PollAction, YoutubeChatActionJobData, YoutubeChatUtil, YoutubeVideoUtil } from '@/app/youtube'
-import { codeBlock, hideLinkEmbed, hyperlink } from 'discord.js'
+import { codeBlock, hideLinkEmbed, hyperlink, inlineCode } from 'discord.js'
 import { stringify } from 'masterchat'
 
 export class YoutubePollActionContentBuilder {
@@ -40,7 +40,7 @@ export class YoutubePollActionContentBuilder {
       ].join('\n'),
     )
 
-    this.lines.push(`「${link}」 POLL: ${this.data.action.type}`)
+    this.lines.push(`「${link}」 POLL: ${inlineCode(this.data.action.type)}`)
   }
 
   private addQuestion(question: string) {

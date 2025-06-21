@@ -1,5 +1,5 @@
 import { NotificationAction, YoutubeVideoUtil } from '@/app/youtube'
-import { codeBlock, hideLinkEmbed, hyperlink } from 'discord.js'
+import { codeBlock, hideLinkEmbed, hyperlink, inlineCode } from 'discord.js'
 import { YoutubeChatHandlerService } from '../service/youtube-chat-handler.service'
 import { BaseActionHandler } from './base-action.handler'
 
@@ -32,7 +32,7 @@ export abstract class BaseNotificationActionHandler<T extends NotificationAction
       ].join('\n'),
     )
 
-    lines.push(`「${link}」 ${this.data.action.type}`)
+    lines.push(`「${link}」 ${inlineCode(this.data.action.type)}`)
 
     lines.push(codeBlock(this.getYoutubeChatActionMessage()))
 
