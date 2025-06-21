@@ -1,5 +1,3 @@
-import { DiscordMessageRelayQueueService } from '@/app/discord'
-import { Track, TrackService } from '@/app/track'
 import { UserSourceType } from '@/app/user'
 import {
   YoutubeVideoChatEndJobData,
@@ -15,6 +13,7 @@ import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
 import { Job } from 'bullmq'
 import { hideLinkEmbed, hyperlink } from 'discord.js'
+import { YoutubeChatHandlerService } from '../service/youtube-chat-handler.service'
 
 @Processor(YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME, {
   autorun: BooleanUtil.fromString(process.env.PROCESSOR_AUTORUN),
@@ -25,9 +24,8 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
   protected readonly logger = new Logger(YoutubeVideoChatEndProcessor.name)
 
   constructor(
-    private readonly trackService: TrackService,
     private readonly youtubeVideoService: YoutubeVideoService,
-    private readonly discordMessageRelayQueueService: DiscordMessageRelayQueueService,
+    private readonly youtubeChatHandlerService: YoutubeChatHandlerService,
   ) {
     super()
   }
@@ -39,29 +37,18 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
   }
 
   protected async handle(job: Job<YoutubeVideoChatEndJobData>) {
-    await this.youtubeVideoService.updateMetadataMasterchat(job.data.video.id)
-    await this.youtubeVideoService.updateMetadataInnertube(job.data.video.id)
+    const { data } = job
+    await this.youtubeVideoService.updateMetadataMasterchat(data.video.id)
+    await this.youtubeVideoService.updateMetadataInnertube(data.video.id)
 
-    const tracks = await this.fetchTracks(job.data.channel.id)
-    if (!tracks.length) {
-      return []
-    }
+    const content = this.getContent(data)
+    const metadata = this.getMetadata(data)
 
-    await Promise.allSettled(tracks.map((track) => this.handleTrack(track, job.data)))
-    return tracks
+    const res = await this.youtubeChatHandlerService.handleNotification(data, { content, metadata })
+    return res
   }
 
-  protected async handleTrack(track: Track, data: YoutubeVideoChatEndJobData) {
-    if (!data.video.isLive && !track.allowReplay) {
-      return
-    }
-    if (data.video.isMembersOnly && !track.allowMemberChat) {
-      return
-    }
-    if (!data.video.isMembersOnly && !track.allowPublicChat) {
-      return
-    }
-
+  private getContent(data: YoutubeVideoChatEndJobData): string {
     const link = hyperlink(
       data.video.id,
       hideLinkEmbed(YoutubeVideoUtil.getUrl(data.video.id)),
@@ -70,34 +57,18 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
         data.video.title || data.video.id,
       ].join('\n'),
     )
-    const content = `「${link}」 END: ${data.endReason}`
-    await this.queueMsgRelay(track, data, content)
+
+    const res = `「${link}」 END: ${data.endReason}`
+    return res
   }
 
-  protected async fetchTracks(hostId: string): Promise<Track[]> {
-    const tracks = await this.trackService.findByHostId(
-      UserSourceType.YOUTUBE,
-      hostId,
-    )
-    return tracks
-  }
-
-  protected async queueMsgRelay(
-    track: Track,
-    data: YoutubeVideoChatEndJobData,
-    content: string,
-  ) {
-    await this.discordMessageRelayQueueService.add(
-      {
-        channelId: track.discordChannelId,
-        content,
-        metadata: {
-          source: UserSourceType.YOUTUBE,
-          channel: data.channel,
-          video: data.video,
-          endReason: data.endReason,
-        },
-      },
-    )
+  private getMetadata(data: YoutubeVideoChatEndJobData) {
+    const res = {
+      source: UserSourceType.YOUTUBE,
+      channel: data.channel,
+      video: data.video,
+      endReason: data.endReason,
+    }
+    return res
   }
 }

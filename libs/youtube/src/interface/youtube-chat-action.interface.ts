@@ -6,11 +6,14 @@ import {
   AddMembershipItemAction,
   AddMembershipMilestoneItemAction,
   AddMembershipTickerAction,
+  AddPollResultAction,
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
   AddSuperStickerItemAction,
   MembershipGiftPurchaseAction,
   MembershipGiftRedemptionAction,
+  ShowPollPanelAction,
+  UpdatePollAction,
   YTRun,
 } from 'masterchat'
 
@@ -41,3 +44,8 @@ export type ChatProcessAction =
   | AddChatItemAction
   | AddSuperChatItemAction
   | AddMembershipMilestoneItemAction
+
+export type PollAction =
+  | ShowPollPanelAction
+  | UpdatePollAction
+  | AddPollResultAction

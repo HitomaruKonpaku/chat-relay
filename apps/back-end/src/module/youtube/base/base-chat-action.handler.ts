@@ -1,4 +1,3 @@
-import { DiscordMessageRelayQueueService } from '@/app/discord'
 import { Track, TrackService } from '@/app/track'
 import { UserFilter, UserFilterRepository, UserFilterType, UserSourceType } from '@/app/user'
 import { ChatHandlerAction, ChatProcessAction, YoutubeChatAction, YoutubeChatActionJobData, YoutubeChatUtil } from '@/app/youtube'
@@ -6,6 +5,7 @@ import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { bold, inlineCode } from 'discord.js'
 import { stringify } from 'masterchat'
+import { YoutubeChatHandlerService } from '../service/youtube-chat-handler.service'
 import { YoutubeChatRelayUtil } from '../util/youtube-chat-relay.util'
 import { BaseActionHandler } from './base-action.handler'
 
@@ -94,34 +94,11 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
       return
     }
 
-    const icons = this.getTrackMessageIcons(track)
-    const name = inlineCode(YoutubeChatUtil.getAuthorName(action))
-    const displayHeader = [
-      YoutubeChatRelayUtil.getSrcHyperlink(this.data),
-      icons.join(' '),
-      name,
-    ].filter((v) => v).join(' ')
+    const content = this.getContent(action, track)
+    const metadata = this.getMetadata(this.data)
 
-    const message = YoutubeChatUtil.getMessage(action)
-    const displayMessage = message
-      ? `${bold(inlineCode(message))}`
-      : ''
-
-    let primaryLine = displayHeader
-    if (displayMessage) {
-      primaryLine += `: ${displayMessage}`
-    }
-
-    const lines = [
-      primaryLine,
-    ]
-
-    if (!YoutubeChatUtil.isAddBannerAction(action) && !track.sourceId) {
-      lines.push(`↪️ ${YoutubeChatRelayUtil.getChannelHyperlink(this.data)}`)
-    }
-
-    const content = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
-    await this.queueMsgRelay(track, this.data, content)
+    const service = this.getInstance(YoutubeChatHandlerService)
+    await service.queueDiscordMsg({ channelId: track.discordChannelId, content, metadata })
   }
 
   // #region UserFilter & Track
@@ -164,30 +141,47 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
 
   // #endregion
 
-  // #region Queue
+  protected getContent(action: R, track: Track): string {
+    const icons = this.getTrackMessageIcons(track)
+    const name = inlineCode(YoutubeChatUtil.getAuthorName(action))
+    const displayHeader = [
+      YoutubeChatRelayUtil.getSrcHyperlink(this.data),
+      icons.join(' '),
+      name,
+    ].filter((v) => v).join(' ')
 
-  protected async queueMsgRelay(
-    track: Track,
-    data: YoutubeChatActionJobData<T>,
-    content: string,
-  ) {
-    const service = this.getInstance(DiscordMessageRelayQueueService)
-    await service.add(
-      {
-        channelId: track.discordChannelId,
-        content,
-        metadata: {
-          source: UserSourceType.YOUTUBE,
-          channel: data.channel,
-          video: data.video,
-          action: {
-            id: data.action.id,
-            type: data.action.type,
-          },
-        },
-      },
-    )
+    const message = YoutubeChatUtil.getMessage(action)
+    const displayMessage = message
+      ? `${bold(inlineCode(message))}`
+      : ''
+
+    let primaryLine = displayHeader
+    if (displayMessage) {
+      primaryLine += `: ${displayMessage}`
+    }
+
+    const lines = [
+      primaryLine,
+    ]
+
+    if (!YoutubeChatUtil.isAddBannerAction(action) && !track.sourceId) {
+      lines.push(`↪️ ${YoutubeChatRelayUtil.getChannelHyperlink(this.data)}`)
+    }
+
+    const res = lines.filter((v) => v).map((v) => v.trim()).join('\n').trim()
+    return res
   }
 
-  // #endregion
+  protected getMetadata(data: YoutubeChatActionJobData<T>) {
+    const res = {
+      source: UserSourceType.YOUTUBE,
+      channel: data.channel,
+      video: data.video,
+      action: {
+        id: data.action.id,
+        type: data.action.type,
+      },
+    }
+    return res
+  }
 }
