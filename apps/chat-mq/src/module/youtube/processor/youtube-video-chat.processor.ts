@@ -2,9 +2,12 @@ import { DatabaseInsertQueueService } from '@/app/database-queue'
 import { MasterchatService } from '@/app/masterchat'
 import { UserPoolRepository, UserSourceType } from '@/app/user'
 import {
+  YoutubeChannel,
+  YoutubeChannelUtil,
   YoutubeChatMetadata,
   YoutubeChatService,
   YoutubeChatUtil,
+  YoutubeMasterchat,
   YoutubeVideo,
   YoutubeVideoChatEndQueueService,
   YoutubeVideoChatJobData,
@@ -58,7 +61,8 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     Object.assign(jobData, metadata)
 
     await job.updateData(jobData)
-    await this.save(metadata)
+    await this.saveChannel(chat)
+    await this.saveVideo(metadata)
 
     const userPool = await this.userPoolRepository.findOne({
       sourceType: UserSourceType.YOUTUBE,
@@ -123,7 +127,17 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     return JSON.parse(JSON.stringify(res))
   }
 
-  private async save(metadata: YoutubeChatMetadata) {
+  private async saveChannel(mc: YoutubeMasterchat) {
+    const data: Partial<YoutubeChannel> = {
+      id: mc.channelId,
+      modifiedAt: Date.now(),
+      name: mc.channelName,
+      customUrl: YoutubeChannelUtil.parseCustomUrl(mc.metadata.videoMetadata.author.url),
+    }
+    await this.databaseInsertQueueService.add({ table: 'youtube_channel', data })
+  }
+
+  private async saveVideo(metadata: YoutubeChatMetadata) {
     const data: Partial<YoutubeVideo> = {
       id: metadata.video.id,
       isActive: true,

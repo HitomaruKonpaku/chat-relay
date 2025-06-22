@@ -5,8 +5,10 @@ export class YoutubeChannelUtil {
   }
 
   public static parseCustomUrl(url: string) {
-    const res = url
-      ?.replace('http://www.youtube.com/', '')
+    if (!url) {
+      return undefined
+    }
+    const res = decodeURI(url.replace('http://www.youtube.com/', ''))
     return res
   }
 
