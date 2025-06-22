@@ -13,7 +13,7 @@ export abstract class BaseNotificationActionHandler<T extends NotificationAction
     const metadata = this.getMetadata()
 
     const service = this.getInstance(YoutubeChatHandlerService)
-    await service.handleNotification(this.data, { content, metadata })
+    await service.handleNotification(this.data, { payload: content, metadata })
   }
 
   protected canHandle(): boolean {

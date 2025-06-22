@@ -1,5 +1,7 @@
+import { MessageCreateOptions, MessagePayload } from 'discord.js'
+
 export interface DiscordMessageRelayJobData {
   channelId: string
-  content: string
+  payload: string | MessagePayload | MessageCreateOptions
   metadata?: Record<string, any>
 }

@@ -27,7 +27,7 @@ export class DiscordMessageRelayProcessor extends BaseProcessor {
 
   async process(job: Job): Promise<any> {
     const data = job.data as DiscordMessageRelayJobData
-    const msg = await this.discordService.sendToChannel(data.channelId, data.content)
+    const msg = await this.discordService.sendToChannel(data.channelId, data.payload)
     const guild = msg.guild as Guild
     const channel = msg.channel as TextChannel
     const padLenght = 20

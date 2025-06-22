@@ -98,7 +98,7 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
     const metadata = this.getMetadata()
 
     const service = this.getInstance(YoutubeChatHandlerService)
-    await service.queueDiscordMsg({ channelId: track.discordChannelId, content, metadata })
+    await service.queueDiscordMsg({ channelId: track.discordChannelId, payload: content, metadata })
   }
 
   // #region UserFilter & Track

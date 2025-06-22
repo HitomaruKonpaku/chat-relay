@@ -44,7 +44,7 @@ export class YoutubeVideoChatEndProcessor extends BaseProcessor {
     const content = this.getContent(data)
     const metadata = this.getMetadata(data)
 
-    const res = await this.youtubeChatHandlerService.handleNotification(data, { content, metadata })
+    const res = await this.youtubeChatHandlerService.handleNotification(data, { payload: content, metadata })
     return res
   }
 

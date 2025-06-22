@@ -45,10 +45,11 @@ export class YoutubeChatPollProcessor extends BaseProcessor {
       throw new Error(`unhandleAction: ${data.action.type}`)
     }
 
-    const content = new YoutubePollActionContentBuilder(data).getContent()
+    const builder = new YoutubePollActionContentBuilder(data)
+    const content = builder.getContent()
     const metadata = this.getMetadata(data)
 
-    const res = await this.youtubeChatHandlerService.handleNotification(data, { content, metadata })
+    const res = await this.youtubeChatHandlerService.handleNotification(data, { payload: content, metadata })
     return res
   }
 
