@@ -51,6 +51,7 @@ export class YoutubeChatService {
     chat.on('error', async (error: MasterchatError) => {
       await this.masterchatService.updateById({
         id: chat.videoId,
+        isActive: false,
         channelId: chat.channelId,
         errorAt: Date.now(),
         errorCode: error.code,
@@ -61,6 +62,7 @@ export class YoutubeChatService {
     chat.on('end', async (reason) => {
       await this.masterchatService.updateById({
         id: chat.videoId,
+        isActive: false,
         channelId: chat.channelId,
         endedAt: Date.now(),
         endReason: reason,

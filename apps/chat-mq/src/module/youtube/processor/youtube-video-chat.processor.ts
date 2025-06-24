@@ -1,5 +1,5 @@
 import { DatabaseInsertQueueService } from '@/app/database-queue'
-import { MasterchatService } from '@/app/masterchat'
+import { MasterchatEntity, MasterchatService } from '@/app/masterchat'
 import { UserPoolRepository, UserSourceType } from '@/app/user'
 import {
   YoutubeChannel,
@@ -45,15 +45,25 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId, jobData.config)
       .then((res) => {
-        this.masterchatService.updateById({
+        const tmp: MasterchatEntity = {
           id: res.videoId,
+          isActive: true,
           channelId: res.channelId,
           startedAt: Date.now(),
-        })
+        }
+        if (res.isLive) {
+          tmp.errorAt = null
+          tmp.errorCode = null
+          tmp.errorMessage = null
+        }
+        this.masterchatService.updateById(tmp)
         return res
       })
       .catch((error) => {
-        this.masterchatService.updateById({ id: jobData.videoId })
+        this.masterchatService.updateById({
+          id: jobData.videoId,
+          isActive: false,
+        })
         throw error
       })
 
