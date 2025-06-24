@@ -1,6 +1,6 @@
 import { UserSourceType } from '@/app/user'
 import { BaseEntity } from '@/shared/base/base.entity'
-import { Column, Entity, Unique } from 'typeorm'
+import { Column, Entity, Index, Unique } from 'typeorm'
 import { TRACK_UNIQUE_FIELDS } from '../track.constant'
 
 @Entity('track')
@@ -9,12 +9,15 @@ export class Track extends BaseEntity {
   @Column({ name: 'discord_channel_id', type: 'varchar' })
   discordChannelId: string
 
+  @Index()
   @Column({ name: 'source_type', type: 'enum', enum: UserSourceType })
   sourceType: UserSourceType
 
+  @Index()
   @Column({ name: 'source_id', type: 'varchar', default: '' })
   sourceId?: string
 
+  @Index()
   @Column({ name: 'filter_id', type: 'varchar', default: '' })
   filterId?: string
 

@@ -8,6 +8,7 @@ export class YoutubeVideo extends BaseExternalEntity {
   @Column({ name: 'channel_id', type: 'text' })
   channelId: string
 
+  @Index()
   @Column({ name: 'privacy_status', type: 'text', nullable: true })
   privacyStatus?: 'public' | 'unlisted' | 'private'
 
