@@ -64,6 +64,9 @@ export class YoutubeChatService {
         channelId: chat.channelId,
         endedAt: Date.now(),
         endReason: reason,
+        errorAt: null,
+        errorCode: null,
+        errorMessage: null,
       })
     })
   }
