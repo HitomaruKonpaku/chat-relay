@@ -142,7 +142,7 @@ export class YoutubeVideoChatProcessor extends BaseProcessor {
       id: mc.channelId,
       modifiedAt: Date.now(),
       name: mc.channelName,
-      customUrl: YoutubeChannelUtil.parseCustomUrl(mc.metadata.videoMetadata.author.url),
+      customUrl: YoutubeChannelUtil.parseCustomUrl(mc.metadata.videoMetadata?.author?.url),
     }
     await this.databaseInsertQueueService.add({ table: 'youtube_channel', data })
   }
