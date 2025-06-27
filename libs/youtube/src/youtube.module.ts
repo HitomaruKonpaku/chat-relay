@@ -30,6 +30,7 @@ import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-
 import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './service/queue/youtube-chat-super-chat-queue.service'
 import { YoutubeChatUnknownQueueService } from './service/queue/youtube-chat-unknown-queue.service'
+import { YoutubeVideoChatAltQueueService } from './service/queue/youtube-video-chat-alt-queue.service'
 import { YoutubeVideoChatEndQueueService } from './service/queue/youtube-video-chat-end-queue.service'
 import { YoutubeVideoChatQueueService } from './service/queue/youtube-video-chat-queue.service'
 import { YoutubeChannelService } from './service/youtube-channel.service'
@@ -78,7 +79,9 @@ const queues = [
     YoutubeChatService,
 
     YoutubeVideoChatQueueService,
+    YoutubeVideoChatAltQueueService,
     YoutubeVideoChatEndQueueService,
+
     YoutubeChatErrorQueueService,
     YoutubeChatUnknownQueueService,
     YoutubeChatActionQueueService,
@@ -101,7 +104,9 @@ const queues = [
     YoutubeChatService,
 
     YoutubeVideoChatQueueService,
+    YoutubeVideoChatAltQueueService,
     YoutubeVideoChatEndQueueService,
+
     YoutubeChatErrorQueueService,
     YoutubeChatUnknownQueueService,
     YoutubeChatActionQueueService,
