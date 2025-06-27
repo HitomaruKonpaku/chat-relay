@@ -4,7 +4,6 @@ import { UserPoolRepository, UserSourceType } from '@/app/user'
 import {
   YoutubeChannel,
   YoutubeChannelUtil,
-  YoutubeChatMetadata,
   YoutubeChatService,
   YoutubeChatUtil,
   YoutubeMasterchat,
@@ -33,6 +32,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
 
   async process(job: Job<YoutubeVideoChatJobData>): Promise<any> {
     await this.log(job, '[INIT]')
+
     const jobData = job.data
     const chat = await this.youtubeChatService.init(jobData.videoId, jobData.config)
       .then((res) => {
@@ -58,12 +58,9 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
         throw error
       })
 
-    const metadata = YoutubeChatUtil.generateChatMetadata(chat, true)
-    Object.assign(jobData, metadata)
-
-    await job.updateData(jobData)
+    await this.updateJobData(job, chat)
     await this.saveChannel(chat)
-    await this.saveVideo(metadata)
+    await this.saveVideo(chat)
 
     const userPool = await this.userPoolRepository.findOne({
       sourceType: UserSourceType.YOUTUBE,
@@ -108,6 +105,9 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
         await chat.populateMetadata()
         chat.isMembersOnly = true
 
+        await this.updateJobData(job, chat)
+        await this.saveVideo(chat)
+
         await this.log(job, '[LISTEN.ALT]')
         await chat.listen()
       }
@@ -117,11 +117,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       throw new MasterchatError(endError.code, `${endError.code} - ${endError.message}`)
     }
 
-    await this.youtubeVideoChatEndQueueService.add({
-      id: jobData.videoId,
-      endReason,
-      ...metadata,
-    })
+    await this.queueVideoChatEnd(job, chat, endReason)
 
     const res = { endReason }
     await job.updateProgress(100)
@@ -138,21 +134,36 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     await this.databaseInsertQueueService.add({ table: 'youtube_channel', data })
   }
 
-  protected async saveVideo(metadata: YoutubeChatMetadata) {
+  protected async saveVideo(mc: YoutubeMasterchat) {
     const data: Partial<YoutubeVideo> = {
-      id: metadata.video.id,
+      id: mc.videoId,
       isActive: true,
-      createdAt: NumberUtil.fromDate(metadata.metadata?.datePublished),
+      createdAt: NumberUtil.fromDate(mc.videoMetadata?.datePublished),
       modifiedAt: Date.now(),
-      channelId: metadata.channel.id,
-      isMembersOnly: metadata.video.isMembersOnly,
-      title: metadata.video.title,
-      actualStart: NumberUtil.fromDate(metadata.metadata?.publication?.startDate),
-      actualEnd: NumberUtil.fromDate(metadata.metadata?.publication?.endDate),
+      channelId: mc.channelId,
+      isMembersOnly: mc.isMembersOnly,
+      title: mc.title,
+      actualStart: NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate),
+      actualEnd: NumberUtil.fromDate(mc.videoMetadata?.publication?.endDate),
     }
-    if (metadata.video.isUpcoming) {
-      data.scheduledStart = NumberUtil.fromDate(metadata.metadata?.publication?.startDate)
+    if (mc.isUpcoming) {
+      data.scheduledStart = NumberUtil.fromDate(mc.videoMetadata?.publication?.startDate)
     }
     await this.databaseInsertQueueService.add({ table: 'youtube_video', data })
+  }
+
+  protected async updateJobData(job: Job<YoutubeVideoChatJobData>, mc: YoutubeMasterchat) {
+    const metadata = YoutubeChatUtil.generateChatMetadata(mc, true)
+    const tmp = { ...job.data, ...metadata }
+    await job.updateData(tmp)
+  }
+
+  protected async queueVideoChatEnd(job: Job<YoutubeVideoChatJobData>, mc: YoutubeMasterchat, endReason: string) {
+    const metadata = YoutubeChatUtil.generateChatMetadata(mc, true)
+    await this.youtubeVideoChatEndQueueService.add({
+      id: mc.videoId,
+      endReason,
+      ...metadata,
+    })
   }
 }
