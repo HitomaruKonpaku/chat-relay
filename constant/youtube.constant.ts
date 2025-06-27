@@ -1,5 +1,7 @@
 export const YOUTUBE_VIDEO_CHAT_QUEUE_NAME = 'youtube.video.chat'
 
+export const YOUTUBE_VIDEO_CHAT_ALT_QUEUE_NAME = 'youtube.video.chat.alt'
+
 export const YOUTUBE_VIDEO_CHAT_END_QUEUE_NAME = 'youtube.video.chat.end'
 
 export const YOUTUBE_CHAT_ERROR_QUEUE_NAME = 'youtube.chat.error'

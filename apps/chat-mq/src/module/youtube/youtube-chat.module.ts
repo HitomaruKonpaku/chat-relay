@@ -3,6 +3,7 @@ import { MasterchatModule } from '@/app/masterchat'
 import { UserModule } from '@/app/user'
 import { YoutubeModule } from '@/app/youtube'
 import { Module } from '@nestjs/common'
+import { YoutubeVideoChatAltProcessor } from './processor/youtube-video-chat-alt.processor'
 import { YoutubeVideoChatProcessor } from './processor/youtube-video-chat.processor'
 
 @Module({
@@ -14,6 +15,7 @@ import { YoutubeVideoChatProcessor } from './processor/youtube-video-chat.proces
   ],
   providers: [
     YoutubeVideoChatProcessor,
+    YoutubeVideoChatAltProcessor,
   ],
 })
 export class YoutubeChatModule { }

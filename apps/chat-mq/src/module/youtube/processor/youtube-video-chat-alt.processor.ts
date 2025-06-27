@@ -1,16 +1,16 @@
 import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
-import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@/constant/youtube.constant'
+import { YOUTUBE_VIDEO_CHAT_ALT_QUEUE_NAME } from '@/constant/youtube.constant'
 import { Logger } from '@/shared/logger/logger'
 import { BooleanUtil } from '@/shared/util/boolean.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
 import { BaseYoutubeVideoChatProcessor } from '../base/base-youtube-video-chat.processor'
 
-@Processor(YOUTUBE_VIDEO_CHAT_QUEUE_NAME, {
+@Processor(YOUTUBE_VIDEO_CHAT_ALT_QUEUE_NAME, {
   autorun: BooleanUtil.fromString(process.env.PROCESSOR_AUTORUN),
-  concurrency: NumberUtil.parse(process.env.YOUTUBE_VIDEO_CHAT_QUEUE_CONCURRENCY, 100),
+  concurrency: NumberUtil.parse(process.env.YOUTUBE_VIDEO_CHAT_ALT_QUEUE_CONCURRENCY, 1),
   maxStalledCount: NumberUtil.parse(process.env.QUEUE_MAX_STALLED_COUNT, QUEUE_MAX_STALLED_COUNT),
 })
-export class YoutubeVideoChatProcessor extends BaseYoutubeVideoChatProcessor {
-  protected readonly logger = new Logger(YoutubeVideoChatProcessor.name)
+export class YoutubeVideoChatAltProcessor extends BaseYoutubeVideoChatProcessor {
+  protected readonly logger = new Logger(YoutubeVideoChatAltProcessor.name)
 }
