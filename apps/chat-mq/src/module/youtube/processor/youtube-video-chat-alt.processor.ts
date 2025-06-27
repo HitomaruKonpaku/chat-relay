@@ -1,3 +1,7 @@
+import { DatabaseInsertQueueService } from '@/app/database-queue'
+import { MasterchatService } from '@/app/masterchat'
+import { UserPoolRepository } from '@/app/user'
+import { YoutubeChatService, YoutubeVideoChatEndQueueService } from '@/app/youtube'
 import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
 import { YOUTUBE_VIDEO_CHAT_ALT_QUEUE_NAME } from '@/constant/youtube.constant'
 import { Logger } from '@/shared/logger/logger'
@@ -13,4 +17,20 @@ import { BaseYoutubeVideoChatProcessor } from '../base/base-youtube-video-chat.p
 })
 export class YoutubeVideoChatAltProcessor extends BaseYoutubeVideoChatProcessor {
   protected readonly logger = new Logger(YoutubeVideoChatAltProcessor.name)
+
+  constructor(
+    protected readonly databaseInsertQueueService: DatabaseInsertQueueService,
+    protected readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
+    protected readonly youtubeChatService: YoutubeChatService,
+    protected readonly userPoolRepository: UserPoolRepository,
+    protected readonly masterchatService: MasterchatService,
+  ) {
+    super(
+      databaseInsertQueueService,
+      youtubeVideoChatEndQueueService,
+      youtubeChatService,
+      userPoolRepository,
+      masterchatService,
+    )
+  }
 }
