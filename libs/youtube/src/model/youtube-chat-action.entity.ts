@@ -20,6 +20,9 @@ export class YoutubeChatAction extends BaseExternalEntity {
   @Column({ name: 'author_name', type: 'text', nullable: true })
   authorName?: string
 
+  @Column({ name: 'author_photo', type: 'text', nullable: true })
+  authorPhoto?: string
+
   @Column({ name: 'is_owner', type: 'boolean', nullable: true })
   isOwner?: boolean
 
@@ -58,6 +61,12 @@ export class YoutubeChatAction extends BaseExternalEntity {
 
   @Column({ name: 'sender_name', type: 'text', nullable: true })
   senderName?: string
+
+  @Column({ name: 'duration_text', type: 'text', nullable: true })
+  durationText?: string
+
+  @Column({ name: 'duration', type: 'numeric', nullable: true })
+  duration?: number
 
   video?: YoutubeVideo
 }
