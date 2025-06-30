@@ -8,6 +8,7 @@ import { Logger } from '@/shared/logger/logger'
 import { BooleanUtil } from '@/shared/util/boolean.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Processor } from '@nestjs/bullmq'
+import { ConfigService } from '@nestjs/config'
 import { BaseYoutubeVideoChatProcessor } from '../base/base-youtube-video-chat.processor'
 
 @Processor(YOUTUBE_VIDEO_CHAT_ALT_QUEUE_NAME, {
@@ -19,6 +20,7 @@ export class YoutubeVideoChatAltProcessor extends BaseYoutubeVideoChatProcessor 
   protected readonly logger = new Logger(YoutubeVideoChatAltProcessor.name)
 
   constructor(
+    protected readonly configService: ConfigService,
     protected readonly databaseInsertQueueService: DatabaseInsertQueueService,
     protected readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
     protected readonly youtubeChatService: YoutubeChatService,
@@ -26,6 +28,7 @@ export class YoutubeVideoChatAltProcessor extends BaseYoutubeVideoChatProcessor 
     protected readonly masterchatService: MasterchatService,
   ) {
     super(
+      configService,
       databaseInsertQueueService,
       youtubeVideoChatEndQueueService,
       youtubeChatService,

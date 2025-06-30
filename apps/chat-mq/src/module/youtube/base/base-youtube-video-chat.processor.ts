@@ -14,6 +14,7 @@ import {
 import { BaseProcessor } from '@/shared/base/base.processor'
 import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
+import { ConfigService } from '@nestjs/config'
 import { Job } from 'bullmq'
 import { MasterchatError } from 'masterchat'
 
@@ -21,6 +22,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
   protected readonly logger = new Logger(BaseYoutubeVideoChatProcessor.name)
 
   constructor(
+    protected readonly configService: ConfigService,
     protected readonly databaseInsertQueueService: DatabaseInsertQueueService,
     protected readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
     protected readonly youtubeChatService: YoutubeChatService,
@@ -51,9 +53,13 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
         return res
       })
       .catch((error) => {
+        this.log(job, `[ERROR] ${error.code} - ${error.message}`)
         this.masterchatService.updateById({
           id: jobData.videoId,
           isActive: false,
+          errorAt: Date.now(),
+          errorCode: error.code,
+          errorMessage: error.message,
         })
         throw error
       })

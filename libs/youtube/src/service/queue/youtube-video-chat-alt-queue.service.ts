@@ -10,7 +10,7 @@ import { YoutubeVideoChatJobData } from '../../interface/youtube-video-chat-job-
 export class YoutubeVideoChatAltQueueService {
   constructor(
     @InjectQueue(YOUTUBE_VIDEO_CHAT_ALT_QUEUE_NAME)
-    private readonly queue: Queue<YoutubeVideoChatJobData>,
+    public readonly queue: Queue<YoutubeVideoChatJobData>,
   ) { }
 
   public async add(videoId: string, options?: JobsOptions, config?: YoutubeChatJobConfig) {

@@ -1,9 +1,11 @@
+import { INestApplication } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import dotenv from 'dotenv'
 import { Logger } from '../logger/logger'
 
 export interface MainHandlers {
-  onBeforeListen?: () => Promise<any>
+  onBeforeListen?: (app: INestApplication) => Promise<any>
 }
 
 export class Main {
@@ -19,15 +21,18 @@ export class Main {
     dotenv.config({ path: `env/${this.id}.env` })
     dotenv.config()
 
-    const app = await NestFactory.create(this.module, {
+    const app = await NestFactory.create<NestExpressApplication>(this.module, {
       logger: new Logger(null),
     })
 
+    app.enableCors()
     app.enableShutdownHooks()
 
-    const port = process.env.PORT || 8080
+    app.set('trust proxy', true)
 
-    await this.handlers?.onBeforeListen?.()
+    await this.handlers?.onBeforeListen?.(app)
+
+    const port = process.env.PORT || 8080
 
     await app.listen(port, () => {
       const url = `http://localhost:${port}`
