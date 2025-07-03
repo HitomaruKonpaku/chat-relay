@@ -1,7 +1,7 @@
 import { DatabaseInsertQueueService } from '@/app/database-queue'
 import { MasterchatService } from '@/app/masterchat'
 import { UserPoolRepository } from '@/app/user'
-import { YoutubeChatService, YoutubeVideoChatEndQueueService } from '@/app/youtube'
+import { YoutubeChatService, YoutubeVideoChatEndQueueService, YoutubeVideoService } from '@/app/youtube'
 import { QUEUE_MAX_STALLED_COUNT } from '@/constant/common.constant'
 import { YOUTUBE_VIDEO_CHAT_QUEUE_NAME } from '@/constant/youtube.constant'
 import { Logger } from '@/shared/logger/logger'
@@ -23,6 +23,7 @@ export class YoutubeVideoChatProcessor extends BaseYoutubeVideoChatProcessor {
     protected readonly configService: ConfigService,
     protected readonly databaseInsertQueueService: DatabaseInsertQueueService,
     protected readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
+    protected readonly youtubeVideoService: YoutubeVideoService,
     protected readonly youtubeChatService: YoutubeChatService,
     protected readonly userPoolRepository: UserPoolRepository,
     protected readonly masterchatService: MasterchatService,
@@ -31,6 +32,7 @@ export class YoutubeVideoChatProcessor extends BaseYoutubeVideoChatProcessor {
       configService,
       databaseInsertQueueService,
       youtubeVideoChatEndQueueService,
+      youtubeVideoService,
       youtubeChatService,
       userPoolRepository,
       masterchatService,

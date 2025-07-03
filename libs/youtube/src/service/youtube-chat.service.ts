@@ -35,8 +35,15 @@ export class YoutubeChatService {
     private readonly masterchatService: MasterchatService,
   ) { }
 
-  public async init(videoId: string, config?: YoutubeChatJobConfig) {
+  public async init(
+    videoId: string,
+    applyCredentials: boolean = false,
+    config: YoutubeChatJobConfig = {},
+  ) {
     const chat = new YoutubeMasterchat(videoId, config, this.httpLimiter)
+    if (applyCredentials) {
+      chat.applyCredentials()
+    }
     await chat.populateMetadata()
     this.addChatListeners(chat)
     return chat

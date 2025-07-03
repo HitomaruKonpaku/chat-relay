@@ -1,6 +1,6 @@
 import { DatabaseInsertQueueService } from '@/app/database-queue'
 import { MasterchatEntity, MasterchatService } from '@/app/masterchat'
-import { UserPoolRepository, UserSourceType } from '@/app/user'
+import { UserPool, UserPoolRepository, UserSourceType } from '@/app/user'
 import {
   YoutubeChannel,
   YoutubeChannelUtil,
@@ -10,21 +10,26 @@ import {
   YoutubeVideo,
   YoutubeVideoChatEndQueueService,
   YoutubeVideoChatJobData,
+  YoutubeVideoService,
 } from '@/app/youtube'
 import { BaseProcessor } from '@/shared/base/base.processor'
 import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { ConfigService } from '@nestjs/config'
+import Bottleneck from 'bottleneck'
 import { Job } from 'bullmq'
-import { MasterchatError } from 'masterchat'
+import { MasterchatError, MembersOnlyError } from 'masterchat'
 
 export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
   protected readonly logger = new Logger(BaseYoutubeVideoChatProcessor.name)
+
+  protected readonly innerTubeLimier = new Bottleneck({ maxConcurrent: 1 })
 
   constructor(
     protected readonly configService: ConfigService,
     protected readonly databaseInsertQueueService: DatabaseInsertQueueService,
     protected readonly youtubeVideoChatEndQueueService: YoutubeVideoChatEndQueueService,
+    protected readonly youtubeVideoService: YoutubeVideoService,
     protected readonly youtubeChatService: YoutubeChatService,
     protected readonly userPoolRepository: UserPoolRepository,
     protected readonly masterchatService: MasterchatService,
@@ -36,31 +41,29 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     await this.log(job, '[INIT]')
 
     const jobData = job.data
-    const chat = await this.youtubeChatService.init(jobData.videoId, jobData.config)
+    const { videoId } = jobData
+    let userPool: UserPool
+
+    const chat = await this.youtubeChatService.init(videoId, false, jobData.config)
+      .catch(async (error) => {
+        if (error instanceof MembersOnlyError && error.data?.channelId) {
+          userPool = await this.getUserPool(error.data.channelId)
+          if (userPool?.hasMembership) {
+            // attemp to re-init with has membership
+            await this.log(job, '[INIT.CREDENTIALS]')
+            return this.youtubeChatService.init(videoId, true, jobData.config)
+          }
+        }
+        throw error
+      })
       .then((res) => {
-        const tmp: MasterchatEntity = {
-          id: res.videoId,
-          isActive: true,
-          channelId: res.channelId,
-          startedAt: Date.now(),
-        }
-        if (res.isLive) {
-          tmp.errorAt = null
-          tmp.errorCode = null
-          tmp.errorMessage = null
-        }
-        this.masterchatService.updateById(tmp)
+        this.log(job, '[OK]')
+        this.onChatInitOk(res)
         return res
       })
       .catch((error) => {
         this.log(job, `[ERROR] ${error.code} - ${error.message}`)
-        this.masterchatService.updateById({
-          id: jobData.videoId,
-          isActive: false,
-          errorAt: Date.now(),
-          errorCode: error.code,
-          errorMessage: error.message,
-        })
+        this.onChatInitError(videoId, error)
         throw error
       })
 
@@ -68,11 +71,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     await this.saveChannel(chat)
     await this.saveVideo(chat)
 
-    const userPool = await this.userPoolRepository.findOne({
-      sourceType: UserSourceType.YOUTUBE,
-      sourceId: chat.channelId,
-      hasMembership: true,
-    })
+    userPool = userPool || await this.getUserPool(chat.channelId)
 
     let endError: MasterchatError
     let endReason: string
@@ -128,6 +127,41 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     const res = { endReason }
     await job.updateProgress(100)
     return JSON.parse(JSON.stringify(res))
+  }
+
+  protected async onChatInitOk(chat: YoutubeMasterchat) {
+    const tmp: MasterchatEntity = {
+      id: chat.videoId,
+      isActive: true,
+      channelId: chat.channelId,
+      startedAt: Date.now(),
+    }
+    if (chat.isLive) {
+      tmp.errorAt = null
+      tmp.errorCode = null
+      tmp.errorMessage = null
+    }
+    await this.masterchatService.updateById(tmp)
+    await this.innerTubeLimier.schedule(() => this.youtubeVideoService.updateMetadataInnertube(chat.videoId, true))
+  }
+
+  protected async onChatInitError(id: string, error: any) {
+    await this.masterchatService.updateById({
+      id,
+      isActive: false,
+      errorAt: Date.now(),
+      errorCode: error.code,
+      errorMessage: error.message,
+    })
+  }
+
+  protected async getUserPool(channelId: string) {
+    const res = await this.userPoolRepository.findOne({
+      sourceType: UserSourceType.YOUTUBE,
+      sourceId: channelId,
+      hasMembership: true,
+    })
+    return res
   }
 
   protected async saveChannel(mc: YoutubeMasterchat) {

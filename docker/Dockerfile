@@ -1,8 +1,6 @@
 # BASE
 FROM node:lts-alpine AS base
 
-RUN apk add --no-cache tini
-
 WORKDIR /app
 
 COPY package*.json ./
@@ -27,6 +25,10 @@ FROM builder AS dashboard
 RUN nest build dashboard
 
 #
+FROM builder AS api
+RUN nest build api
+
+#
 FROM builder AS bot
 RUN nest build bot
 
@@ -45,13 +47,14 @@ RUN nest build youtube-channel-crawler
 # RELEASE
 FROM base AS release
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache tini bash
 
 COPY docker/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
 COPY --from=dependencies            /app/node_modules ./node_modules
 COPY --from=dashboard               /app/dist         ./dist
+COPY --from=api                     /app/dist         ./dist
 COPY --from=bot                     /app/dist         ./dist
 COPY --from=back-end                /app/dist         ./dist
 COPY --from=chat-mq                 /app/dist         ./dist

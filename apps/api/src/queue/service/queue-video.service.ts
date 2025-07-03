@@ -52,7 +52,7 @@ export class QueueVideoService {
           { priority: 999 },
         )
       } else {
-        job = await this.youtubeVideoChatAltQueueService.add(
+        job = await this.youtubeVideoChatQueueService.add(
           id,
           { priority: 999 },
           {
