@@ -1,5 +1,6 @@
 import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq'
 import { Job } from 'bullmq'
+import { DateTime } from 'luxon'
 import { Logger } from '../logger/logger'
 
 export abstract class BaseProcessor extends WorkerHost {
@@ -61,8 +62,9 @@ export abstract class BaseProcessor extends WorkerHost {
   }
 
   protected log(job: Job, msg: string) {
+    const format = 'HH:mm:ss'
     const tmp = [
-      new Date().toISOString(),
+      DateTime.now().toFormat(format),
       msg,
     ].filter((v) => v).join(' ').trim()
     return job.log(tmp)

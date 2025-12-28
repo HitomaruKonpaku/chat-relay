@@ -31,13 +31,14 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
    */
   public getYoutubeChatAction(): YoutubeChatAction {
     const action = this.getProcessAction()
-    if (!action.id) {
+    const id = action.id || this.action.id
+    if (!id) {
       throw new Error('ID_NOT_FOUND')
     }
 
     const yca: YoutubeChatAction = {
       ...action,
-      id: action.id,
+      id,
       createdAt: NumberUtil.fromDate(action.timestamp),
       modifiedAt: Date.now(),
       type: action.type,

@@ -1,6 +1,11 @@
 import { ConsoleLogger, LogLevel } from '@nestjs/common'
+import { DateTime } from 'luxon'
 
 export class Logger extends ConsoleLogger {
+  protected formatPid(): string {
+    return ''
+  }
+
   protected formatMessage(logLevel: LogLevel, message: unknown, pidMessage: string, formattedLogLevel: string, contextMessage: string, timestampDiff: string): string {
     const msg = super.formatMessage(logLevel, message, pidMessage, formattedLogLevel, contextMessage, timestampDiff)
     if (process.env.NO_TIMESTAMP) {
@@ -11,6 +16,6 @@ export class Logger extends ConsoleLogger {
   }
 
   getTimestamp(): string {
-    return new Date().toISOString()
+    return DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss.SSS Z')
   }
 }

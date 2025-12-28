@@ -43,13 +43,14 @@ export abstract class BaseActionHandler<T extends Action, R extends Action = T> 
    */
   public getYoutubeChatAction(): YoutubeChatAction {
     const action = this.getMainAction() as BaseAction
-    if (!action.id) {
+    const { id } = action
+    if (!id) {
       throw new Error('ID_NOT_FOUND')
     }
 
     const yca: YoutubeChatAction = {
       ...action,
-      id: action.id,
+      id,
       createdAt: NumberUtil.fromDate(action.timestamp),
       modifiedAt: Date.now(),
       type: action.type,
