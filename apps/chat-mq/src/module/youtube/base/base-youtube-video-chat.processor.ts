@@ -43,21 +43,38 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     const jobData = job.data
     const { videoId } = jobData
     let userPool: UserPool
+    let useCredentials = false
 
     const chat = await this.youtubeChatService.init(videoId, false, jobData.config)
       .catch(async (error) => {
         if (error instanceof MembersOnlyError && error.data?.channelId) {
-          userPool = await this.getUserPool(error.data.channelId)
+          userPool = userPool || await this.getUserPool(error.data.channelId)
           if (userPool?.hasMembership) {
             // attemp to re-init with has membership
             await this.log(job, '[INIT.CREDENTIALS]')
-            return this.youtubeChatService.init(videoId, true, jobData.config)
+            const res = await this.youtubeChatService.init(videoId, true, jobData.config)
+            useCredentials = true
+            return res
           }
         }
         throw error
       })
-      .then((res) => {
-        this.log(job, '[OK]')
+      .then(async (res) => {
+        await this.log(job, '[INIT.OK]')
+
+        if (!useCredentials && !res.isLive && res.isMembersOnly) {
+          userPool = userPool || await this.getUserPool(res.channelId)
+          if (userPool?.hasMembership) {
+            // force populate metadata with user credentials
+            await this.log(job, '[CREDENTIALS]')
+            res.applyCredentials()
+            await this.log(job, '[POPULATE_METADATA]')
+            await res.populateMetadata()
+            useCredentials = true
+          }
+        }
+
+        await this.log(job, '[INIT.DONE]')
         this.onChatInitOk(res)
         return res
       })
@@ -92,7 +109,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       }
     })
 
-    if (chat.isMembersOnly && userPool?.hasMembership) {
+    if (!useCredentials && chat.isMembersOnly && userPool?.hasMembership) {
       await this.log(job, '[CREDENTIALS]')
       chat.applyCredentials()
     }
