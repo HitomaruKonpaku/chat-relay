@@ -45,6 +45,14 @@ export class YoutubeChatRelayUtil {
       return false
     }
 
+    // Pinned message
+    if (YoutubeChatUtil.isAddBannerAction(action)) {
+      // Force allow relay if the track is not related to filter user id
+      if (!track.filterId) {
+        return true
+      }
+    }
+
     const message = YoutubeChatUtil.getMessage(action)
     if (!TrackHandlerUtil.canRelay(track, action.authorChannelId, data.channel.id, message, userFilter)) {
       return false

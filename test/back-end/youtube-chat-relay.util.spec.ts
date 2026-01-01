@@ -1,5 +1,6 @@
 import { Track } from '@/app/track'
 import { ChatProcessAction, YoutubeChatMetadata } from '@/app/youtube'
+import { AddBannerAction } from 'masterchat'
 import { YoutubeChatRelayUtil } from '../../apps/back-end/src/module/youtube/util/youtube-chat-relay.util'
 
 describe('YoutubeChatRelayUtil', () => {
@@ -128,6 +129,78 @@ describe('YoutubeChatRelayUtil', () => {
         { ...track, filterId: 'UC-ORlsiOfeFrWJyxqnQrxhA', filterKeywords: ['[en]'] },
       )
       expect(result).toBe(true)
+    })
+
+    it('user pinned host message', () => {
+      const result = YoutubeChatRelayUtil.canRelay(
+        { ...data },
+        {
+          ...action,
+          type: 'addBannerAction',
+        } as AddBannerAction,
+        { ...track },
+      )
+      expect(result).toBe(true)
+    })
+
+    it('user pinned non-host message', () => {
+      const result = YoutubeChatRelayUtil.canRelay(
+        { ...data },
+        {
+          ...action,
+          type: 'addBannerAction',
+          authorChannelId: 'UCzUNASdzI4PV5SlqtYwAkKQ',
+        } as AddBannerAction,
+        { ...track },
+      )
+      expect(result).toBe(true)
+    })
+
+    it('user pinned host message with track filter_id', () => {
+      const result = YoutubeChatRelayUtil.canRelay(
+        { ...data },
+        {
+          ...action,
+          type: 'addBannerAction',
+        } as AddBannerAction,
+        {
+          ...track,
+          filterId: 'UCzUNASdzI4PV5SlqtYwAkKQ',
+        },
+      )
+      expect(result).toBe(false)
+    })
+
+    it('user pinned non-host message with track filter_id match', () => {
+      const result = YoutubeChatRelayUtil.canRelay(
+        { ...data },
+        {
+          ...action,
+          type: 'addBannerAction',
+          authorChannelId: 'UCzUNASdzI4PV5SlqtYwAkKQ',
+        } as AddBannerAction,
+        {
+          ...track,
+          filterId: 'UCzUNASdzI4PV5SlqtYwAkKQ',
+        },
+      )
+      expect(result).toBe(true)
+    })
+
+    it('user pinned non-host message with track filter_id not match', () => {
+      const result = YoutubeChatRelayUtil.canRelay(
+        { ...data },
+        {
+          ...action,
+          type: 'addBannerAction',
+          authorChannelId: 'UCzUNASdzI4PV5SlqtYwAkKQ',
+        } as AddBannerAction,
+        {
+          ...track,
+          filterId: 'UC-ORlsiOfeFrWJyxqnQrxhA',
+        },
+      )
+      expect(result).toBe(false)
     })
   })
 })
