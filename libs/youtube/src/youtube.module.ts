@@ -17,6 +17,7 @@ import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { YoutubeChannel } from './model/youtube-channel.entity'
+import { YoutubeChatActionChat } from './model/youtube-chat-action-chat.entity'
 import { YoutubeChatAction } from './model/youtube-chat-action.entity'
 import { YoutubeVideo } from './model/youtube-video.entity'
 import { YoutubeChannelRepository } from './repository/youtube-channel.repository'
@@ -57,6 +58,7 @@ const queues = [
       YoutubeChannel,
       YoutubeVideo,
       YoutubeChatAction,
+      YoutubeChatActionChat,
     ]),
 
     BullModule.registerQueue(

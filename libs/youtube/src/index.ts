@@ -10,6 +10,7 @@ export * from './interface/youtube-video-chat-end-job-data.interface'
 export * from './interface/youtube-video-chat-job-data.interface'
 
 export * from './model/youtube-channel.entity'
+export * from './model/youtube-chat-action-chat.entity'
 export * from './model/youtube-chat-action.entity'
 export * from './model/youtube-video.entity'
 

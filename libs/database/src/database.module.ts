@@ -1,7 +1,7 @@
 import { MasterchatEntity } from '@/app/masterchat'
 import { Track } from '@/app/track'
 import { UserFilter, UserPool } from '@/app/user'
-import { YoutubeChannel, YoutubeChatAction, YoutubeVideo } from '@/app/youtube'
+import { YoutubeChannel, YoutubeChatAction, YoutubeChatActionChat, YoutubeVideo } from '@/app/youtube'
 import configuration from '@/config/configuration'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
@@ -34,6 +34,7 @@ import { BooleanUtil } from '../../../shared/util/boolean.util'
           YoutubeChannel,
           YoutubeVideo,
           YoutubeChatAction,
+          YoutubeChatActionChat,
 
           MasterchatEntity,
         ],
