@@ -116,10 +116,10 @@ export abstract class BaseChatActionHandler<T extends ChatHandlerAction, R exten
   protected async fetchTracks(): Promise<Track[]> {
     const service = this.getInstance(TrackService)
 
-    if (this.authorId === this.hostId) {
+    if (this.authorId === this.hostId || YoutubeChatUtil.isAddBannerAction(this.action)) {
       const tracks = await service.findByHostId(
         UserSourceType.YOUTUBE,
-        this.authorId,
+        this.hostId,
       )
       return tracks
     }
