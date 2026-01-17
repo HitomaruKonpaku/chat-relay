@@ -3,10 +3,13 @@ import {
   AddBannerAction,
   AddChatItemAction,
   AddChatSummaryBannerAction,
+  AddIncomingRaidBannerAction,
   AddMembershipItemAction,
   AddMembershipMilestoneItemAction,
   AddMembershipTickerAction,
+  AddOutgoingRaidBannerAction,
   AddPollResultAction,
+  AddRedirectBannerAction,
   AddSuperChatItemAction,
   AddSuperChatTickerAction,
   AddSuperStickerItemAction,
@@ -34,6 +37,18 @@ export class YoutubeChatUtil {
 
   public static isAddBannerAction(action: Action): action is AddBannerAction {
     return action.type === 'addBannerAction'
+  }
+
+  public static isAddRedirectBannerAction(action: Action): action is AddRedirectBannerAction {
+    return action.type === 'addRedirectBannerAction'
+  }
+
+  public static isAddIncomingRaidBannerAction(action: Action): action is AddIncomingRaidBannerAction {
+    return action.type === 'addIncomingRaidBannerAction'
+  }
+
+  public static isAddOutgoingRaidBannerAction(action: Action): action is AddOutgoingRaidBannerAction {
+    return action.type === 'addOutgoingRaidBannerAction'
   }
 
   public static isAddChatSummaryBannerAction(action: Action): action is AddChatSummaryBannerAction {
