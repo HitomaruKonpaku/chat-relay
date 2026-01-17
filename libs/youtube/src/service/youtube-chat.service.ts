@@ -4,11 +4,15 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
 import { Action, MasterchatError } from 'masterchat'
+import { BaseYoutubeChatQueueService } from '../base/base-youtube-chat-queue.service'
 import { YoutubeChatJobConfig } from '../interface/youtube-chat-job-config.interface'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
 import { YoutubeChatActionQueueService } from './queue/youtube-chat-action-queue.service'
 import { YoutubeChatBannerQueueService } from './queue/youtube-chat-banner-queue.service'
+import { YoutubeChatBannerRaidQueueService } from './queue/youtube-chat-banner-raid-queue.service'
+import { YoutubeChatBannerRedirectQueueService } from './queue/youtube-chat-banner-redirect-queue.service'
+import { YoutubeChatBannerSummaryQueueService } from './queue/youtube-chat-banner-summary-queue.service'
 import { YoutubeChatErrorQueueService } from './queue/youtube-chat-error-queue.service'
 import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './queue/youtube-chat-poll-queue.service'
@@ -32,6 +36,9 @@ export class YoutubeChatService {
     private readonly youtubeChatMembershipQueueService: YoutubeChatMembershipQueueService,
     private readonly youtubeChatPollQueueService: YoutubeChatPollQueueService,
     private readonly youtubeChatBannerQueueService: YoutubeChatBannerQueueService,
+    private readonly youtubeChatBannerSummaryQueueService: YoutubeChatBannerSummaryQueueService,
+    private readonly youtubeChatBannerRedirectQueueService: YoutubeChatBannerRedirectQueueService,
+    private readonly youtubeChatBannerRaidQueueService: YoutubeChatBannerRaidQueueService,
     private readonly masterchatService: MasterchatService,
   ) { }
 
@@ -80,7 +87,7 @@ export class YoutubeChatService {
     })
   }
 
-  private queueAction(chat: YoutubeMasterchat, action: Action) {
+  private getQueueSerivce(action: Action): BaseYoutubeChatQueueService | null {
     const ignoreTypes = [
       'addPlaceholderItemAction',
       'addViewerEngagementMessageAction',
@@ -92,24 +99,19 @@ export class YoutubeChatService {
       return null
     }
 
-    const body = {
-      ...YoutubeChatUtil.generateChatMetadata(chat),
-      action,
-    }
-
     if (YoutubeChatUtil.isErrorAction(action)) {
-      return this.youtubeChatErrorQueueService.add(body, chat.config?.jobsOptions)
+      return this.youtubeChatErrorQueueService
     }
 
     if (YoutubeChatUtil.isUnknownAction(action)) {
-      return this.youtubeChatUnknownQueueServicee.add(body, chat.config?.jobsOptions)
+      return this.youtubeChatUnknownQueueServicee
     }
 
     const isSuperChat = false
       || YoutubeChatUtil.isAddSuperChatItemAction(action)
       || YoutubeChatUtil.isAddSuperChatTickerAction(action)
     if (isSuperChat) {
-      return this.youtubeSuperChatQueueService.add(body, chat.config?.jobsOptions)
+      return this.youtubeSuperChatQueueService
     }
 
     const isMembership = false
@@ -119,7 +121,7 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isMembershipGiftPurchaseAction(action)
       || YoutubeChatUtil.isMembershipGiftRedemptionAction(action)
     if (isMembership) {
-      return this.youtubeChatMembershipQueueService.add(body, chat.config?.jobsOptions)
+      return this.youtubeChatMembershipQueueService
     }
 
     const isPoll = false
@@ -127,16 +129,48 @@ export class YoutubeChatService {
       || YoutubeChatUtil.isUpdatePollActionAction(action)
       || YoutubeChatUtil.isAddPollResultActionAction(action)
     if (isPoll) {
-      return this.youtubeChatPollQueueService.add(body, chat.config?.jobsOptions)
+      return this.youtubeChatPollQueueService
+    }
+
+    const isSummaryBanner = false
+      || YoutubeChatUtil.isAddChatSummaryBannerAction(action)
+    if (isSummaryBanner) {
+      return this.youtubeChatBannerSummaryQueueService
+    }
+
+    const isRedirectBanner = false
+      || YoutubeChatUtil.isAddRedirectBannerAction(action)
+    if (isRedirectBanner) {
+      return this.youtubeChatBannerRedirectQueueService
+    }
+
+    const isRaidBanner = false
+      || YoutubeChatUtil.isAddIncomingRaidBannerAction(action)
+      || YoutubeChatUtil.isAddOutgoingRaidBannerAction(action)
+    if (isRaidBanner) {
+      return this.youtubeChatBannerRaidQueueService
     }
 
     const isBanner = false
       || YoutubeChatUtil.isAddBannerAction(action)
-      || YoutubeChatUtil.isAddChatSummaryBannerAction(action)
     if (isBanner) {
-      return this.youtubeChatBannerQueueService.add(body, chat.config?.jobsOptions)
+      return this.youtubeChatBannerQueueService
     }
 
-    return this.youtubeChatQueueService.add(body, chat.config?.jobsOptions)
+    return this.youtubeChatQueueService
+  }
+
+  private queueAction(chat: YoutubeMasterchat, action: Action) {
+    const service = this.getQueueSerivce(action)
+    if (!service) {
+      return null
+    }
+
+    const body = {
+      ...YoutubeChatUtil.generateChatMetadata(chat),
+      action,
+    }
+
+    return service.add(body, chat.config?.jobsOptions)
   }
 }

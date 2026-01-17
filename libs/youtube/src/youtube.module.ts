@@ -21,6 +21,7 @@ import { YoutubeChatActionChat } from './model/youtube-chat-action-chat.entity'
 import { YoutubeChatAction } from './model/youtube-chat-action.entity'
 import { YoutubeVideo } from './model/youtube-video.entity'
 import { YoutubeChannelRepository } from './repository/youtube-channel.repository'
+import { YoutubeChatActionChatRepository } from './repository/youtube-chat-action-chat.repository'
 import { YoutubeChatActionRepository } from './repository/youtube-chat-action.repository'
 import { YoutubeVideoRepository } from './repository/youtube-video.repository'
 import { InnertubeService } from './service/innertube.service'
@@ -75,6 +76,7 @@ const queues = [
     YoutubeChannelRepository,
     YoutubeVideoRepository,
     YoutubeChatActionRepository,
+    YoutubeChatActionChatRepository,
 
     YoutubeChannelService,
     YoutubeVideoService,
@@ -100,6 +102,7 @@ const queues = [
     YoutubeChannelRepository,
     YoutubeVideoRepository,
     YoutubeChatActionRepository,
+    YoutubeChatActionChatRepository,
 
     YoutubeChannelService,
     YoutubeVideoService,

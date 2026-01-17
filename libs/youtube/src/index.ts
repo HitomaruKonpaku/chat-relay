@@ -15,6 +15,7 @@ export * from './model/youtube-chat-action.entity'
 export * from './model/youtube-video.entity'
 
 export * from './repository/youtube-channel.repository'
+export * from './repository/youtube-chat-action-chat.repository'
 export * from './repository/youtube-chat-action.repository'
 export * from './repository/youtube-video.repository'
 
