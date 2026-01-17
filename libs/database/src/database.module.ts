@@ -3,11 +3,12 @@ import { Track } from '@/app/track'
 import { UserFilter, UserPool } from '@/app/user'
 import { YoutubeChannel, YoutubeChatAction, YoutubeChatActionChat, YoutubeVideo } from '@/app/youtube'
 import configuration from '@/config/configuration'
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { BooleanUtil } from '../../../shared/util/boolean.util'
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({

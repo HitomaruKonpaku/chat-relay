@@ -3,6 +3,7 @@ import { TrackModule } from '@/app/track'
 import { YoutubeModule as XYoutubeModule } from '@/app/youtube'
 import { Module } from '@nestjs/common'
 import { YoutubeChatActionProcessor } from './processor/youtube-chat-action.processor'
+import { YoutubeChatBannerSummaryProcessor } from './processor/youtube-chat-banner-summary.processor'
 import { YoutubeChatBannerProcessor } from './processor/youtube-chat-banner.processor'
 import { YoutubeChatMembershipProcessor } from './processor/youtube-chat-membership.processor'
 import { YoutubeChatPollProcessor } from './processor/youtube-chat-poll.processor'
@@ -25,8 +26,10 @@ import { YoutubeChatHandlerService } from './service/youtube-chat-handler.servic
     YoutubeChatMembershipProcessor,
     YoutubeChatPollProcessor,
     YoutubeChatBannerProcessor,
+    YoutubeChatBannerSummaryProcessor,
   ],
   exports: [
+    YoutubeChatHandlerService,
   ],
 })
 export class YoutubeModule { }

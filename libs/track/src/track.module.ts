@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Track } from './model/track.entity'
 import { TrackRepository } from './repository/track.repository'
 import { TrackService } from './track.service'
 
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([

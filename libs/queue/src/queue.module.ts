@@ -1,8 +1,9 @@
 import configuration from '@/config/configuration'
 import { BullModule } from '@nestjs/bullmq'
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({

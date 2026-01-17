@@ -1,4 +1,4 @@
-import { YOUTUBE_CHAT_BANNER_QUEUE_NAME } from '@/constant/youtube.constant'
+import { YOUTUBE_CHAT_BANNER_REDIRECT_QUEUE_NAME } from '@/constant/youtube.constant'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -10,7 +10,7 @@ import { BaseYoutubeChatQueueService } from '../../base/base-youtube-chat-queue.
 export class YoutubeChatBannerRedirectQueueService extends BaseYoutubeChatQueueService {
   constructor(
     protected readonly configService: ConfigService,
-    @InjectQueue(YOUTUBE_CHAT_BANNER_QUEUE_NAME)
+    @InjectQueue(YOUTUBE_CHAT_BANNER_REDIRECT_QUEUE_NAME)
     protected readonly queue: Queue,
   ) {
     super(configService, queue)

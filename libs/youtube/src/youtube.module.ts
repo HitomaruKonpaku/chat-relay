@@ -14,7 +14,7 @@ import {
 } from '@/constant/youtube.constant'
 import { QueueUtil } from '@/shared/util/queue.util'
 import { BullModule } from '@nestjs/bullmq'
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { YoutubeChannel } from './model/youtube-channel.entity'
 import { YoutubeChatActionChat } from './model/youtube-chat-action-chat.entity'
@@ -27,6 +27,9 @@ import { YoutubeVideoRepository } from './repository/youtube-video.repository'
 import { InnertubeService } from './service/innertube.service'
 import { YoutubeChatActionQueueService } from './service/queue/youtube-chat-action-queue.service'
 import { YoutubeChatBannerQueueService } from './service/queue/youtube-chat-banner-queue.service'
+import { YoutubeChatBannerRaidQueueService } from './service/queue/youtube-chat-banner-raid-queue.service'
+import { YoutubeChatBannerRedirectQueueService } from './service/queue/youtube-chat-banner-redirect-queue.service'
+import { YoutubeChatBannerSummaryQueueService } from './service/queue/youtube-chat-banner-summary-queue.service'
 import { YoutubeChatErrorQueueService } from './service/queue/youtube-chat-error-queue.service'
 import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
@@ -53,6 +56,7 @@ const queues = [
   { name: YOUTUBE_CHAT_BANNER_QUEUE_NAME },
 ]
 
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -93,6 +97,9 @@ const queues = [
     YoutubeChatMembershipQueueService,
     YoutubeChatPollQueueService,
     YoutubeChatBannerQueueService,
+    YoutubeChatBannerSummaryQueueService,
+    YoutubeChatBannerRedirectQueueService,
+    YoutubeChatBannerRaidQueueService,
 
     InnertubeService,
   ],
@@ -119,6 +126,9 @@ const queues = [
     YoutubeChatMembershipQueueService,
     YoutubeChatPollQueueService,
     YoutubeChatBannerQueueService,
+    YoutubeChatBannerSummaryQueueService,
+    YoutubeChatBannerRedirectQueueService,
+    YoutubeChatBannerRaidQueueService,
 
     InnertubeService,
   ],
