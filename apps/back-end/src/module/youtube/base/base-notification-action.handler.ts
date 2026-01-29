@@ -34,7 +34,10 @@ export abstract class BaseNotificationActionHandler<T extends NotificationAction
 
     lines.push(`「${link}」 ${inlineCode(this.data.action.type)}`)
 
-    lines.push(codeBlock(this.getYoutubeChatActionMessage()))
+    const msg = this.getYoutubeChatActionMessage()
+    if (msg) {
+      lines.push(codeBlock(msg))
+    }
 
     const res = lines.join('\n')
     return res
