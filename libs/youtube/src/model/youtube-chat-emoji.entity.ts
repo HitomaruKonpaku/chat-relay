@@ -12,10 +12,10 @@ export class YoutubeChatEmoji extends BaseExternalEntity {
   @Column({ name: 'is_custom_emoji', type: 'boolean', nullable: true })
   isCustomEmoji?: boolean
 
-  @Column({ name: 'shortcuts', type: 'json', nullable: true, array: true })
+  @Column({ name: 'shortcuts', type: 'text', nullable: true, array: true })
   shortcuts?: string[]
 
-  @Column({ name: 'search_terms', type: 'json', nullable: true, array: true })
+  @Column({ name: 'search_terms', type: 'text', nullable: true, array: true })
   searchTerms?: string[]
 
   @Column({ name: 'image', type: 'json', nullable: true })

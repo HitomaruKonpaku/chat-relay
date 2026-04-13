@@ -189,7 +189,7 @@ export class YoutubeChatService {
       return
     }
 
-    const runs = message.filter((v) => 'emoji' in v && v.emoji.emojiId) as YTEmojiRun[]
+    const runs = message.filter((v) => 'emoji' in v && v.emoji.emojiId && v.emoji.isCustomEmoji) as YTEmojiRun[]
     if (!runs.length) {
       return
     }
