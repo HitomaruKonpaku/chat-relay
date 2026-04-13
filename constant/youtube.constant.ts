@@ -23,3 +23,5 @@ export const YOUTUBE_CHAT_BANNER_SUMMARY_QUEUE_NAME = 'youtube.chat.banner.summa
 export const YOUTUBE_CHAT_BANNER_REDIRECT_QUEUE_NAME = 'youtube.chat.banner.redirect'
 
 export const YOUTUBE_CHAT_BANNER_RAID_QUEUE_NAME = 'youtube.chat.banner.raid'
+
+export const YOUTUBE_CHAT_EMOJI_QUEUE_NAME = 'youtube.chat.emoji'

@@ -1,5 +1,6 @@
 import { BaseExternalEntity } from '@/shared/base/base-external.entity'
 import { Column, Entity } from 'typeorm'
+import { YoutubeChatEmoji } from './youtube-chat-emoji.entity'
 import { YoutubeVideo } from './youtube-video.entity'
 
 @Entity('youtube_channel')
@@ -20,4 +21,6 @@ export class YoutubeChannel extends BaseExternalEntity {
   thumbnailUrl?: string
 
   videos?: YoutubeVideo[]
+
+  emojis?: YoutubeChatEmoji[]
 }

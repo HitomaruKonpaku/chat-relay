@@ -3,8 +3,9 @@ import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
-import { Action, MasterchatError } from 'masterchat'
-import { BaseYoutubeChatQueueService } from '../base/base-youtube-chat-queue.service'
+import { Action, MasterchatError, YTEmojiRun } from 'masterchat'
+import { BaseYoutubeChatActionQueueService } from '../base/base-youtube-chat-action-queue.service'
+import { YoutubeChatEmojiJobData } from '../interface/youtube-chat-emoji-job-data.interface'
 import { YoutubeChatJobConfig } from '../interface/youtube-chat-job-config.interface'
 import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeMasterchat } from '../youtube-master-chat'
@@ -13,6 +14,7 @@ import { YoutubeChatBannerQueueService } from './queue/youtube-chat-banner-queue
 import { YoutubeChatBannerRaidQueueService } from './queue/youtube-chat-banner-raid-queue.service'
 import { YoutubeChatBannerRedirectQueueService } from './queue/youtube-chat-banner-redirect-queue.service'
 import { YoutubeChatBannerSummaryQueueService } from './queue/youtube-chat-banner-summary-queue.service'
+import { YoutubeChatEmojiQueueService } from './queue/youtube-chat-emoji-queue.service'
 import { YoutubeChatErrorQueueService } from './queue/youtube-chat-error-queue.service'
 import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './queue/youtube-chat-poll-queue.service'
@@ -39,6 +41,7 @@ export class YoutubeChatService {
     private readonly youtubeChatBannerSummaryQueueService: YoutubeChatBannerSummaryQueueService,
     private readonly youtubeChatBannerRedirectQueueService: YoutubeChatBannerRedirectQueueService,
     private readonly youtubeChatBannerRaidQueueService: YoutubeChatBannerRaidQueueService,
+    private readonly youtubeChatEmojiQueueService: YoutubeChatEmojiQueueService,
     private readonly masterchatService: MasterchatService,
   ) { }
 
@@ -87,7 +90,7 @@ export class YoutubeChatService {
     })
   }
 
-  private getQueueSerivce(action: Action): BaseYoutubeChatQueueService | null {
+  private getActionQueueSerivce(action: Action): BaseYoutubeChatActionQueueService | null {
     const ignoreTypes = [
       'addPlaceholderItemAction',
       'addViewerEngagementMessageAction',
@@ -160,8 +163,10 @@ export class YoutubeChatService {
     return this.youtubeChatQueueService
   }
 
-  private queueAction(chat: YoutubeMasterchat, action: Action) {
-    const service = this.getQueueSerivce(action)
+  private async queueAction(chat: YoutubeMasterchat, action: Action) {
+    await this.queueEmojisIfExist(chat, action)
+
+    const service = this.getActionQueueSerivce(action)
     if (!service) {
       return null
     }
@@ -172,5 +177,34 @@ export class YoutubeChatService {
     }
 
     return service.add(body, chat.config?.jobsOptions)
+  }
+
+  private async queueEmojisIfExist(chat: YoutubeMasterchat, action: Action) {
+    if (!('message' in action)) {
+      return
+    }
+
+    const { message } = action
+    if (!Array.isArray(message)) {
+      return
+    }
+
+    const runs = message.filter((v) => 'emoji' in v && v.emoji.emojiId) as YTEmojiRun[]
+    if (!runs.length) {
+      return
+    }
+
+    await Promise.allSettled(runs.map((v) => this.queueEmoji(chat, v)))
+  }
+
+  private async queueEmoji(chat: YoutubeMasterchat, run: YTEmojiRun) {
+    const data: YoutubeChatEmojiJobData = {
+      channel: {
+        id: chat.channelId,
+        name: chat.channelName,
+      },
+      emoji: run.emoji,
+    }
+    return this.youtubeChatEmojiQueueService.add(data)
   }
 }

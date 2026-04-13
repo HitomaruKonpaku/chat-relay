@@ -1,10 +1,9 @@
 import { NumberUtil } from '@/shared/util/number.util'
 import { ConfigService } from '@nestjs/config'
-import { JobsOptions, KeepJobs, Queue } from 'bullmq'
+import { KeepJobs, Queue } from 'bullmq'
 import ms from 'ms'
-import { YoutubeChatActionJobData } from '../interface/youtube-chat-action-job-data.interface'
 
-export abstract class BaseYoutubeChatQueueService {
+export abstract class BaseYoutubeChatQueueService<T> {
   protected removeOnComplete?: boolean | number | KeepJobs = {
     age: ms('4h') * 1e-3,
     count: NumberUtil.parse(this.configService.get('QUEUE_REMOVE_ON_COMPLETE_COUNT'), 100000),
@@ -17,26 +16,6 @@ export abstract class BaseYoutubeChatQueueService {
 
   constructor(
     protected readonly configService: ConfigService,
-    protected readonly queue: Queue<YoutubeChatActionJobData>,
+    protected readonly queue: Queue<T>,
   ) { }
-
-  public async add(data: YoutubeChatActionJobData, options?: JobsOptions) {
-    const actionId = (data.action as any).id as string
-    const jobId = [
-      // data.video.id,
-      actionId,
-    ].join('.')
-    const job = await this.queue.add(
-      jobId,
-      data,
-      {
-        jobId,
-        attempts: 5,
-        removeOnComplete: this.removeOnComplete,
-        removeOnFail: this.removeOnFail,
-        ...options,
-      },
-    )
-    return job
-  }
 }

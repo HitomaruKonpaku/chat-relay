@@ -4,10 +4,10 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Queue } from 'bullmq'
 import ms from 'ms'
-import { BaseYoutubeChatQueueService } from '../../base/base-youtube-chat-queue.service'
+import { BaseYoutubeChatActionQueueService } from '../../base/base-youtube-chat-action-queue.service'
 
 @Injectable()
-export class YoutubeChatPollQueueService extends BaseYoutubeChatQueueService {
+export class YoutubeChatPollQueueService extends BaseYoutubeChatActionQueueService {
   constructor(
     protected readonly configService: ConfigService,
     @InjectQueue(YOUTUBE_CHAT_POLL_QUEUE_NAME)

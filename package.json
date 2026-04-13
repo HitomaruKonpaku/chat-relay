@@ -15,9 +15,9 @@
     "test": "jest --detectOpenHandles"
   },
   "dependencies": {
-    "@bull-board/api": "^6.20.3",
-    "@bull-board/express": "^6.20.3",
-    "@bull-board/nestjs": "^6.20.3",
+    "@bull-board/api": "^6.21.2",
+    "@bull-board/express": "^6.21.2",
+    "@bull-board/nestjs": "^6.21.2",
     "@discordjs/rest": "^2.5.0",
     "@keyv/redis": "^4.4.0",
     "@nestjs/bullmq": "^10.1.1",
@@ -36,7 +36,7 @@
     "class-validator": "^0.14.2",
     "discord-api-types": "^0.38.8",
     "discord.js": "^14.20.0",
-    "dotenv": "^17.3.1",
+    "dotenv": "^17.4.2",
     "iterator-helpers-polyfill": "^3.0.1",
     "luxon": "^3.7.2",
     "ms": "^2.1.3",

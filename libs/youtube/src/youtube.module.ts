@@ -6,6 +6,7 @@ import {
   YOUTUBE_CHAT_BANNER_RAID_QUEUE_NAME,
   YOUTUBE_CHAT_BANNER_REDIRECT_QUEUE_NAME,
   YOUTUBE_CHAT_BANNER_SUMMARY_QUEUE_NAME,
+  YOUTUBE_CHAT_EMOJI_QUEUE_NAME,
   YOUTUBE_CHAT_ERROR_QUEUE_NAME,
   YOUTUBE_CHAT_MEMBERSHIP_QUEUE_NAME,
   YOUTUBE_CHAT_POLL_QUEUE_NAME,
@@ -22,10 +23,12 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { YoutubeChannel } from './model/youtube-channel.entity'
 import { YoutubeChatActionChat } from './model/youtube-chat-action-chat.entity'
 import { YoutubeChatAction } from './model/youtube-chat-action.entity'
+import { YoutubeChatEmoji } from './model/youtube-chat-emoji.entity'
 import { YoutubeVideo } from './model/youtube-video.entity'
 import { YoutubeChannelRepository } from './repository/youtube-channel.repository'
 import { YoutubeChatActionChatRepository } from './repository/youtube-chat-action-chat.repository'
 import { YoutubeChatActionRepository } from './repository/youtube-chat-action.repository'
+import { YoutubeChatEmojiRepository } from './repository/youtube-chat-emoji.repository'
 import { YoutubeVideoRepository } from './repository/youtube-video.repository'
 import { InnertubeService } from './service/innertube.service'
 import { YoutubeChatActionQueueService } from './service/queue/youtube-chat-action-queue.service'
@@ -33,6 +36,7 @@ import { YoutubeChatBannerQueueService } from './service/queue/youtube-chat-bann
 import { YoutubeChatBannerRaidQueueService } from './service/queue/youtube-chat-banner-raid-queue.service'
 import { YoutubeChatBannerRedirectQueueService } from './service/queue/youtube-chat-banner-redirect-queue.service'
 import { YoutubeChatBannerSummaryQueueService } from './service/queue/youtube-chat-banner-summary-queue.service'
+import { YoutubeChatEmojiQueueService } from './service/queue/youtube-chat-emoji-queue.service'
 import { YoutubeChatErrorQueueService } from './service/queue/youtube-chat-error-queue.service'
 import { YoutubeChatMembershipQueueService } from './service/queue/youtube-chat-membership-queue.service'
 import { YoutubeChatPollQueueService } from './service/queue/youtube-chat-poll-queue.service'
@@ -60,6 +64,7 @@ const queues = [
   { name: YOUTUBE_CHAT_BANNER_SUMMARY_QUEUE_NAME },
   { name: YOUTUBE_CHAT_BANNER_REDIRECT_QUEUE_NAME },
   { name: YOUTUBE_CHAT_BANNER_RAID_QUEUE_NAME },
+  { name: YOUTUBE_CHAT_EMOJI_QUEUE_NAME },
 ]
 
 @Global()
@@ -70,6 +75,7 @@ const queues = [
       YoutubeVideo,
       YoutubeChatAction,
       YoutubeChatActionChat,
+      YoutubeChatEmoji,
     ]),
 
     BullModule.registerQueue(
@@ -87,6 +93,7 @@ const queues = [
     YoutubeVideoRepository,
     YoutubeChatActionRepository,
     YoutubeChatActionChatRepository,
+    YoutubeChatEmojiRepository,
 
     YoutubeChannelService,
     YoutubeVideoService,
@@ -106,6 +113,7 @@ const queues = [
     YoutubeChatBannerSummaryQueueService,
     YoutubeChatBannerRedirectQueueService,
     YoutubeChatBannerRaidQueueService,
+    YoutubeChatEmojiQueueService,
 
     InnertubeService,
   ],
@@ -116,6 +124,7 @@ const queues = [
     YoutubeVideoRepository,
     YoutubeChatActionRepository,
     YoutubeChatActionChatRepository,
+    YoutubeChatEmojiRepository,
 
     YoutubeChannelService,
     YoutubeVideoService,
@@ -135,6 +144,7 @@ const queues = [
     YoutubeChatBannerSummaryQueueService,
     YoutubeChatBannerRedirectQueueService,
     YoutubeChatBannerRaidQueueService,
+    YoutubeChatEmojiQueueService,
 
     InnertubeService,
   ],
