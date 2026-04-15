@@ -14,11 +14,12 @@ import {
 } from '@/app/youtube'
 import { BaseProcessor } from '@/shared/base/base.processor'
 import { Logger } from '@/shared/logger/logger'
+import { sleep } from '@/shared/util/common.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
 import { Job } from 'bullmq'
-import { MasterchatError, MembersOnlyError } from 'masterchat'
+import { DisabledChatError, MasterchatError, MembersOnlyError } from 'masterchat'
 
 export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
   protected readonly logger = new Logger(BaseYoutubeVideoChatProcessor.name)
@@ -81,6 +82,16 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       .catch((error) => {
         this.log(job, `[ERROR] ${error.code} - ${error.message}`)
         this.onChatInitError(videoId, error)
+          .catch((err) => {
+            this.log(job, `[DB] ${err.message}`)
+          })
+        if (error instanceof DisabledChatError) {
+          this.safeRemove(job)
+        }
+        throw error
+      })
+      .catch((error) => {
+        this.log(job, `[ERROR.UNK] ${error.message}`)
         throw error
       })
 
@@ -222,5 +233,19 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       endReason,
       ...metadata,
     })
+  }
+
+  protected async safeRemove(job: Job<YoutubeVideoChatJobData>) {
+    await sleep(3000)
+
+    const state = await job.getState()
+    if (!(state === 'failed' || state === 'delayed')) {
+      return
+    }
+
+    await job.remove({ removeChildren: true })
+      .catch((error) => {
+        this.log(job, `[REMOVE] ${error.message}`)
+      })
   }
 }
