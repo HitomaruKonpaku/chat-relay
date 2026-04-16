@@ -1,5 +1,5 @@
 import { DatabaseInsertQueueService } from '@/app/database-queue'
-import { YoutubeChatEmoji, YoutubeChatEmojiJobData } from '@/app/youtube'
+import { YoutubeChatEmoji, YoutubeChatEmojiJobData, YoutubeEmojiUtil } from '@/app/youtube'
 import { Injectable, Type } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 
@@ -15,12 +15,11 @@ export class YoutubeChatEmojiHandlerService {
       return
     }
 
-    const channelId = /^UC[\w-]{22}(?=\/)/.exec(emoji.emojiId)?.[0]
+    const channelId = YoutubeEmojiUtil.parseChannelId(emoji.emojiId)
     if (!channelId) {
       return
     }
 
-    const service = this.getInstance(DatabaseInsertQueueService)
     const data: YoutubeChatEmoji = {
       ...emoji,
       id: emoji.emojiId,
@@ -31,6 +30,7 @@ export class YoutubeChatEmojiHandlerService {
     // eslint-disable-next-line dot-notation
     delete data['emojiId']
 
+    const service = this.getInstance(DatabaseInsertQueueService)
     await service.add({ table: 'youtube_chat_emoji', data })
   }
 
