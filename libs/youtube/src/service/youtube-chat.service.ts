@@ -3,7 +3,7 @@ import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
-import { Action, MasterchatError, YTEmojiRun } from 'masterchat'
+import { Action, MasterchatError, YTEmoji, YTEmojiRun } from 'masterchat'
 import { BaseYoutubeChatActionQueueService } from '../base/base-youtube-chat-action-queue.service'
 import { YoutubeChatEmojiJobData } from '../interface/youtube-chat-emoji-job-data.interface'
 import { YoutubeChatJobConfig } from '../interface/youtube-chat-job-config.interface'
@@ -65,13 +65,13 @@ export class YoutubeChatService {
       await Promise.allSettled((queueActions).map((action) => this.queueAction(chat, action)))
     })
 
-    chat.on('error', async (error: MasterchatError) => {
+    chat.on('error', async (error: MasterchatError | Error) => {
       await this.masterchatService.updateById({
         id: chat.videoId,
         isActive: false,
         channelId: chat.channelId,
         errorAt: Date.now(),
-        errorCode: error.code,
+        errorCode: (error as MasterchatError).code,
         errorMessage: error.message,
       })
     })
@@ -87,6 +87,13 @@ export class YoutubeChatService {
         errorCode: null,
         errorMessage: null,
       })
+    })
+
+    chat.on('payload', async (data) => {
+      const emojis = data.continuationContents?.liveChatContinuation?.emojis || []
+      if (emojis.length) {
+        await Promise.allSettled(emojis.map((v) => this.queueEmoji(v)))
+      }
     })
   }
 
@@ -189,22 +196,23 @@ export class YoutubeChatService {
       return
     }
 
-    const runs = message.filter((v) => 'emoji' in v && v.emoji.emojiId && v.emoji.isCustomEmoji) as YTEmojiRun[]
+    const runs = message.filter((v) => 'emoji' in v) as YTEmojiRun[]
     if (!runs.length) {
       return
     }
 
-    await Promise.allSettled(runs.map((v) => this.queueEmoji(chat, v)))
+    await Promise.allSettled(runs.map((v) => this.queueEmoji(v.emoji)))
   }
 
-  private async queueEmoji(chat: YoutubeMasterchat, run: YTEmojiRun) {
-    const data: YoutubeChatEmojiJobData = {
-      channel: {
-        id: chat.channelId,
-        name: chat.channelName,
-      },
-      emoji: run.emoji,
+  private async queueEmoji(emoji: YTEmoji) {
+    if (!emoji || !emoji.emojiId || !emoji.isCustomEmoji) {
+      return null
     }
+
+    const data: YoutubeChatEmojiJobData = {
+      emoji,
+    }
+
     return this.youtubeChatEmojiQueueService.add(data)
   }
 }
