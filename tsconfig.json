@@ -16,8 +16,10 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "useUnknownInCatchVariables": false,
     "paths": {
       "masterchat": [
         "./submodule/masterchat/src"

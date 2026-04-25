@@ -3,8 +3,7 @@ import { Logger } from '@/shared/logger/logger'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable } from '@nestjs/common'
 import { Masterchat } from 'masterchat'
-import { MediaInfo } from 'youtubei.js/dist/src/core/mixins'
-import { PlayerErrorMessage } from 'youtubei.js/dist/src/parser/nodes'
+import { YT, YTNodes } from 'youtubei.js'
 import { YoutubeVideo } from '../model/youtube-video.entity'
 import { YoutubeVideoRepository } from '../repository/youtube-video.repository'
 import { YoutubeVideoUtil } from '../util/youtube-video.util'
@@ -33,13 +32,13 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
     await this.modify(id, { isActive: false })
   }
 
-  public async parseMediaInfo(info: MediaInfo) {
+  public async parseMediaInfo(info: YT.VideoInfo) {
     const { id } = info.basic_info
     if (!id) {
       throw new Error('VIDEO_ID_NOT_FOUND')
     }
 
-    const data = YoutubeVideoUtil.parseMediaInfo(info)
+    const data = YoutubeVideoUtil.parseVideoInfo(info)
     if (!data.isLiveContent) {
       try {
         data.isShortContent = await YoutubeVideoUtil.isShort(id)
@@ -86,7 +85,7 @@ export class YoutubeVideoService extends BaseService<YoutubeVideo> {
         if (info.playability_status.status === 'LOGIN_REQUIRED') {
           const { type } = info.playability_status.error_screen
           if (type === 'PlayerErrorMessage') {
-            const node = info.playability_status.error_screen as PlayerErrorMessage
+            const node = info.playability_status.error_screen as YTNodes.PlayerErrorMessage
             this.logger.warn(`updateMetadataInnertube#PlayerErrorMessage: ${node.reason.text} | ${JSON.stringify({ id })}`)
             if (node.reason.text === 'Private video') {
               await this.modify(id, { isActive: true, privacyStatus: 'private' })

@@ -1,32 +1,21 @@
 import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
 import Bottleneck from 'bottleneck'
-import { Innertube, Log } from 'youtubei.js'
-import {
-  CompactVideo,
-  GridVideo,
-  PlaylistPanelVideo,
-  PlaylistVideo,
-  ReelItem,
-  ShortsLockupView,
-  Video,
-  WatchCardCompactVideo,
-} from 'youtubei.js/dist/src/parser/nodes'
-import { Channel } from 'youtubei.js/dist/src/parser/youtube'
+import { Innertube, Log, YT, YTNodes } from 'youtubei.js'
 import { YoutubeChannelRepository } from '../repository/youtube-channel.repository'
 import { InnertubeUtil } from '../util/innertube.util'
 import { YoutubeChannelUtil } from '../util/youtube-channel.util'
 import { YoutubeVideoUtil } from '../util/youtube-video.util'
 import { YoutubeUtil } from '../util/youtube.util'
 
-type InnertubeVideo = CompactVideo
-  | GridVideo
-  | PlaylistPanelVideo
-  | PlaylistVideo
-  | ReelItem
-  | ShortsLockupView
-  | Video
-  | WatchCardCompactVideo
+type InnertubeVideo = YTNodes.CompactVideo
+  | YTNodes.GridVideo
+  | YTNodes.PlaylistPanelVideo
+  | YTNodes.PlaylistVideo
+  | YTNodes.ReelItem
+  | YTNodes.ShortsLockupView
+  | YTNodes.Video
+  | YTNodes.WatchCardCompactVideo
 
 @Injectable()
 export class InnertubeService {
@@ -44,7 +33,7 @@ export class InnertubeService {
   }
 
   public async getChannel(channelId: string, hasMembership = false) {
-    let channel: Channel
+    let channel: YT.Channel
     if (hasMembership) {
       await this.initAuthClient()
       channel = await this.authClient.getChannel(channelId)
@@ -56,7 +45,7 @@ export class InnertubeService {
     return channel
   }
 
-  public async getChannelActiveVideoIds(channelId: string, channel?: Channel, hasMembership = false): Promise<string[]> {
+  public async getChannelActiveVideoIds(channelId: string, channel?: YT.Channel, hasMembership = false): Promise<string[]> {
     // eslint-disable-next-line no-param-reassign
     channel = channel || await this.getChannel(channelId, hasMembership)
 
@@ -86,7 +75,7 @@ export class InnertubeService {
     return res
   }
 
-  private getActiveVideoIds(channel: Channel): string[] {
+  private getActiveVideoIds(channel: YT.Channel): string[] {
     const videos = channel?.videos || []
     const ids = videos
       .filter((v) => this.filterVideo(v))
@@ -110,7 +99,7 @@ export class InnertubeService {
     return false
   }
 
-  private async saveChannel(channel: Channel) {
+  private async saveChannel(channel: YT.Channel) {
     const { metadata } = channel
     const res = await this.youtubeChannelRepository.save({
       id: metadata.external_id,

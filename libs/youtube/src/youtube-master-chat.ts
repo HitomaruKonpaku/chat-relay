@@ -24,6 +24,11 @@ export class YoutubeMasterchat extends Masterchat {
     return !!this.credentials
   }
 
+  public applyCookies(cookies?: Record<string, string> | string) {
+    this.logger.warn('[COOKIES]')
+    this.setCookies(cookies)
+  }
+
   public applyCredentials() {
     const credentials = YoutubeUtil.getCredentials()
     this.logger.warn('[CREDENTIALS]')

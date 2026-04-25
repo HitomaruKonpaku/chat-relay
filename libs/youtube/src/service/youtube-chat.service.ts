@@ -29,6 +29,11 @@ export class YoutubeChatService {
     maxConcurrent: this.configService.get<number>('YOUTUBE_CHAT_HTTP_LIMITER_MAX_CONCURRENT'),
   })
 
+  private readonly metadataLimiter = new Bottleneck({
+    maxConcurrent: 1,
+    minTime: 1000,
+  })
+
   constructor(
     private readonly configService: ConfigService,
     private readonly youtubeChatErrorQueueService: YoutubeChatErrorQueueService,
@@ -47,14 +52,18 @@ export class YoutubeChatService {
 
   public async init(
     videoId: string,
+    cookies: Record<string, string> | string = '',
     applyCredentials: boolean = false,
     config: YoutubeChatJobConfig = {},
   ) {
     const chat = new YoutubeMasterchat(videoId, config, this.httpLimiter)
+    if (cookies) {
+      chat.setCookies(cookies)
+    }
     if (applyCredentials) {
       chat.applyCredentials()
     }
-    await chat.populateMetadata()
+    await this.metadataLimiter.schedule(() => chat.populateMetadata())
     this.addChatListeners(chat)
     return chat
   }

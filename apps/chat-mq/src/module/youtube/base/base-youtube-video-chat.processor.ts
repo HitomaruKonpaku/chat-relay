@@ -43,17 +43,18 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
 
     const jobData = job.data
     const { videoId } = jobData
+    const cookies = this.configService.get<string>('YOUTUBE_COOKIE')
     let userPool: UserPool
     let useCredentials = false
 
-    const chat = await this.youtubeChatService.init(videoId, false, jobData.config)
+    const chat = await this.youtubeChatService.init(videoId, cookies, false, jobData.config)
       .catch(async (error) => {
         if (error instanceof MembersOnlyError && error.data?.channelId) {
           userPool = userPool || await this.getUserPool(error.data.channelId)
           if (userPool?.hasMembership) {
             // attemp to re-init with has membership
             await this.log(job, '[INIT.CREDENTIALS]')
-            const res = await this.youtubeChatService.init(videoId, true, jobData.config)
+            const res = await this.youtubeChatService.init(videoId, cookies, true, jobData.config)
             useCredentials = true
             return res
           }
