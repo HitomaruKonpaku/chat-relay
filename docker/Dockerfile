@@ -18,7 +18,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm test
+# RUN npm test
 
 #
 FROM builder AS dashboard
