@@ -8,7 +8,7 @@ import { Group } from './group.entity'
 @Unique(GROUP_UNIQUE_FIELDS)
 export class GroupChannel extends BaseEntity {
   @Index()
-  @Column({ name: 'group_id', type: 'text' })
+  @Column({ name: 'group_id', type: 'uuid' })
   groupId: string
 
   @Column({ name: 'type', type: 'enum', enum: UserSourceType })
