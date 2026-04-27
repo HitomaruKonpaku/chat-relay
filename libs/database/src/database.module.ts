@@ -1,3 +1,4 @@
+import { Group, GroupChannel } from '@/app/group'
 import { MasterchatEntity } from '@/app/masterchat'
 import { Track } from '@/app/track'
 import { UserFilter, UserPool } from '@/app/user'
@@ -31,6 +32,9 @@ import { BooleanUtil } from '../../../shared/util/boolean.util'
           UserFilter,
 
           Track,
+
+          Group,
+          GroupChannel,
 
           YoutubeChannel,
           YoutubeVideo,

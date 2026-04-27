@@ -87,6 +87,12 @@
       "@/app/track/*": [
         "libs/track/src/*"
       ],
+      "@/app/group": [
+        "libs/group/src"
+      ],
+      "@/app/group/*": [
+        "libs/group/src/*"
+      ],
       "@/app/discord": [
         "libs/discord/src"
       ],
