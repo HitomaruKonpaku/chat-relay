@@ -12,7 +12,10 @@ import Bottleneck from 'bottleneck'
 export class YoutubeChannelCrawlerService implements OnModuleInit {
   private readonly logger = new Logger(YoutubeChannelCrawlerService.name)
 
-  private readonly limiter = new Bottleneck({ maxConcurrent: 1 })
+  private readonly limiter = new Bottleneck({
+    maxConcurrent: 1,
+    minTime: 1000,
+  })
 
   private delay = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_DELAY, 2) * 1000
   private interval = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_INTERVAL, 60) * 1000
