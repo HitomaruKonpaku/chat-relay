@@ -25,11 +25,13 @@ export class InnertubeService {
 
   private client: Innertube
   private authClient: Innertube
+  private cookies: Record<string, string> = {}
 
   constructor(
     private readonly youtubeChannelRepository: YoutubeChannelRepository,
   ) {
     Log.setLevel(Log.Level.NONE)
+    this.parseCookies()
   }
 
   public async getChannel(channelId: string, hasMembership = false) {
@@ -112,10 +114,24 @@ export class InnertubeService {
     return res
   }
 
+  private parseCookies() {
+    try {
+      const cookies = process.env.YOUTUBE_COOKIE || ''
+      this.cookies = cookies.split(/;\s/g).reduce((obj, str) => {
+        const [key, value] = str.trim().split(/=/)
+        Object.assign(obj, { [key]: value })
+        return obj
+      }, {})
+    } catch (error) {
+      this.logger.error(`parseCookies: ${error.message}`)
+    }
+  }
+
   private async initClient() {
     await this.clientLimiter.schedule(async () => {
       if (!this.client) {
-        this.client = await Innertube.create()
+        const cookie = YoutubeUtil.genCookieString({ ...this.cookies })
+        this.client = await Innertube.create({ cookie })
       }
     })
   }
@@ -124,7 +140,7 @@ export class InnertubeService {
     await this.clientLimiter.schedule(async () => {
       if (!this.authClient) {
         const credentials = YoutubeUtil.getCredentials()
-        const cookie = YoutubeUtil.genCookieString(credentials)
+        const cookie = YoutubeUtil.genCookieString({ ...this.cookies, ...credentials })
         this.authClient = await Innertube.create({ cookie })
       }
     })

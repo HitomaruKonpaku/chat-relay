@@ -18,8 +18,8 @@ export class YoutubeUtil {
     return credentials
   }
 
-  public static genCookieString(credentials: Credentials) {
-    return Object.entries(credentials)
+  public static genCookieString(data: Record<string, string>) {
+    return Object.entries(data)
       .map(([key, value]) => `${key}=${value};`)
       .join(' ')
   }
