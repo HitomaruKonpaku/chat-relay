@@ -10,17 +10,19 @@ import Bottleneck from 'bottleneck'
 
 @Injectable()
 export class YoutubeChannelCrawlerService implements OnModuleInit {
-  private readonly logger = new Logger(YoutubeChannelCrawlerService.name)
+  private readonly logger = new Logger('YoutubeChannelCrawler')
 
   private readonly limiter = new Bottleneck({
     maxConcurrent: 1,
     minTime: 1000,
   })
 
+  private readonly active = BooleanUtil.fromString(process.env.YOUTUBE_CHANNEL_CRAWLER_ACTIVE)
+  private readonly holodexActive = BooleanUtil.fromString(process.env.YOUTUBE_CHANNEL_CRAWLER_HOLODEX_ACTIVE)
+
   private delay = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_DELAY, 2) * 1000
   private interval = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_INTERVAL, 60) * 1000
 
-  private readonly holodexActive = BooleanUtil.fromString(process.env.YOUTUBE_CHANNEL_CRAWLER_HOLODEX_ACTIVE)
   private holodexInterval = (NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_HOLODEX_INTERVAL || process.env.YOUTUBE_CHANNEL_CRAWLER_INTERVAL, 60) * 1000)
 
   constructor(
@@ -42,6 +44,10 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
   // #region internal
 
   public async onTick() {
+    if (!this.active) {
+      return
+    }
+
     try {
       await this.fetchChannels()
     } catch (error) {
@@ -126,7 +132,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     )
     const videoIds = items.map((v) => v.id)
     await Promise.allSettled(videoIds.map((v) => this.queueVideo(v)))
-    this.logger.debug(`fetchHolodexChannels <-- ${JSON.stringify({ count: channels.length })}`)
+    this.logger.debug(`fetchHolodexChannels <-- ${JSON.stringify({ channel: channels.length, video: videoIds.length })}`)
   }
 
   // #endregion

@@ -122,6 +122,7 @@ export class InnertubeService {
         Object.assign(obj, { [key]: value })
         return obj
       }, {})
+      this.logger.warn(`parseCookies | ${JSON.stringify({ keys: Object.keys(this.cookies) })}`)
     } catch (error) {
       this.logger.error(`parseCookies: ${error.message}`)
     }
