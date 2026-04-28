@@ -171,6 +171,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/group/tsconfig.lib.json"
       }
+    },
+    "holodex": {
+      "type": "library",
+      "root": "libs/holodex",
+      "entryFile": "index",
+      "sourceRoot": "libs/holodex/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/holodex/tsconfig.lib.json"
+      }
     }
   }
 }

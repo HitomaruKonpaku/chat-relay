@@ -1,4 +1,5 @@
 import { DatabaseModule } from '@/app/database'
+import { HolodexModule } from '@/app/holodex'
 import { QueueModule } from '@/app/queue'
 import { UserModule } from '@/app/user'
 import { YoutubeModule } from '@/app/youtube'
@@ -12,6 +13,7 @@ import { YoutubeChannelCrawlerService } from './youtube-channel-crawler.service'
     DatabaseModule,
     UserModule,
     YoutubeModule,
+    HolodexModule,
   ],
   controllers: [
     YoutubeChannelCrawlerController,

@@ -104,6 +104,12 @@
       ],
       "@/app/masterchat/*": [
         "libs/masterchat/src/*"
+      ],
+      "@/app/holodex": [
+        "libs/holodex/src"
+      ],
+      "@/app/holodex/*": [
+        "libs/holodex/src/*"
       ]
     }
   }

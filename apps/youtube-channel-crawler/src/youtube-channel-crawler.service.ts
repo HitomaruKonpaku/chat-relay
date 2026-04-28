@@ -1,7 +1,9 @@
+import { HolodexService } from '@/app/holodex'
 import { UserPoolRepository, UserSourceType } from '@/app/user'
 import { InnertubeUtil, YoutubeVideoChatQueueService } from '@/app/youtube'
 import { InnertubeService } from '@/app/youtube/service/innertube.service'
 import { Logger } from '@/shared/logger/logger'
+import { BooleanUtil } from '@/shared/util/boolean.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import Bottleneck from 'bottleneck'
@@ -15,19 +17,26 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
   private delay = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_DELAY, 2) * 1000
   private interval = NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_INTERVAL, 60) * 1000
 
+  private readonly holodexActive = BooleanUtil.fromString(process.env.YOUTUBE_CHANNEL_CRAWLER_HOLODEX_ACTIVE)
+  private holodexInterval = (NumberUtil.parse(process.env.YOUTUBE_CHANNEL_CRAWLER_HOLODEX_INTERVAL || process.env.YOUTUBE_CHANNEL_CRAWLER_INTERVAL, 60) * 1000)
+
   constructor(
     private readonly userPoolRepository: UserPoolRepository,
     private readonly youtubeVideoChatQueueService: YoutubeVideoChatQueueService,
     private readonly innertubeService: InnertubeService,
+    private readonly holodexService: HolodexService,
   ) { }
 
   onModuleInit() {
     setTimeout(() => this.onTick(), this.delay)
+    setTimeout(() => this.onTickHolodex(), this.delay)
   }
 
   getHello(): string {
     return 'Hello World!'
   }
+
+  // #region internal
 
   public async onTick() {
     try {
@@ -83,6 +92,44 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     }
   }
 
+  // #endregion
+
+  // #region holodex
+
+  public async onTickHolodex() {
+    if (!this.holodexActive || !this.holodexService.canActive()) {
+      return
+    }
+
+    try {
+      await this.fetchHolodexChannels()
+    } catch (error) {
+      this.logger.error(`onTickHolodex: ${error.message}`)
+    }
+
+    setTimeout(() => this.onTickHolodex(), this.holodexInterval)
+  }
+
+  public async fetchHolodexChannels() {
+    this.logger.debug('fetchHolodexChannels -->')
+    const channels = await this.getChannels()
+    if (!channels.length) {
+      return
+    }
+
+    const { data: items } = await this.holodexService.client.get<any[]>(
+      'users/live',
+      { params: { channels: channels.map((v) => v.sourceId).join(',') } },
+    )
+    const videoIds = items.map((v) => v.id)
+    await Promise.allSettled(videoIds.map((v) => this.queueVideo(v)))
+    this.logger.debug(`fetchHolodexChannels <-- ${JSON.stringify({ count: channels.length })}`)
+  }
+
+  // #endregion
+
+  // #region common
+
   private async queueVideo(id: string) {
     let job = await this.youtubeVideoChatQueueService.add(id)
     const isFailed = await job.isFailed()
@@ -92,4 +139,6 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
     job = await this.youtubeVideoChatQueueService.add(id)
     return job
   }
+
+  // #endregion
 }
