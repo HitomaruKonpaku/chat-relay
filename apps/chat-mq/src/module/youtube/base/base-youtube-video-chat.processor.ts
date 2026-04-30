@@ -19,7 +19,7 @@ import { NumberUtil } from '@/shared/util/number.util'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
 import { Job } from 'bullmq'
-import { DisabledChatError, MasterchatError, MembersOnlyError } from 'masterchat'
+import { DisabledChatError, Masterchat, MasterchatError, MembersOnlyError } from 'masterchat'
 
 export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
   protected readonly logger = new Logger(BaseYoutubeVideoChatProcessor.name)
@@ -39,23 +39,49 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
   }
 
   async process(job: Job<YoutubeVideoChatJobData>): Promise<any> {
-    await this.log(job, '[INIT]')
-
     const jobData = job.data
     const { videoId } = jobData
+    if (!videoId) {
+      await job.updateProgress(100)
+      return null
+    }
+
     const cookies = this.configService.get<string>('YOUTUBE_COOKIE')
     let userPool: UserPool
-    let useCredentials = false
+    let withCredentials = false
+    let endError: MasterchatError | Error
+    let endReason: string
 
-    const chat = await this.youtubeChatService.init(videoId, cookies, false, jobData.config)
+    const getUserPool = async (channelId: string) => userPool
+      || this.getUserPool(channelId).catch(() => null)
+
+    await this.log(job, '[INIT]')
+    const chat: YoutubeMasterchat = await this.youtubeChatService.init(videoId, {
+      initValue: {
+        channelId: jobData.channel?.id,
+        channelName: jobData.channel?.name,
+        title: jobData.video?.title,
+        isLive: jobData.video?.isLive,
+        isUpcoming: jobData.video?.isUpcoming,
+        isMembersOnly: jobData.video?.isMembersOnly,
+        videoMetadata: jobData.metadata,
+      },
+      cookies,
+      withCredentials,
+      config: jobData.config,
+    })
       .catch(async (error) => {
         if (error instanceof MembersOnlyError && error.data?.channelId) {
-          userPool = userPool || await this.getUserPool(error.data.channelId)
+          userPool = await getUserPool(error.data.channelId)
           if (userPool?.hasMembership) {
-            // attemp to re-init with has membership
+            withCredentials = true
             await this.log(job, '[INIT.CREDENTIALS]')
-            const res = await this.youtubeChatService.init(videoId, cookies, true, jobData.config)
-            useCredentials = true
+            // attemp to re-init with membership
+            const res = await this.youtubeChatService.init(videoId, {
+              cookies,
+              withCredentials,
+              config: jobData.config,
+            })
             return res
           }
         }
@@ -63,51 +89,76 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       })
       .then(async (res) => {
         await this.log(job, '[INIT.OK]')
-
-        if (!useCredentials && !res.isLive && res.isMembersOnly) {
-          userPool = userPool || await this.getUserPool(res.channelId)
-          if (userPool?.hasMembership) {
-            // force populate metadata with user credentials
-            await this.log(job, '[CREDENTIALS]')
-            res.applyCredentials()
-            await this.log(job, '[POPULATE_METADATA]')
-            await res.populateMetadata()
-            useCredentials = true
-          }
-        }
-
         await this.log(job, '[INIT.DONE]')
-        this.onChatInitOk(res)
+        this.onChatInitOk(res, res.didPopulateMetadata)
         return res
       })
       .catch((error) => {
-        this.log(job, `[ERROR] ${error.code} - ${error.message}`)
+        this.log(job, `[ERROR] ${error.code} | ${error.message}`)
+
         this.onChatInitError(videoId, error)
-          .catch((err) => {
-            this.log(job, `[DB] ${err.message}`)
-          })
+
+        if (error instanceof MembersOnlyError) {
+          const data = error.data?.data
+          if (data) {
+            const mc = new Masterchat(videoId, data.channelId)
+            mc.channelName = data.channelName
+            mc.title = data.title
+            mc.isLive = data.isLive
+            mc.isUpcoming = data.isUpcoming
+            mc.isMembersOnly = data.isMembersOnly
+            mc.videoMetadata = data.metadata
+            const fakeChat = mc as YoutubeMasterchat
+            Promise.allSettled([
+              this.updateJobData(job, fakeChat),
+              this.saveChannel(fakeChat),
+              this.saveVideo(fakeChat),
+            ])
+          }
+        }
+
         if (error instanceof DisabledChatError) {
           this.safeRemove(job)
         }
-        throw error
-      })
-      .catch((error) => {
-        this.log(job, `[ERROR.UNK] ${error.message}`)
+
         throw error
       })
 
-    await this.updateJobData(job, chat)
-    await this.saveChannel(chat)
-    await this.saveVideo(chat)
+    if (chat.didPopulateMetadata) {
+      await Promise.all([
+        this.updateJobData(job, chat),
+        this.saveChannel(chat),
+        this.saveVideo(chat),
+      ])
+    }
 
-    userPool = userPool || await this.getUserPool(chat.channelId)
+    userPool = await getUserPool(chat.channelId)
 
-    let endError: MasterchatError
-    let endReason: string
-
-    chat.on('error', (error: MasterchatError) => {
+    chat.on('error', (error) => {
       endError = error
-      this.log(job, `[ERROR] ${error.code} - ${error.message}`)
+
+      if (error instanceof DisabledChatError) {
+        if (chat.isMembersOnly) {
+          endError = new MasterchatError('membersOnly', error.message, {
+            channelId: chat.channelId,
+            data: {
+              title: chat.title,
+              channelId: chat.channelId,
+              channelName: chat.channelName,
+              isLive: chat.isLive,
+              isUpcoming: chat.isUpcoming,
+              isMembersOnly: chat.isMembersOnly,
+              metadata: chat.videoMetadata,
+            },
+          })
+        }
+      }
+
+      if (endError instanceof MasterchatError) {
+        this.log(job, `[ERROR] ${endError.code} | ${endError.message}`)
+      } else {
+        this.log(job, `[ERROR] ${endError.message}`)
+      }
     })
 
     chat.on('end', (reason) => {
@@ -116,12 +167,13 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     })
 
     chat.on('actions', (actions) => {
-      if (actions.length) {
-        this.log(job, `[ACTIONS] ${actions.length}`)
+      if (!actions.length) {
+        return
       }
+      this.log(job, `[ACTIONS] ${actions.length}`)
     })
 
-    if (!useCredentials && chat.isMembersOnly && userPool?.hasMembership) {
+    if (chat.isMembersOnly && !withCredentials && userPool?.hasMembership) {
       await this.log(job, '[CREDENTIALS]')
       chat.applyCredentials()
     }
@@ -129,26 +181,24 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     await this.log(job, '[LISTEN]')
     await chat.listen()
 
-    if (endError && endError.code === 'membersOnly' && !chat.hasCredentials) {
-      if (userPool?.hasMembership) {
-        endError = null
+    if (endError && endError instanceof MasterchatError && endError.code === 'membersOnly' && !chat.hasCredentials && userPool?.hasMembership) {
+      endError = null
 
-        await this.log(job, '[CREDENTIALS.ALT]')
-        chat.applyCredentials()
+      await this.log(job, '[CREDENTIALS.ALT]')
+      chat.applyCredentials()
 
-        await chat.populateMetadata()
-        chat.isMembersOnly = true
+      await chat.populateMetadata()
+      chat.isMembersOnly = true
 
-        await this.updateJobData(job, chat)
-        await this.saveVideo(chat)
+      await this.updateJobData(job, chat)
+      await this.saveVideo(chat)
 
-        await this.log(job, '[LISTEN.ALT]')
-        await chat.listen()
-      }
+      await this.log(job, '[LISTEN.ALT]')
+      await chat.listen()
     }
 
     if (endError) {
-      throw new MasterchatError(endError.code, `${endError.code} - ${endError.message}`)
+      throw endError
     }
 
     await this.queueVideoChatEnd(job, chat, endReason)
@@ -158,7 +208,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     return JSON.parse(JSON.stringify(res))
   }
 
-  protected async onChatInitOk(chat: YoutubeMasterchat) {
+  protected async onChatInitOk(chat: YoutubeMasterchat, fetchInnertube = false) {
     const tmp: MasterchatEntity = {
       id: chat.videoId,
       isActive: true,
@@ -171,7 +221,10 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       tmp.errorMessage = null
     }
     await this.masterchatService.updateById(tmp)
-    await this.innerTubeLimier.schedule(() => this.youtubeVideoService.updateMetadataInnertube(chat.videoId, true))
+
+    if (fetchInnertube) {
+      await this.innerTubeLimier.schedule(() => this.youtubeVideoService.updateMetadataInnertube(chat.videoId, true))
+    }
   }
 
   protected async onChatInitError(id: string, error: any) {
@@ -221,10 +274,14 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     await this.databaseInsertQueueService.add({ table: 'youtube_video', data })
   }
 
-  protected async updateJobData(job: Job<YoutubeVideoChatJobData>, mc: YoutubeMasterchat) {
+  protected async updateJobData(job: Job<YoutubeVideoChatJobData>, mc: YoutubeMasterchat, extra: Record<string, any> = {}) {
     const metadata = YoutubeChatUtil.generateChatMetadata(mc, true)
-    const tmp = { ...job.data, ...metadata }
-    await job.updateData(tmp)
+    const data = {
+      ...job.data,
+      ...extra,
+      ...metadata,
+    }
+    await job.updateData(data)
   }
 
   protected async queueVideoChatEnd(job: Job<YoutubeVideoChatJobData>, mc: YoutubeMasterchat, endReason: string) {
@@ -237,7 +294,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
   }
 
   protected async safeRemove(job: Job<YoutubeVideoChatJobData>) {
-    await sleep(3000)
+    await sleep(5000)
 
     const state = await job.getState()
     if (!(state === 'failed' || state === 'delayed')) {
@@ -245,6 +302,9 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     }
 
     await job.remove({ removeChildren: true })
+      .then(() => {
+        debugger
+      })
       .catch((error) => {
         this.log(job, `[REMOVE] ${error.message}`)
       })

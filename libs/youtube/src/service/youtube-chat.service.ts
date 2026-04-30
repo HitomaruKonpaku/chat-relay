@@ -3,7 +3,7 @@ import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Bottleneck from 'bottleneck'
-import { Action, MasterchatError, YTEmoji, YTEmojiRun } from 'masterchat'
+import { Action, MasterchatError, VideoObject, YTEmoji, YTEmojiRun } from 'masterchat'
 import { BaseYoutubeChatActionQueueService } from '../base/base-youtube-chat-action-queue.service'
 import { YoutubeChatEmojiJobData } from '../interface/youtube-chat-emoji-job-data.interface'
 import { YoutubeChatJobConfig } from '../interface/youtube-chat-job-config.interface'
@@ -20,6 +20,21 @@ import { YoutubeChatMembershipQueueService } from './queue/youtube-chat-membersh
 import { YoutubeChatPollQueueService } from './queue/youtube-chat-poll-queue.service'
 import { YoutubeChatSuperChatQueueService } from './queue/youtube-chat-super-chat-queue.service'
 import { YoutubeChatUnknownQueueService } from './queue/youtube-chat-unknown-queue.service'
+
+interface InitOpts {
+  initValue?: {
+    channelId?: string
+    channelName?: string
+    title?: string
+    isLive?: boolean
+    isUpcoming?: boolean
+    isMembersOnly?: boolean
+    videoMetadata?: VideoObject
+  }
+  cookies?: Record<string, string> | string
+  withCredentials?: boolean
+  config?: YoutubeChatJobConfig
+}
 
 @Injectable()
 export class YoutubeChatService {
@@ -52,18 +67,27 @@ export class YoutubeChatService {
 
   public async init(
     videoId: string,
-    cookies: Record<string, string> | string = '',
-    applyCredentials: boolean = false,
-    config: YoutubeChatJobConfig = {},
+    opts?: InitOpts,
   ) {
-    const chat = new YoutubeMasterchat(videoId, config, this.httpLimiter)
-    if (cookies) {
-      chat.setCookies(cookies)
+    const chat = new YoutubeMasterchat(videoId, opts?.initValue?.channelId, opts?.config, this.httpLimiter)
+    if (opts?.initValue) {
+      chat.channelId = opts.initValue.channelId
+      chat.channelName = opts.initValue.channelName
+      chat.title = opts.initValue.title
+      chat.isLive = opts.initValue.isLive
+      chat.isUpcoming = opts.initValue.isUpcoming
+      chat.isMembersOnly = opts.initValue.isMembersOnly
+      chat.videoMetadata = opts.initValue.videoMetadata
     }
-    if (applyCredentials) {
+    if (opts?.cookies) {
+      chat.setCookies(opts.cookies)
+    }
+    if (opts.withCredentials) {
       chat.applyCredentials()
     }
-    await this.metadataLimiter.schedule(() => chat.populateMetadata())
+    if (!chat.channelId) {
+      await this.metadataLimiter.schedule(() => chat.populateMetadata())
+    }
     this.addChatListeners(chat)
     return chat
   }

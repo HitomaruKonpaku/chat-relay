@@ -22,11 +22,11 @@ export class YoutubeVideoChatQueueService {
         jobId,
         attempts: 5,
         backoff: {
-          type: 'fixed',
-          delay: ms('2m'),
+          type: 'exponential',
+          delay: ms('1m'),
         },
         removeOnComplete: {
-          age: ms('8h') * 1e-3,
+          age: ms('1d') * 1e-3,
         },
         removeOnFail: {
           age: ms('30d') * 1e-3,

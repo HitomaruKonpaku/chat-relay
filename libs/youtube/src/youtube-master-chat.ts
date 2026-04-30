@@ -1,19 +1,22 @@
 import { Logger } from '@/shared/logger/logger'
 import { AxiosRequestConfig } from 'axios'
 import Bottleneck from 'bottleneck'
-import { IterateChatOptions, Masterchat, MasterchatError } from 'masterchat'
+import { IterateChatOptions, Masterchat } from 'masterchat'
 import { YoutubeChatJobConfig } from './interface/youtube-chat-job-config.interface'
 import { YoutubeUtil } from './util/youtube.util'
 
 export class YoutubeMasterchat extends Masterchat {
   private readonly logger: Logger
 
+  public didPopulateMetadata = false
+
   constructor(
     videoId: string,
+    channelId: string,
     public readonly config?: YoutubeChatJobConfig,
     protected readonly httpLimiter?: Bottleneck,
   ) {
-    super(videoId, '')
+    super(videoId, channelId)
     this.logger = new Logger(`YoutubeMasterchat] [${videoId}`)
     this.config = config || {}
     this.httpLimiter = httpLimiter || new Bottleneck({})
@@ -35,20 +38,18 @@ export class YoutubeMasterchat extends Masterchat {
     this.setCredentials(credentials)
   }
 
-  public listen(iterateOptions?: IterateChatOptions) {
-    const fn = super.listen(iterateOptions)
-    this.logger.log('[LISTEN]')
-    return fn
-  }
-
   private addListeners() {
-    this.on('error', (error: MasterchatError) => {
-      this.logger.error(`[ERROR] ${error.code} - ${error.message}`)
-    })
+    // this.on('error', (error) => {
+    //   if (error instanceof MasterchatError) {
+    //     this.logger.error(`[ERROR] ${error.code} | ${error.message}`)
+    //   } else {
+    //     this.logger.error(`[ERROR] ${error.message}`)
+    //   }
+    // })
 
-    this.on('end', (reason) => {
-      this.logger.warn(`[END] ${reason}`)
-    })
+    // this.on('end', (reason) => {
+    //   this.logger.warn(`[END] ${reason}`)
+    // })
 
     // this.on('actions', (actions) => {
     //   this.logger.debug(`[ACTIONS] ${actions.length}`)
@@ -62,6 +63,17 @@ export class YoutubeMasterchat extends Masterchat {
   }
 
   // #region override
+
+  public async populateMetadata() {
+    await super.populateMetadata()
+    this.didPopulateMetadata = true
+  }
+
+  public listen(iterateOptions?: IterateChatOptions) {
+    const fn = super.listen(iterateOptions)
+    this.logger.log('[LISTEN]')
+    return fn
+  }
 
   protected post<T>(input: string, body: any, config?: AxiosRequestConfig): Promise<T> {
     return this.httpLimiter.schedule(() => super.post<T>(input, body, config))
