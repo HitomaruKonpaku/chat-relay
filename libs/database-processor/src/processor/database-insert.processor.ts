@@ -32,17 +32,19 @@ export class DatabaseInsertProcessor extends BaseProcessor {
     }
 
     try {
-      // const res = await this.dataSource.manager.save(data.table, data.data)
-      const cols = this.dataSource.getMetadata(data.table).ownColumns.map((v) => v.databaseName)
-      const res = await this.dataSource.manager
-        .createQueryBuilder()
-        .insert()
-        .into(data.table)
-        .values(data.data)
-        .orUpdate(cols, ['id'])
-        .execute()
-    await job.updateProgress(100)
-      return res.identifiers
+      const res = await this.dataSource.manager.save(data.table, data.data)
+      await job.updateProgress(100)
+      return res
+      // const cols = this.dataSource.getMetadata(data.table).ownColumns.map((v) => v.databaseName)
+      // const res = await this.dataSource.manager
+      //   .createQueryBuilder()
+      //   .insert()
+      //   .into(data.table)
+      //   .values(data.data)
+      //   .orUpdate(cols, ['id'])
+      //   .execute()
+      // await job.updateProgress(100)
+      // return res.identifiers
     } catch (error) {
       await job.log(error.message)
       await job.log(JSON.stringify(error))
