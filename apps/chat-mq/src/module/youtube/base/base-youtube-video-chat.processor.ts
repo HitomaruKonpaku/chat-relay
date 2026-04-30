@@ -89,13 +89,11 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
       })
       .then(async (res) => {
         await this.log(job, '[INIT.OK]')
-        await this.log(job, '[INIT.DONE]')
         this.onChatInitOk(res, res.didPopulateMetadata)
         return res
       })
       .catch((error) => {
-        this.log(job, `[ERROR] ${error.code} | ${error.message}`)
-
+        this.log(job, `[INIT.ERROR] ${error.code} | ${error.message}`)
         this.onChatInitError(videoId, error)
 
         if (error instanceof MembersOnlyError) {
@@ -182,6 +180,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     await chat.listen()
 
     if (endError && endError instanceof MasterchatError && endError.code === 'membersOnly' && !chat.hasCredentials && userPool?.hasMembership) {
+      // video switch to membersOnly during chat listening
       endError = null
 
       await this.log(job, '[CREDENTIALS.ALT]')
@@ -198,6 +197,10 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
     }
 
     if (endError) {
+      if (endError instanceof MasterchatError && endError.code) {
+        // overwrite error for bull dashboard display
+        throw new Error(`${endError.code} | ${endError.message}`)
+      }
       throw endError
     }
 
