@@ -19,7 +19,7 @@ export class DatabaseInsertQueueService {
       {
         attempts: 5,
         removeOnComplete: {
-          age: ms('10m') * 1e-3,
+          age: ms('1h') * 1e-3,
         },
         removeOnFail: {
           age: ms('30d') * 1e-3,

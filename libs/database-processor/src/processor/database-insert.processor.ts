@@ -25,12 +25,28 @@ export class DatabaseInsertProcessor extends BaseProcessor {
 
   async process(job: Job<DatabaseInsertData>): Promise<any> {
     const { data } = job
+
     if (data.data.message && typeof data.data.message === 'string') {
       // eslint-disable-next-line no-control-regex
       data.data.message = String(data.data.message).replace(/\x00/g, ' ')
     }
-    const res = await this.dataSource.manager.save(data.table, data.data)
+
+    try {
+      // const res = await this.dataSource.manager.save(data.table, data.data)
+      const cols = this.dataSource.getMetadata(data.table).ownColumns.map((v) => v.databaseName)
+      const res = await this.dataSource.manager
+        .createQueryBuilder()
+        .insert()
+        .into(data.table)
+        .values(data.data)
+        .orUpdate(cols, ['id'])
+        .execute()
     await job.updateProgress(100)
-    return res
+      return res.identifiers
+    } catch (error) {
+      await job.log(error.message)
+      await job.log(JSON.stringify(error))
+      throw error
+    }
   }
 }
