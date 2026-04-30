@@ -21,7 +21,12 @@ type InnertubeVideo = YTNodes.CompactVideo
 export class InnertubeService {
   private readonly logger = new Logger(InnertubeService.name)
 
-  private readonly clientLimiter = new Bottleneck({ maxConcurrent: 1 })
+  private readonly clientLimiter = new Bottleneck({
+    maxConcurrent: 1,
+  })
+  private readonly channelLimiter = new Bottleneck.Group({
+    minTime: 500,
+  })
 
   private client: Innertube
   private authClient: Innertube
@@ -38,10 +43,10 @@ export class InnertubeService {
     let channel: YT.Channel
     if (hasMembership) {
       await this.initAuthClient()
-      channel = await this.authClient.getChannel(channelId)
+      channel = await this.channelLimiter.key(channelId).schedule(() => this.authClient.getChannel(channelId))
     } else {
       await this.initClient()
-      channel = await this.client.getChannel(channelId)
+      channel = await this.channelLimiter.key(channelId).schedule(() => this.client.getChannel(channelId))
     }
     await this.saveChannel(channel)
     return channel
@@ -54,9 +59,9 @@ export class InnertubeService {
     const ids: string[] = []
     ids.push(...this.getActiveVideoIds(channel))
 
-    if (channel.has_live_streams) {
+    if (channel.has_live_streams && channel.videos.length) {
       try {
-        const res = await channel.getLiveStreams()
+        const res = await this.channelLimiter.key(channelId).schedule(() => channel.getLiveStreams())
         ids.push(...this.getActiveVideoIds(res))
       } catch (error) {
         this.logger.warn(`getChannelActiveVideoIds#live: ${error.message}`, {
