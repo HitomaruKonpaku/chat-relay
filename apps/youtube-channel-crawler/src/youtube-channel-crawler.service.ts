@@ -3,6 +3,7 @@ import { UserPoolRepository, UserSourceType } from '@/app/user'
 import { InnertubeUtil, YoutubeVideoChatQueueService } from '@/app/youtube'
 import { InnertubeService } from '@/app/youtube/service/innertube.service'
 import { Logger } from '@/shared/logger/logger'
+import { ArrayUtil } from '@/shared/util/array.util'
 import { BooleanUtil } from '@/shared/util/boolean.util'
 import { NumberUtil } from '@/shared/util/number.util'
 import { Injectable, OnModuleInit } from '@nestjs/common'
@@ -126,13 +127,29 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
       return
     }
 
-    const { data: items } = await this.holodexService.client.get<any[]>(
-      'users/live',
-      { params: { channels: channels.map((v) => v.sourceId).join(',') } },
-    )
-    const videoIds = items.map((v) => v.id)
-    await Promise.allSettled(videoIds.map((v) => this.queueVideo(v)))
-    this.logger.debug(`fetchHolodexChannels <-- ${JSON.stringify({ channel: channels.length, video: videoIds.length })}`)
+    const limiter = new Bottleneck({ maxConcurrent: 1 })
+    const chunks = ArrayUtil.splitIntoChunk(channels.map((v) => v.sourceId), 200)
+    const allVideoIds: string[] = []
+
+    await Promise.allSettled(chunks.map((channelIds, index) => limiter.schedule(async () => {
+      try {
+        const { data: items } = await this.holodexService.client.get<any[]>(
+          'users/live',
+          { params: { channels: channelIds.join(',') } },
+        )
+        const videoIds = items.map((v) => v.id).filter((v) => v)
+        if (videoIds.length) {
+          return
+        }
+
+        allVideoIds.push(...videoIds)
+        await Promise.allSettled(videoIds.map((v) => this.queueVideo(v)))
+      } catch (error) {
+        this.logger.error(`fetchHolodexChannels: ${error.message} | ${JSON.stringify({ chunk: index, channelIds })}`)
+      }
+    })))
+
+    this.logger.debug(`fetchHolodexChannels <-- ${JSON.stringify({ channel: channels.length, video: allVideoIds.length })}`)
   }
 
   // #endregion
