@@ -138,7 +138,7 @@ export class YoutubeChannelCrawlerService implements OnModuleInit {
           { params: { channels: channelIds.join(',') } },
         )
         const videoIds = items.map((v) => v.id).filter((v) => v)
-        if (videoIds.length) {
+        if (!videoIds.length) {
           return
         }
 
