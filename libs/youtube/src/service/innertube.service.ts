@@ -1,21 +1,11 @@
 import { Logger } from '@/shared/logger/logger'
 import { Injectable } from '@nestjs/common'
 import Bottleneck from 'bottleneck'
-import { Innertube, Log, YT, YTNodes } from 'youtubei.js'
+import { Innertube, Log, YT } from 'youtubei.js'
 import { YoutubeChannelRepository } from '../repository/youtube-channel.repository'
 import { InnertubeUtil } from '../util/innertube.util'
 import { YoutubeChannelUtil } from '../util/youtube-channel.util'
-import { YoutubeVideoUtil } from '../util/youtube-video.util'
 import { YoutubeUtil } from '../util/youtube.util'
-
-type InnertubeVideo = YTNodes.CompactVideo
-  | YTNodes.GridVideo
-  | YTNodes.PlaylistPanelVideo
-  | YTNodes.PlaylistVideo
-  | YTNodes.ReelItem
-  | YTNodes.ShortsLockupView
-  | YTNodes.Video
-  | YTNodes.WatchCardCompactVideo
 
 @Injectable()
 export class InnertubeService {
@@ -57,14 +47,27 @@ export class InnertubeService {
     channel = channel || await this.getChannel(channelId, hasMembership)
 
     const ids: string[] = []
-    ids.push(...this.getActiveVideoIds(channel))
+    ids.push(...InnertubeUtil.findActiveVideoIds(channel))
 
-    if (channel.has_live_streams && channel.videos.length) {
+    if (channel.has_live_streams) {
       try {
-        const res = await this.channelLimiter.key(channelId).schedule(() => channel.getLiveStreams())
-        ids.push(...this.getActiveVideoIds(res))
+        const xChannel = await this.channelLimiter.key(channelId).schedule(() => channel.getLiveStreams())
+        ids.push(...InnertubeUtil.findActiveVideoIds(xChannel))
       } catch (error) {
-        this.logger.warn(`getChannelActiveVideoIds#live: ${error.message}`, {
+        this.logger.warn(`getChannelActiveVideoIds#getLiveStreams: ${error.message}`, {
+          channelId,
+          hasMembership,
+          name: InnertubeUtil.getTitle(channel),
+        })
+      }
+    }
+
+    if (channel.has_videos) {
+      try {
+        const xChannel = await this.channelLimiter.key(channelId).schedule(() => channel.getVideos())
+        ids.push(...InnertubeUtil.findActiveVideoIds(xChannel))
+      } catch (error) {
+        this.logger.warn(`getChannelActiveVideoIds#getVideos: ${error.message}`, {
           channelId,
           hasMembership,
           name: InnertubeUtil.getTitle(channel),
@@ -80,30 +83,6 @@ export class InnertubeService {
     await this.initClient()
     const res = await this.client.getBasicInfo(videoId)
     return res
-  }
-
-  private getActiveVideoIds(channel: YT.Channel): string[] {
-    const videos = channel?.videos || []
-    const ids = videos
-      .filter((v) => this.filterVideo(v))
-      .map((v) => v.id)
-    return ids
-  }
-
-  private filterVideo(video: InnertubeVideo): boolean {
-    if (YoutubeVideoUtil.isVideo(video)) {
-      if (video.is_upcoming || video.is_live) {
-        return true
-      }
-    }
-
-    if (YoutubeVideoUtil.isGridVideo(video)) {
-      if (video.is_upcoming || video.duration?.text === 'LIVE') {
-        return true
-      }
-    }
-
-    return false
   }
 
   private async saveChannel(channel: YT.Channel) {
