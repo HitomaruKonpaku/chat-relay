@@ -18,20 +18,41 @@ export class InnertubeUtil {
     return ids
   }
 
+  public static isLiveOrUpcomingLockupView(view: YTNodes.LockupView) {
+    const isLiveByBadge = () => (view.content_image as any)
+      ?.overlays
+      ?.some((overlay: any) => overlay
+        && overlay.type === 'ThumbnailBottomOverlayView'
+        && overlay.badges?.length
+        && overlay.badges.some((badge: any) => badge
+          && badge.type === 'ThumbnailBadgeView'
+          && (
+            false
+            || badge.badge_style === 'THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE'
+            || badge.text === 'LIVE'
+            || badge.text === 'Upcoming'
+          )))
+
+    const isLiveByText = () => view.metadata?.metadata?.metadata_rows
+      ?.some((mr) => mr.metadata_parts
+        ?.some((part) => {
+          const text = part.text?.text || ''
+          return !part.text?.endpoint
+            && (
+              false
+              || text.startsWith('Scheduled for ')
+              || text.startsWith('Premieres ')
+              || text.endsWith(' waiting')
+              || text.endsWith(' watching')
+            )
+        }))
+
+    return isLiveByBadge() || isLiveByText()
+  }
+
   public static findActiveVideoIdsByChannelMemo(channel: YT.Channel): string[] {
     const views = (channel?.memo?.get('LockupView') || []) as YTNodes.LockupView[]
-    const subViews = views.filter((view) => view.metadata?.metadata?.metadata_rows?.some((mr) => mr.metadata_parts?.some((part) => {
-      const text = part.text?.text || ''
-      const res = !part.text?.endpoint
-        && (
-          false
-          || text.startsWith('Scheduled for ')
-          || text.startsWith('Premieres ')
-          || text.endsWith(' waiting')
-          || text.endsWith(' watching')
-        )
-      return res
-    })))
+    const subViews = views.filter((view) => InnertubeUtil.isLiveOrUpcomingLockupView(view))
     const ids = subViews.map((view) => view.content_id)
     return ids
   }
