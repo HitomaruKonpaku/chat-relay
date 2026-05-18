@@ -99,7 +99,7 @@ export abstract class BaseYoutubeVideoChatProcessor extends BaseProcessor {
         if (error instanceof MembersOnlyError) {
           const data = error.data?.data
           if (data) {
-            const mc = new Masterchat(videoId, data.channelId)
+            const mc = new Masterchat(videoId, data.channelId, { clientVersion: this.configService.get<string>('YOUTUBE_CLIENT_VERSION') })
             mc.channelName = data.channelName
             mc.title = data.title
             mc.isLive = data.isLive

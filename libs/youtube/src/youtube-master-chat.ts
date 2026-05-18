@@ -27,6 +27,10 @@ export class YoutubeMasterchat extends Masterchat {
     return !!this.credentials
   }
 
+  public setClientVersion(value: string) {
+    this.clientVersion = value
+  }
+
   public applyCookies(cookies?: Record<string, string> | string) {
     this.logger.warn('[COOKIES]')
     this.setCookies(cookies)

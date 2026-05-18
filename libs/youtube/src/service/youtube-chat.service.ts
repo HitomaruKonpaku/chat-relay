@@ -79,6 +79,7 @@ export class YoutubeChatService {
       chat.isMembersOnly = opts.initValue.isMembersOnly
       chat.videoMetadata = opts.initValue.videoMetadata
     }
+    chat.setClientVersion(this.configService.get<string>('YOUTUBE_CLIENT_VERSION'))
     if (opts?.cookies) {
       chat.setCookies(opts.cookies)
     }
